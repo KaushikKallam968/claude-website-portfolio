@@ -131,6 +131,7 @@ const nav = [
     text-decoration: none;
     font-weight: 560;
     letter-spacing: -0.01em;
+    white-space: nowrap;
   }
   .top__where {
     grid-column: 4 / span 3;
@@ -146,10 +147,17 @@ const nav = [
   }
   .top__nav a { text-decoration: none; }
   .top__nav a[aria-current='page'] { background-size: 100% 1px; }
+  :global(html.at-contact) .top__nav a[aria-current='page'] { background-size: 0 1px; }
+  :global(html.at-contact) .top__nav a[href='/#contact'] { background-size: 100% 1px; }
   @media (max-width: 720px) {
     .top { height: 56px; font-size: var(--t-fine); display: flex; justify-content: space-between; gap: 12px; }
     .top__where { display: none; }
     .top__nav { gap: 12px; }
+  }
+  /* The narrowest phones keep the name and all four links on one line. */
+  @media (max-width: 400px) {
+    .top { font-size: var(--t-small); gap: 8px; }
+    .top__nav { gap: 9px; }
   }
   /* Room for the notes ticker that sits under the top bar on smaller screens. */
   @media (max-width: 1100px) {

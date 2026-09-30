@@ -88,32 +88,49 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
         countSpan = 0.3;
       };
       fit();
-      const scrub = (p: number) => {
-        last = p;
+      // Scroll decides which hour is shown; the roll to it is timed, so the reels always come to rest on a
+      // whole digit, never half-way, whenever scrolling stops.
+      let shown = -1;
+      const at = [0, 0];
+      const mod24 = (n: number) => ((n % 24) + 24) % 24;
+      const showHour = (count: number, animate: boolean) => {
+        if (count === shown && animate) return;
+        const step = shown < 0 ? 0 : Math.sign(count - shown) * (state.off >= 0 ? 1 : -1);
+        shown = count;
         const from = hourOf(state.from);
-        const steps = Math.abs(state.off);
-        const dir = state.off >= 0 ? 1 : -1;
-        const k = Math.min(1, Math.max(0, (p - count0) / countSpan));
-        const count = k * steps;
-        const whole = Math.min(steps, Math.floor(count));
-        const f = whole === steps ? 0 : count - whole;
-        const click = f < 0.55 ? 0 : (() => { const t = (f - 0.55) / 0.45; return t * t * (3 - 2 * t); })();
-        const raw = from + dir * whole;
-        const h = ((raw % 24) + 24) % 24;
-        const next = (((h + dir) % 24) + 24) % 24;
-        const now = [Math.floor(h / 10), h % 10];
-        const then = [Math.floor(next / 10), next % 10];
-        [0, 1].forEach((i) => {
-          const a = now[i] + DIGITS_PER_TURN;
-          let b = then[i] + DIGITS_PER_TURN;
-          if (dir > 0 && then[i] < now[i]) b += DIGITS_PER_TURN; // rolling forward past 9 (or 23 to 00)
-          if (dir < 0 && then[i] > now[i]) b -= DIGITS_PER_TURN;
-          gsap.set(reels[i], { yPercent: y(a + (then[i] === now[i] ? 0 : (b - a) * click)) });
+        const total = from + (state.off >= 0 ? 1 : -1) * count;
+        const h = mod24(total);
+        const digits = [Math.floor(h / 10), h % 10];
+        digits.forEach((d, i) => {
+          const rest = d + DIGITS_PER_TURN;
+          let target = rest;
+          // Forward in time rolls up, back rolls down, through the neighbouring turn when a digit wraps.
+          if (animate && step > 0 && target < at[i]) target += DIGITS_PER_TURN;
+          if (animate && step < 0 && target > at[i]) target -= DIGITS_PER_TURN;
+          at[i] = target;
+          gsap.to(reels[i], {
+            yPercent: y(target),
+            duration: animate && step !== 0 ? 0.4 : 0,
+            ease: 'out',
+            overwrite: true,
+            onComplete: () => {
+              if (at[i] === target && target !== rest) {
+                at[i] = rest;
+                gsap.set(reels[i], { yPercent: y(rest) });
+              }
+            },
+          });
         });
-        [2, 3].forEach((i) => gsap.set(reels[i], { yPercent: y(state.to[i] + DIGITS_PER_TURN) }));
-        const dayShift = Math.floor((from + dir * (whole + click)) / 24);
+        const dayShift = Math.floor(total / 24);
         day.textContent = dayShift > 0 ? '+1 day' : dayShift < 0 ? '−1 day' : '';
         day.style.opacity = dayShift !== 0 ? '1' : '0';
+      };
+      const scrub = (p: number, animate = true) => {
+        last = p;
+        const steps = Math.abs(state.off);
+        const k = Math.min(1, Math.max(0, (p - count0) / countSpan));
+        showHour(Math.min(steps, Math.floor(k * steps + 0.45)), animate);
+        [2, 3].forEach((i) => gsap.set(reels[i], { yPercent: y(state.to[i] + DIGITS_PER_TURN) }));
         line?.style.setProperty('--p', p.toFixed(3));
       };
       ScrollTrigger.create({
@@ -129,14 +146,14 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
         onToggle: (self) => {
           if (!self.isActive || paused()) return;
           state = paint();
-          scrub(last);
+          scrub(last, false);
         },
       });
       scrub(0);
       setInterval(() => {
         if (paused() || !ScrollTrigger.isInViewport(el)) return;
         state = paint();
-        scrub(last);
+        scrub(last, false);
       }, 15000);
       return;
     }

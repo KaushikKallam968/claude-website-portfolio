@@ -1,4 +1,5 @@
 ---
+import { keepDots } from '../lib/format';
 import { qualifierOf, type Chapter, type Role, shortPlace } from '../data/journey';
 import EntryRow from './EntryRow.astro';
 import TimeShift from './TimeShift.astro';
@@ -49,7 +50,7 @@ const reachCannot =
           {g.text.map((p) => <p>{p}</p>)}
           {i === 0 && chapter.facts && (
             <ul class="chapter__facts">
-              {chapter.facts.map((f) => <li>{f}</li>)}
+              {chapter.facts.map((f) => <li>{keepDots(f)}</li>)}
             </ul>
           )}
         </div>
@@ -90,8 +91,9 @@ const reachCannot =
     gap: 0 0.18em;
     outline: none;
   }
+  /* The qualifier is what tells the two Texas chapters apart, so it never drops below a readable size. */
   .chapter__qual {
-    font-size: 0.24em;
+    font-size: max(0.24em, 1.125rem);
     letter-spacing: -0.02em;
     font-weight: 440;
     color: var(--ink-2);
@@ -119,7 +121,7 @@ const reachCannot =
     letter-spacing: -0.012em;
     max-width: 34ch;
   }
-  .chapter__lead { color: var(--ink-3); }
+  .chapter__lead { color: var(--ink-2); }
   .chapter__facts { display: grid; gap: 6px; font-size: var(--t-body); margin-top: 0.4em; }
   .chapter__facts li { border-top: 1px solid var(--rule); padding-top: 8px; }
   .chapter__roles { grid-column: 10 / -1; display: grid; gap: 18px; align-content: start; font-size: var(--t-meta); }

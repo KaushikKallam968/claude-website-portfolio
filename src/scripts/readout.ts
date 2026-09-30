@@ -7,6 +7,9 @@ import { formatDuration } from '../lib/format';
  * spent in a Chapter (the introduction, this close, Cases, other pages) is its own row, so the rows add up
  * to the total. Chapters with less than a second of reading are left out, and a line says when that is all of
  * them, so a visitor who jumps straight to Contact sees an honest short readout rather than a column of zeros.
+ *
+ * It is a snapshot of the visit up to the close, taken as the close comes near: reading the readout does not
+ * change it, so nothing re-flows while it is read. Leaving and coming back takes a new one.
  */
 export function startReadout() {
   const root = document.querySelector<HTMLElement>('[data-readout]');
@@ -43,19 +46,16 @@ export function startReadout() {
     cases.textContent = r.casesOpened.length
       ? `You opened ${titles}${/[.!?]$/.test(titles) ? '' : '.'}`
       : 'You didn’t open a case. That could mean many things.';
+    // The portrait is drawn from the same moment.
+    document.dispatchEvent(new CustomEvent('readout:paint'));
   };
 
-  // Paint once now and again a screen before the readout arrives, so rows are settled before they are seen.
+  // Paint once now and again a screen before the readout arrives, so rows are settled before they are seen,
+  // and then hold still while it is in view.
   paint();
-  let timer = 0;
   new IntersectionObserver(
     ([en]) => {
-      clearInterval(timer);
-      if (!en.isIntersecting) return;
-      paint();
-      timer = window.setInterval(() => {
-        if (!livePaused()) paint();
-      }, 1000);
+      if (en.isIntersecting && !livePaused()) paint();
     },
     { rootMargin: '100% 0px' },
   ).observe(root);

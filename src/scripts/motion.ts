@@ -162,6 +162,7 @@ function figureScenes() {
       step = i;
       items.forEach((li, k) => {
         li.classList.toggle('is-on', k === i);
+        li.classList.toggle('is-done', k < i);
         // The current step is announced, not only coloured.
         const b = li.querySelector('button');
         if (k === i) b?.setAttribute('aria-current', 'step');

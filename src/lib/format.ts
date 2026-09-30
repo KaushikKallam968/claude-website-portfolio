@@ -17,3 +17,6 @@ export function formatElapsed(ms: number): string {
 
 /** Glue each " · " separator to the words before it, so a wrapped line never starts with a dot. */
 export const keepDots = (s: string) => s.replace(/ · /g, ' · ');
+
+/** Ends a sentence with a full stop, unless the name that ends it already carries one ("watched."). */
+export const sentence = (s: string) => (/[.!?]$/.test(s) ? s : `${s}.`);

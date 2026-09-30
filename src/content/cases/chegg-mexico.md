@@ -1,6 +1,6 @@
 ---
 title: Chegg Mexico
-order: 3
+order: 2
 context: Chegg · Mixed-methods localization research
 question: What did localizing a learning product for students in Mexico require beyond translation?
 contribution: As a UX Research intern, I worked across the survey and interview phases and made the cross-language search recommendation.

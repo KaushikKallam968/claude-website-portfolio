@@ -15,6 +15,9 @@ session.set(KEYS.sessionStart, sessionStart);
 /** Milliseconds since this visit began, on the notes' clock. */
 export const elapsed = () => Date.now() - sessionStart;
 
+/** What this page is called in a note, since notes are read again on later pages. */
+const pageName = () => document.querySelector<HTMLElement>('[data-page-name]')?.dataset.pageName ?? 'this page';
+
 const savedEvents: RawEvent[] = session.get(KEYS.events, []);
 const observation = createObservation();
 const notes: Note[] = [];
@@ -121,7 +124,7 @@ function wireDepth() {
         const max = document.documentElement.scrollHeight - innerHeight;
         if (max <= 0) return;
         const fraction = scrollY / max;
-        if (!marked || fraction >= 0.98) record({ type: 'depth', t: elapsed(), page, fraction });
+        if (!marked || fraction >= 0.98) record({ type: 'depth', t: elapsed(), page, pageName: pageName(), fraction });
       });
     },
     { passive: true },
@@ -246,18 +249,22 @@ export function startNotes() {
   listEl = document.querySelector('[data-notes-list]');
   countEl = document.querySelector('[data-notes-count]');
   latestEl = document.querySelector('[data-notes-latest]');
-  if (!notes.length) {
-    // The first note: arriving is the only thing the page knows for certain.
-    notes.push({ t: 0, event: 'point', tag: 'page.arrive', quality: 'tagged', shows: 'You arrived.', cannotShow: 'From where, or what you hoped to find.' });
-  }
   render();
+  // The first note of a visit: arriving is the only thing the page knows for certain. It is kept like any other
+  // note, so it is still there on the pages that follow.
+  if (!savedEvents.length) record({ type: 'arrive', t: elapsed(), page: location.pathname, pageName: pageName() });
+  // A Case reached any way at all (a shared link included) counts as opened, not only one clicked to.
+  const caseMain = document.querySelector<HTMLElement>('main[data-case]');
+  if (caseMain) record({ type: 'open', t: elapsed(), id: caseMain.dataset.case!, title: caseMain.dataset.pageName ?? caseMain.dataset.case! });
   // The next page need not explain the notes again. On this one, the explanation folds away while the first
-  // map scene has the margin faded out, so the change is never seen happening.
+  // map scene the reader scrolls into has the margin faded out, so the change is never seen happening.
   session.set(KEYS.notesKnown, true);
   const root = document.documentElement;
   if (!root.classList.contains('notes-known')) {
+    // Only a scene the reader has scrolled into counts: the arrival also fades the margin, and folding then
+    // would mean a first-time visitor never sees what the notes are.
     const mo = new MutationObserver(() => {
-      if (!root.classList.contains('in-scene')) return;
+      if (!root.classList.contains('in-scene') || scrollY < innerHeight * 0.6) return;
       root.classList.add('notes-known');
       mo.disconnect();
     });

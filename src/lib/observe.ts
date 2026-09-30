@@ -2,10 +2,14 @@
  * The observation layer: turns what a visitor does on the page into short, honest notes.
  * Everything stays in the browser. Each note says what the event shows and what it cannot.
  */
+import { sentence } from './format';
+
 export type RawEvent =
   | { type: 'point'; t: number; tag: string; label: string; cannotShow?: string }
   | { type: 'press'; t: number; tag: string | null; label?: string }
-  | { type: 'depth'; t: number; page: string; fraction: number }
+  /** Where the visit began; its name, because the note is read on later pages too. */
+  | { type: 'arrive'; t: number; page: string; pageName: string }
+  | { type: 'depth'; t: number; page: string; pageName?: string; fraction: number }
   /** Reaching a part of a page that says, in its own words, what reaching it shows and can't. */
   | { type: 'reach'; t: number; page: string; id: string; shows: string; cannotShow: string }
   | { type: 'idle'; t: number; ms: number }
@@ -22,11 +26,12 @@ export interface Note {
   cannotShow: string;
 }
 
+// Each names its page: notes are replayed on every later page, where "this page" would be untrue.
 const QUARTERS = [
-  { at: 0.25, shows: 'You scrolled past a quarter of this page.', cannotShow: 'Whether you read it or skimmed it.' },
-  { at: 0.5, shows: 'You scrolled past half of this page.', cannotShow: 'Whether you were looking for something in particular.' },
-  { at: 0.75, shows: 'You scrolled past three quarters of this page.', cannotShow: 'Whether you are reading closely or heading for the end.' },
-  { at: 0.98, shows: 'You reached the end of this page.', cannotShow: 'Whether you read everything on the way down.' },
+  { at: 0.25, shows: (p: string) => sentence(`You scrolled past a quarter of ${p}`), cannotShow: 'Whether you read it or skimmed it.' },
+  { at: 0.5, shows: (p: string) => sentence(`You scrolled past half of ${p}`), cannotShow: 'Whether you were looking for something in particular.' },
+  { at: 0.75, shows: (p: string) => sentence(`You scrolled past three quarters of ${p}`), cannotShow: 'Whether you are reading closely or heading for the end.' },
+  { at: 0.98, shows: (p: string) => sentence(`You reached the end of ${p}`), cannotShow: 'Whether you read everything on the way down.' },
 ];
 
 export interface Readout {
@@ -88,10 +93,12 @@ export function createObservation() {
             event: 'depth',
             tag: null,
             quality: 'tagged',
-            shows: QUARTERS[seen - 1].shows,
+            shows: QUARTERS[seen - 1].shows(e.pageName ?? 'this page'),
             cannotShow: QUARTERS[seen - 1].cannotShow,
           };
         }
+        case 'arrive':
+          return { t: e.t, event: 'arrive', tag: 'page.arrive', quality: 'tagged', shows: sentence(`You arrived at ${e.pageName}`), cannotShow: 'From where, or what you hoped to find.' };
         case 'reach': {
           const key = `${e.page}#${e.id}`;
           if (reached.has(key)) return null;

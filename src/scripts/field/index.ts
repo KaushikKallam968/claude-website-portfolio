@@ -612,6 +612,11 @@ export async function startField(): Promise<FieldHandle | null> {
         return { x0: x - 12, y0: y - 12, x1: x + 12, y1: y + 12 };
       });
     // The name's words are obstacles too: its letters are real text, drawn by the dots while it forms.
+    // The traveller moves through the labels' places, so it is an obstacle too while a leg is flown.
+    if (frame.leg[2] > 0 && frame.leg[2] < 1) {
+      const [tx, ty] = toScreen(frame.traveller[0], frame.traveller[1]);
+      markers.push({ x0: tx - 14, y0: ty - 14, x1: tx + 14, y1: ty + 14 });
+    }
     const text: Box[] = [...quietRects, ...nameWords.map((w) => w.getBoundingClientRect())]
       .filter((q) => q.bottom > 0 && q.top < vh)
       .map((q) => ({ x0: q.left - 8, y0: q.top - 8, x1: q.right + 8, y1: q.bottom + 8 }));
@@ -693,13 +698,9 @@ export async function startField(): Promise<FieldHandle | null> {
     placeLabels();
   });
 
-  // The portrait keeps counting while it is on screen.
-  const visitWindow = () => windows.find((w) => w.kind === 'visit');
-  setInterval(() => {
-    const w = visitWindow();
-    if (!w || scrollY < w.start - vh || livePaused()) return;
-    updateVisit();
-  }, 1000);
+  // The portrait is drawn from the readout's snapshot of the visit, taken as the close comes near, so it holds
+  // still while it is read.
+  document.addEventListener('readout:paint', () => updateVisit());
   updateVisit();
 
   let resizeTimer = 0;

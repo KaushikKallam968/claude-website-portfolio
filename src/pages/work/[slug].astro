@@ -5,7 +5,7 @@ import FigureScene from '../../components/FigureScene.astro';
 import NotesPanel from '../../components/NotesPanel.astro';
 import Arrow from '../../components/Arrow.astro';
 import { entryFor } from '../../data/journey';
-import { keepDots } from '../../lib/format';
+import { keepDots, sentence } from '../../lib/format';
 
 export async function getStaticPaths() {
   const cases = await getCollection('cases');
@@ -21,7 +21,7 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
 ---
 
 <Base title={`${d.title} · Kaushik Kallam`} description={d.question} current="work">
-  <main id="main" class="case" data-case={entry.id} data-chapter={chapter.id} data-chapter-title={chapter.label}>
+  <main id="main" class="case" data-page-name={d.title} data-case={entry.id} data-chapter={chapter.id} data-chapter-title={chapter.label}>
     <div class="case__layout">
       <article class="case__article" aria-labelledby="case-title">
         <header class="case__head">
@@ -42,15 +42,15 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
           <div class="tldr__outcome"><dt>Outcome <span class="tldr__type">{d.outcomeType}</span></dt><dd>{d.outcome}</dd></div>
         </dl>
 
-        <div class="case__figure" data-observe-reach="figure" data-observe-shows="You reached the figure." data-observe-cannot="Whether it made the idea clearer than the words.">
+        <div class="case__figure" data-observe-reach="figure" data-observe-shows={sentence(`You reached the figure in ${d.title}`)} data-observe-cannot="Whether it made the idea clearer than the words.">
           {journeyEntry.figure && <FigureScene kind={journeyEntry.figure} />}
         </div>
 
-        <div class="prose" data-observe-reach="method" data-observe-shows="You reached the account of the research." data-observe-cannot="Whether you read it closely or looked for the result.">
+        <div class="prose" data-observe-reach="method" data-observe-shows={sentence(`You reached the account of the research in ${d.title}`)} data-observe-cannot="Whether you read it closely or looked for the result.">
           <Content />
         </div>
 
-        <section class="limits" aria-labelledby="limits-title" data-observe-reach="limits" data-observe-shows="You reached what the evidence can’t show." data-observe-cannot="Whether it changed how you read the rest.">
+        <section class="limits" aria-labelledby="limits-title" data-observe-reach="limits" data-observe-shows={sentence(`You reached what the evidence can’t show in ${d.title}`)} data-observe-cannot="Whether it changed how you read the rest.">
           <h2 id="limits-title" class="limits__title">What the evidence shows, and what it can’t</h2>
           <div class="limits__cols">
             <div>

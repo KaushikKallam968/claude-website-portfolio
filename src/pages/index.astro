@@ -21,7 +21,7 @@ const fieldPlaces = chapters.map((c) => ({
 
 <Base title="Kaushik Kallam · Senior Quantitative UX Researcher" current="journey">
   <script type="application/json" id="field-places" set:html={JSON.stringify(fieldPlaces)} />
-  <main id="main">
+  <main id="main" data-page-name="the journey">
     <div class="layout">
     <section class="hero" aria-labelledby="name">
       <div class="hero__top">
@@ -87,7 +87,7 @@ const fieldPlaces = chapters.map((c) => ({
           </ul>
         </div>
         <div class="readout" data-readout>
-          <p class="readout__total" data-quiet><span class="mono num" data-readout-total>0 s</span> so far on this site</p>
+          <p class="readout__total" data-quiet><span class="mono num" data-readout-total>0 s</span> on this site, up to here</p>
           <p class="readout__empty" data-readout-empty hidden>You haven’t spent a second in any chapter yet.</p>
           <ol class="readout__bars" data-readout-bars aria-label="Time spent in each chapter">
             {chapters.map((c) => (
@@ -135,7 +135,8 @@ const fieldPlaces = chapters.map((c) => ({
   .hero { padding-top: 64px; position: relative; }
   .hero__name {
     padding-inline: var(--margin);
-    font-size: clamp(4.2rem, 18.6vw, 23rem);
+    /* Width sets the name, unless the screen is short: then height does, so the route index still fits. */
+    font-size: clamp(4.2rem, min(18.6vw, 31vh), 23rem);
     line-height: 0.76;
     letter-spacing: -0.04em;
     font-weight: 530;
@@ -151,7 +152,7 @@ const fieldPlaces = chapters.map((c) => ({
   .hero__name, .hero__id { grid-area: 1 / 1; }
   .hero__id {
     align-self: start;
-    margin: calc(18px + 16.4vw) 0 0 var(--margin);
+    margin: calc(18px + min(16.4vw, 27.33vh)) 0 0 var(--margin);
     width: min(40vw, 600px);
     display: grid;
     align-content: start;
@@ -221,6 +222,15 @@ const fieldPlaces = chapters.map((c) => ({
     .journey, .hero__grid, .route { padding-right: var(--margin); }
     .journey { padding-right: 0; }
   }
+  /* Short laptop screens: the hero's gaps tighten so the route index, and the work it names, is on the first
+     screen. */
+  @media (min-width: 1241px) and (max-height: 860px) {
+    .hero__name { margin-top: 4px; }
+    .hero__grid { margin-top: 22px; }
+    .hero__more { gap: 8px; }
+    .route { margin-top: 14px; }
+    .route__item { padding-block: 8px 10px; }
+  }
   /* Below about 1240px the identity no longer fits beside the second half of the name: it follows it. */
   @media (max-width: 1240px) {
     .hero__id { grid-area: 2 / 1; margin: 0; width: auto; max-width: 44rem; padding: 28px var(--margin) 0; }
@@ -233,6 +243,8 @@ const fieldPlaces = chapters.map((c) => ({
   /* ---------- Close ---------- */
   /* Arriving by the Contact link skips the section's opening space, so the email is on the first screen. */
   .close { padding-top: clamp(120px, 16vw, 240px); scroll-margin-top: calc(72px - clamp(120px, 16vw, 240px)); }
+  /* Where the notes ticker sits under the bar, the landing clears it too. */
+  @media (max-width: 1100px) { .close { scroll-margin-top: calc(72px + 44px - clamp(120px, 16vw, 240px)); } }
   .close__title {
     grid-column: 1 / span 10;
     font-size: var(--t-page);

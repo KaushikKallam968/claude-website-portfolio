@@ -166,6 +166,13 @@ export function wireTopWhere() {
     { rootMargin: '-45% 0px -54% 0px' },
   );
   sections.forEach((s) => io.observe(s));
+  // At the close, the top bar marks Contact as where you are rather than the Journey.
+  const contact = document.getElementById('contact');
+  if (contact) {
+    new IntersectionObserver(([en]) => document.documentElement.classList.toggle('at-contact', en.isIntersecting), {
+      rootMargin: '-45% 0px -54% 0px',
+    }).observe(contact);
+  }
 }
 
 /**

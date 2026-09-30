@@ -45,7 +45,7 @@ Roles and dates:
 
 ## Capabilities and Constraints
 
-Featured research, in order: Data Instrumentation Coverage and Quality; Chegg Discord; Chegg Mexico. watched. is a distinct cofounder/product case. Bounded multi-agent evaluation is "research in development", never a completed case. Chase Mobile Entry Points is a concise summary, not a full case.
+Featured research, in order: Data Instrumentation Coverage and Quality; Chegg Mexico; Chegg Discord (the order they are met on the Journey since the Chegg contract joined the internship in Silicon Valley). watched. is a distinct cofounder/product case. Bounded multi-agent evaluation is "research in development", never a completed case. Chase Mobile Entry Points is a concise summary, not a full case.
 
 Claim boundaries that bind every surface:
 

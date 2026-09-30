@@ -88,4 +88,7 @@ const list = steps[kind];
   :global(html.scenes) li.is-on .scene__step { color: var(--ink); }
   :global(html.scenes) li.is-on .scene__step::before { transform: scaleX(1); transition: transform var(--step-ms, 1800ms) linear; }
   :global(html.scenes) li.is-on .scene__n { color: var(--note); }
+  /* Steps already shown stay a step darker than those still to come, and keep their rule. */
+  :global(html.scenes) li.is-done .scene__step { color: var(--ink-2); }
+  :global(html.scenes) li.is-done .scene__step::before { transform: scaleX(1); background: var(--rule); }
 </style>
