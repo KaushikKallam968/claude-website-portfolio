@@ -34,6 +34,22 @@ function smoothScroll() {
   gsap.ticker.lagSmoothing(0);
 }
 
+/**
+ * Content that opens in place (a Summary, Research in Development) moves everything below it, so the
+ * scroll scenes measure again once the page has settled at its new height. The Field listens for the same
+ * refresh and re-measures its bands.
+ */
+function remeasureOnGrowth() {
+  let settled = document.body.scrollHeight;
+  let timer = 0;
+  ScrollTrigger.addEventListener('refresh', () => (settled = document.body.scrollHeight));
+  new ResizeObserver(() => {
+    if (Math.abs(document.body.scrollHeight - settled) < 2) return;
+    clearTimeout(timer);
+    timer = window.setTimeout(() => ScrollTrigger.refresh(), 120);
+  }).observe(document.body);
+}
+
 function intro(field: FieldHandle | null) {
   const words = gsap.utils.toArray<HTMLElement>('.hero__word');
   if (!words.length) return;
@@ -123,6 +139,9 @@ function chapters() {
       tl.from(s.chars, { yPercent: 110, duration: 1.3, stagger: 0.03, ease: 'out' });
       // The qualifier follows its word in, never ahead of it.
       if (qual) tl.from(qual, { opacity: 0, x: -14, duration: 0.8, ease: 'out' }, 0.45);
+      // So does the place's data: it never stands on screen above a heading that has not arrived yet.
+      const meta = ch.querySelectorAll<HTMLElement>('.chapter__meta > div');
+      if (meta.length) tl.from(meta, { opacity: 0, y: 10, duration: 0.8, stagger: 0.06, ease: 'out' }, 0.3);
       // Keyboard focus arriving in the chapter finishes the reveal, so a heading is never read half-masked.
       ch.addEventListener('focusin', () => tl.progress(1), { once: true });
     }
@@ -242,6 +261,7 @@ export function startMotion() {
     intro(field);
     chapters();
     ScrollTrigger.refresh();
+    remeasureOnGrowth();
   });
   // Failsafe: never leave text hidden if something above throws.
   setTimeout(() => reveal(), 5500);

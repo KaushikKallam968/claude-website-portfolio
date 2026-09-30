@@ -197,6 +197,11 @@ html.vt-expand::view-transition-old(root) { animation: 0.38s cubic-bezier(0.16, 
 /* The page's content fades in behind the travelling title, so the two never collide in the growing row. */
 html.vt-expand::view-transition-new(root) { animation: 1s cubic-bezier(0.86, 0, 0.07, 1) both vt-expand, 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both vt-fade; }
 html.vt-expand::view-transition-group(*) { animation-duration: 1s; }
+/* A travelling title changes size and line breaks on the way, so it cross-fades at its own scale from the top
+   left rather than stretching; a heading with no partner on the next page leaves quickly, with the page. */
+.entry__link, .row__link, .case__title { view-transition-class: case-title; }
+::view-transition-old(.case-title), ::view-transition-new(.case-title) { height: 100%; object-fit: none; object-position: left top; }
+html.vt-orphan::view-transition-old(.case-title) { animation: 0.4s cubic-bezier(0.16, 1, 0.3, 1) both vt-out; }
 @keyframes vt-step-back { to { opacity: 0; transform: scale(0.975); } }
 @keyframes vt-expand { from { clip-path: var(--vt-from, inset(50% 0 50% 0)); } to { clip-path: inset(0 0 0 0); } }
 @keyframes vt-fade { from { opacity: 0; } }

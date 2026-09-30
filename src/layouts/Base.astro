@@ -70,10 +70,33 @@ const nav = [
       } catch (e) {}
       // Arriving at a Case from its row: the new page opens out of the row's outline (see global.css).
       // This has to be registered before first render, so it lives here rather than in a module.
+      // Leaving a Case, its heading travels back to the title it came from, when that title is on screen on the
+      // next page; otherwise the heading simply leaves with the page.
+      addEventListener('pageswap', function (e) {
+        var main = document.querySelector('main[data-case]');
+        try { if (e.viewTransition && main) sessionStorage.setItem('kk:vt-case', main.getAttribute('data-case')); } catch (err) {}
+      });
       addEventListener('pagereveal', function (e) {
         var d = document.documentElement;
         var raw = null;
-        try { raw = sessionStorage.getItem('kk:expand'); sessionStorage.removeItem('kk:expand'); } catch (err) {}
+        var back = null;
+        try {
+          raw = sessionStorage.getItem('kk:expand'); sessionStorage.removeItem('kk:expand');
+          back = sessionStorage.getItem('kk:vt-case'); sessionStorage.removeItem('kk:vt-case');
+        } catch (err) {}
+        var titles = document.querySelectorAll('.entry__link, .row__link');
+        for (var i = 0; i < titles.length; i++) titles[i].style.viewTransitionName = '';
+        if (e.viewTransition && back && !raw) {
+          var t = document.querySelector('.entry__link[data-case-link="' + back + '"], .row__link[data-case-link="' + back + '"]');
+          var tr = t && t.getBoundingClientRect();
+          if (tr && tr.bottom > 0 && tr.top < innerHeight) {
+            t.style.viewTransitionName = 'case-' + back;
+            e.viewTransition.finished.finally(function () { t.style.viewTransitionName = ''; });
+          } else {
+            d.classList.add('vt-orphan');
+            e.viewTransition.finished.finally(function () { d.classList.remove('vt-orphan'); });
+          }
+        }
         if (!e.viewTransition || !raw) return;
         try {
           var r = JSON.parse(raw);

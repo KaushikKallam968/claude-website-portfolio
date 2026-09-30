@@ -21,12 +21,29 @@ export function rememberOrigins() {
         : { kind: 'chapter', chapterId: a.dataset.originChapter!, entryId: caseId, scrollY: Math.round(scrollY) };
     if (origin) session.set(KEYS.origin(caseId), { origin });
     else session.remove(KEYS.origin(caseId));
-    // The row that was clicked becomes the Case page: the next page opens out of its outline.
+    // The row that was clicked becomes the Case page: the next page opens out of its outline, and only its
+    // title travels to the Case's heading. Every other title stays part of the page, so none is left behind.
+    const title = a.closest('.entry, .row')?.querySelector<HTMLElement>('.entry__link, .row__link');
+    nameTravellingTitle(fromCase ? null : title ?? null, caseId);
     const row = a.closest('.entry, .row') ?? a;
     const r = row.getBoundingClientRect();
     session.set(KEYS.expandFrom, { top: r.top, right: innerWidth - r.right, bottom: innerHeight - r.bottom, left: r.left });
     record({ type: 'open', t: elapsed(), id: caseId, title: a.dataset.observeLabel ?? a.textContent?.trim() ?? caseId });
   });
+}
+
+let travelling: HTMLElement | null = null;
+
+/**
+ * Name the one title that travels in a page transition. Leaving a Case for another Case, nothing on this page
+ * has a partner on the next, so the heading gives up its name and leaves with the page.
+ */
+function nameTravellingTitle(el: HTMLElement | null, caseId: string) {
+  if (travelling) travelling.style.viewTransitionName = '';
+  travelling = el;
+  if (el) el.style.viewTransitionName = `case-${caseId}`;
+  const heading = document.getElementById('case-title');
+  if (heading && !el) heading.style.viewTransitionName = 'none';
 }
 
 /** On a Case page: take the Origin handed over by the previous page, or keep the one this entry already has. */
@@ -55,7 +72,10 @@ export function restoreIfPending() {
 /** A page restored from the back-forward cache runs no scripts again; restore focus when it is shown. */
 export function restoreOnPageShow() {
   addEventListener('pageshow', (e) => {
-    if ((e as PageTransitionEvent).persisted) restoreIfPending();
+    if (!(e as PageTransitionEvent).persisted) return;
+    restoreIfPending();
+    // Back from the Case: the heading's name was only for the way out (the way back is named in Base.astro).
+    document.getElementById('case-title')?.style.removeProperty('view-transition-name');
   });
 }
 
@@ -181,6 +201,8 @@ export function wireTopWhere() {
  * clicks open a new tab, as a link would. Keyboard users reach the link itself.
  */
 export function wireRowLinks() {
+  const selecting = () => Boolean(String(getSelection() ?? '').trim());
+  let pending = 0;
   document.addEventListener('click', (ev) => {
     if (ev.defaultPrevented || ev.button !== 0) return;
     const target = ev.target as Element;
@@ -188,11 +210,18 @@ export function wireRowLinks() {
     const row = target.closest<HTMLElement>('.entry, .row');
     const link = row?.querySelector<HTMLAnchorElement>('.entry__link, .row__link');
     if (!link) return;
-    if (String(getSelection() ?? '').trim()) return;
+    // A double or triple click selects a word or a line; it never opens the Case.
+    clearTimeout(pending);
+    if (ev.detail > 1 || selecting()) return;
     if (ev.metaKey || ev.ctrlKey || ev.shiftKey) {
       window.open(link.href, '_blank', 'noopener');
       return;
     }
-    link.click();
+    // A mouse click waits a moment, so the first click of a double click can still become a selection.
+    if ((ev as PointerEvent).pointerType !== 'mouse') {
+      link.click();
+      return;
+    }
+    pending = window.setTimeout(() => !selecting() && link.click(), 240);
   });
 }

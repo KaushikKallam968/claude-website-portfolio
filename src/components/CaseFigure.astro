@@ -188,11 +188,11 @@ const { kind, compact = false, scene = false } = Astro.props;
   .fig--compact .phone { width: 42%; }
 
   /* Motion: each figure plays once when it enters (motion.ts adds .is-in). */
-  :global(html.js) .inst__log li, :global(html.js) .trace__row li, :global(html.js) .deck__table tbody tr { opacity: 0; translate: 0 8px; }
+  :global(html.js) .inst__log li, :global(html.js) .trace__row li, :global(html.js) .deck__table tbody tr > * { opacity: 0; translate: 0 8px; }
   :global(html.js) .xl__result, :global(html.js) .xl__arrow { opacity: 0; translate: 0 8px; }
   :global(.fig.is-in) .inst__log li,
   :global(.fig.is-in) .trace__row li,
-  :global(.fig.is-in) .deck__table tbody tr {
+  :global(.fig.is-in) .deck__table tbody tr > * {
     opacity: 1; translate: 0 0;
     transition: opacity 0.7s var(--ease-out), translate 0.9s var(--ease-out);
     transition-delay: calc(var(--i) * 0.28s + 0.35s);
@@ -209,13 +209,13 @@ const { kind, compact = false, scene = false } = Astro.props;
   :global(.fig.is-in) .trace__row--long li { transition-delay: calc(var(--i) * 0.2s + 0.9s); }
 
   @media (prefers-reduced-motion: reduce) {
-    :global(html.js) .inst__log li, :global(html.js) .trace__row li, :global(html.js) .deck__table tbody tr,
+    :global(html.js) .inst__log li, :global(html.js) .trace__row li, :global(html.js) .deck__table tbody tr > *,
     :global(html.js) .xl__result, :global(html.js) .xl__arrow { opacity: 1; translate: 0 0; }
   }
   /* ---------- Scroll-driven parts (FigureScene sets --p from 0 to 1) ----------
      Each part has a moment (--at) and eases in over a short stretch of scroll after it. */
   :global(html.scenes) .fig--scene .inst__log li,
-  :global(html.scenes) .fig--scene .deck__table tbody tr,
+  :global(html.scenes) .fig--scene .deck__table tbody tr > *,
   :global(html.scenes) .fig--scene .xl__arrow,
   :global(html.scenes) .fig--scene .xl__result {
     --k: clamp(0, calc((var(--p, 0) - var(--at)) * 9), 1);
@@ -235,7 +235,10 @@ const { kind, compact = false, scene = false } = Astro.props;
   }
   :global(html.scenes) .fig--scene .inst__field::after { --at: calc(0.08 + var(--i) * 0.07); }
   :global(html.scenes) .fig--scene .inst__btn::after { --at: 0.54; }
-  :global(html.scenes) .fig--scene .deck__table tbody tr { --at: calc(0.24 + var(--i) * 0.22); }
+  :global(html.scenes) .fig--scene .deck__table tbody tr > * { --at: calc(0.24 + var(--i) * 0.22); }
+  /* A collapsed table paints its rules itself, so a moving row would slide off its own lines: rows settle by
+     colour (and fade in, without scenes), never by position. */
+  :global(html.js) .fig .deck__table tbody tr > * { translate: none; }
   :global(html.scenes) .fig--scene .xl__typed {
     animation: none;
     clip-path: inset(0 calc((1 - clamp(0, calc((var(--p, 0) - 0.04) * 3.6), 1)) * 100%) 0 0);

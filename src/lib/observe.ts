@@ -49,6 +49,7 @@ export function createObservation() {
   const chapters = new Map<string, { title: string; ms: number }>();
   let current: { id: string; since: number } | null = null;
   const opened = new Map<string, string>();
+  let arrivedAt: string | null = null;
 
   const close = (t: number) => {
     if (!current) return;
@@ -98,6 +99,7 @@ export function createObservation() {
           };
         }
         case 'arrive':
+          arrivedAt = e.pageName;
           return { t: e.t, event: 'arrive', tag: 'page.arrive', quality: 'tagged', shows: sentence(`You arrived at ${e.pageName}`), cannotShow: 'From where, or what you hoped to find.' };
         case 'reach': {
           const key = `${e.page}#${e.id}`;
@@ -123,9 +125,13 @@ export function createObservation() {
         case 'leave':
           if (current?.id === e.id) close(e.t);
           return null;
-        case 'open':
-          if (!opened.has(e.id)) opened.set(e.id, e.title);
-          return null;
+        case 'open': {
+          if (opened.has(e.id)) return null;
+          opened.set(e.id, e.title);
+          // A visit that began on this Case has already said so in its arrival note.
+          if (e.title === arrivedAt) return null;
+          return { t: e.t, event: 'open', tag: null, quality: 'tagged', shows: sentence(`You opened ${e.title}`), cannotShow: 'Whether it was what you came for.' };
+        }
       }
     },
 

@@ -177,9 +177,12 @@ export function startLens() {
     let gaps = 0;
     // Read every rect before writing any style, so the loop never forces a layout per element.
     const rects = marks.map(rectOf);
-    // A control under the fixed chrome (the top bar, the open notes sheet) is out of sight, so it is not outlined.
+    // A control under the fixed chrome (the top bar, the open notes sheet) is out of sight, so it is not outlined;
+    // nor is the margin while a map scene has faded it out.
+    const railFaded = root.classList.contains('in-scene');
     const covered = rects.map((r, i) => {
       if (r.bottom <= 0 || r.top >= innerHeight) return false;
+      if (railFaded && marks[i].el.closest('.rail')) return true;
       const hit = document.elementFromPoint(r.left + r.width / 2, Math.min(innerHeight - 1, Math.max(0, r.top + r.height / 2)));
       return Boolean(hit && !marks[i].el.contains(hit) && hit.closest('.top, .notes') && !hit.closest('.top, .notes')!.contains(marks[i].el));
     });

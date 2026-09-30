@@ -14,7 +14,7 @@ export function sunAltitude(lat: number, lon: number, date: Date): number {
 }
 
 export function daylightWord(altitude: number): string {
-  if (altitude > 6) return 'daylight';
+  if (altitude > 6) return 'day';
   if (altitude > -6) return altitude > 0 ? 'low sun' : 'twilight';
   return 'night';
 }

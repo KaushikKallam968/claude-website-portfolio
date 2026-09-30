@@ -27,7 +27,7 @@ The short, in-context appearance of a piece of work inside a Chapter or the Sele
 _Avoid:_ card, teaser, preview.
 
 ## Summary
-An Entry that expands in place instead of leading to a Case, used where the evidence supports a paragraph but not a full reading page (for example Chase Mobile Entry Points, Inspire Brands).
+An Entry that expands in place instead of leading to a Case, used where the evidence supports a paragraph but not a full reading page (for example Chase Mobile Entry Points).
 _Avoid:_ mini-case.
 
 ## Research in Development

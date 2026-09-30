@@ -357,10 +357,10 @@ Plain words, never buttons.
 The unit of work on the Journey.
 - **Structure:** title (Title role, max 22ch), context line in ink-3, preview in ink-2, Contribution and Status facts, action, optional compact figure.
 - **Divider:** a `rule` hairline above each row that draws in from the left on scroll.
-- **Hover:** for Case entries the whole row is the link target; the title words slide 8px right and the arrow 6px.
+- **Hover:** for Case entries the whole row is the link target; the title words slide 8px right and the arrow 6px. A mouse click on the row waits 240ms before following the link, so a double or triple click selects a word or a line instead of leaving the page; a tap, or a click on the title link itself, goes at once.
 - **Focus:** the row takes the 2px blue outline, inset.
 - **Opening a Case:** the clicked row's outline is handed to the next page, which grows out of it (see Motion).
-- **Disclosure:** non-Case entries with more text expand in place; the panel clips open over 0.7s. Without scripts the text is simply present.
+- **Disclosure:** non-Case entries with more text expand in place; the panel clips open over 0.7s. Any change in the page's height (a disclosure, the notes' explanation folding) re-measures every scroll scene 120ms after it settles, so the Field's bands and Time Shift ranges never lag the layout. Without scripts the text is simply present.
 - **Work index rows** follow the same pattern at page-title scale, with an ink rule that draws across on hover or focus-within.
 
 ### The Field (signature, home only)
@@ -386,7 +386,7 @@ Between two chapters, the local time moves from the previous place to the next.
 - **No script:** no clock at all (a clock that cannot run would read as a time); the band says "From X to Y." Every other live clock on the site is hidden too.
 
 ### Visit readout (signature)
-The close: the visitor's own time per chapter, plus "Everywhere else", so rows add up to the total. Chapters with less than a second of reading are left out; when that is all of them, an ink-2 line says "You haven't spent a second in any chapter yet." It is a snapshot of the visit up to the close, taken a screen before the readout is seen ("… on this site, up to here"), and it holds still while read; leaving and coming back takes a new one. The dot portrait is drawn from the same snapshot.
+The close: the visitor's own time per chapter, plus "Everywhere else", so rows add up to the total. Chapters with less than a second of reading are left out, and that moment counts as everywhere else, so the rows shown always add up; when that is all of them, an ink-2 line says "You haven't spent a second in any chapter yet." It is a snapshot of the visit up to the close, taken a screen before the readout is seen ("… on this site, up to here"), and it holds still while read; leaving and coming back takes a new one. The dot portrait is drawn from the same snapshot.
 - **With the Field:** a display-scale dot chart in the annotation blue (it is observed data; "Everywhere else" at lower strength). The count pauses with Pause live. Dot pitch adapts (6 to 13px, 4.2 to 9px on phones) so the longest row fills about 85% of its track, and holds while the row stays at least half full. The unit is the finest that fits and is always stated in blue beneath: "Each dot is half a second of your visit." The total above sits at lede size, the values right after their tracks.
 - **Without scripts:** no numbers at all, since nothing was measured; one ink-2 line says so.
 - **Without it:** a 14px blue fill on a `note-soft` track, scaling from the left over 1.2s; "Everywhere else" uses ink-3.
@@ -395,7 +395,7 @@ The close: the visitor's own time per chapter, plus "Everywhere else", so rows a
 ### Figure scene
 A Case's figure told in steps, under the figure.
 - **Structure:** a numbered list of steps between `rule` hairlines; each step is a button (mono number in ink-3, text in body size).
-- **Behaviour:** on entry (55% visible) the steps autoplay in place, 2.4s each, driving the figure's parts through `--p`. The step being shown turns ink, its number blue, and a 1px ink rule draws along its top for the step's duration. Choosing a step stops the autoplay. Nothing holds the scroll.
+- **Behaviour:** on entry (55% visible) the steps autoplay in place, 2.4s each, driving the figure's parts through `--p`. The step being shown turns ink, its number blue, and a 1px ink rule draws along its top for the step's duration. Choosing a step stops the autoplay. Nothing holds the scroll. Parts arrive by colour and a short rise; table rows (the Discord decision table) arrive by colour only, since a collapsed table draws its rules itself and a rising row would slide off them.
 - **Without motion:** the figure and its steps read top to bottom.
 
 ### Case figure
@@ -405,7 +405,7 @@ Authored diagrams of each case's idea on a `paper-2` stage with 1px `ink-3` or `
 The observation layer.
 - **Style:** all text in note blue at label size; header rule in currentColor; title and controls in uppercase mono at 0.06em; each note a two-column grid (timestamp, then what was seen in ink and a mono "can't tell" line) above a dotted blue hairline.
 - **Folding:** open by default on the Journey only. On Case and Work pages it starts folded to its header and the latest note on one line, unless the visitor opened it this visit; Show or Hide sets that for the rest of the visit. Its explanation (the about line and each control's description) shows on the visit's first page only, and on the Journey it folds away during the first map scene the reader scrolls into (never during the arrival), while the margin is faded out, so it is read first and the change is never seen.
-- **Notes name their page:** notes are read again on later pages, so each says which page it is about ("You scrolled past a quarter of Selected work.", "You reached the figure in Chegg Mexico."); the visit's first note, "You arrived at …", is kept like any other; a Case reached any way at all, a shared link included, counts as opened.
+- **Notes name their page:** notes are read again on later pages, so each says which page it is about ("You scrolled past a quarter of Selected work.", "You reached the figure in Chegg Mexico."); the visit's first note, "You arrived at …", is kept like any other; a Case reached any way at all, a shared link included, counts as opened. Opening a Case writes its own note ("You opened watched.", can't tell "Whether it was what you came for."), once per Case, so the folded line on the Case page is about that page; a visit that began on the Case says so in its arrival note instead.
 - **Notes a page writes:** on the Journey each Chapter writes a note when it is reached ("You reached Texas: career." with its own "can't tell"); a Case marks its own parts (figure, account of the research, limits), and reaching each writes a note in that page's words ("You reached what the evidence can't show." / "Whether it changed how you read the rest."), in place of the generic quarter-depth notes; the end of the page is still noted.
 - **Controls:** Hide (persisted for the session), Pause live (`aria-pressed`; shown only with scripts, since nothing moves without them), Show tracking (the lens). On the home page the panel comes right after the hero in the source, before the journey, so Pause live is reached before any Chapter by keyboard.
 - **Phone sheet:** closed, the whole ticker is the Show target; Show opens the list under the bar; scrolling on, tapping outside it or Escape closes it, returning focus to the toggle. The tap that dismisses the sheet does nothing else.
@@ -422,14 +422,14 @@ A small 1px `rule`-bordered tag reading Draft, for copy awaiting the owner's con
 
 ## Motion
 
-Two curves, registered in GSAP as CustomEase and mirrored in CSS: `out` (`--ease-out`, cubic-bezier(0.16, 1, 0.3, 1)) for entrances and anything that settles, `scene` (`--ease-scene`, cubic-bezier(0.86, 0, 0.07, 1)) for changes of place. The Field's own interpolation uses the matching cubic in-out. Lenis provides inertial scroll (1.15s, quartic out, anchors offset by 64px).
+Two curves, registered in GSAP as CustomEase and mirrored in CSS: `out` (`--ease-out`, cubic-bezier(0.16, 1, 0.3, 1)) for entrances and anything that settles, `scene` (`--ease-scene`, cubic-bezier(0.86, 0, 0.07, 1)) for changes of place. The Field's own interpolation uses the matching cubic in-out. Lenis provides inertial scroll (1.15s, quartic out, anchors offset by 64px). The route index asks for 96px of scroll margin (132px under 1100px, clear of the notes ticker), so Journey in the top bar lands it below the bar from any page.
 
 - **Arrival with the Field:** map in 1.1s on `out`, route draws 1.7s on `scene` from 0.3s, dots gather into the name 1.55s from 1.85s. The identity text is first paint and never waits; the route index, its rule and the notes follow the name.
 - **Arrival without the Field:** SplitText characters of the name rise from 108% (1.35s, 0.034s stagger); identity lines rise 26px and fade; route items follow; the notes clip open on `scene`. On scroll the two name lines drift apart. The attention trace warms letters toward blue under a fine pointer and cools over about a second.
 - **Scenes:** Prologue and Time Shifts are scroll-scrubbed; the map is gone before the next Chapter's top is three quarters of the way up the screen, so no heading or fact ever sits on it.
-- **Chapter word:** characters rise from 110% under a mask once, at 82% viewport. The close title rises line by line.
+- **Chapter word:** characters rise from 110% under a mask once, at 82% viewport; the qualifier follows at 0.45s and the place's data (place, coordinates, local time, period) rises 10px and fades in from 0.3s, so it never stands on screen above a heading that has not arrived. The close title rises line by line.
 - **Entry rules:** draw in from the left on `scene` (1.2s).
-- **Case transition:** the clicked row grows into the Case: on `pagereveal` the new page opens from the row's outline by clip-path (1s, `scene`), the old page fades and steps back to 0.975 in 0.38s, and the Entry title morphs into the Case title through its `view-transition-name`. Other navigations cross-fade (old 0.5s; new rises 24px over 0.9s from 0.15s).
+- **Case transition:** the clicked row grows into the Case: on `pagereveal` the new page opens from the row's outline by clip-path (1s, `scene`), the old page fades and steps back to 0.975 in 0.38s, and the clicked title alone travels into the Case title: it is named (`view-transition-name`) only at the click, so no other title on the page is lifted out of it. The travelling title cross-fades at its own scale from its top left (`view-transition-class: case-title`, `object-fit: none`) rather than stretching between two sizes and line breaks. Leaving a Case, its heading travels back to its title when that title is on screen on the next page (named on `pagereveal`, cleared when the transition finishes); otherwise it leaves with the page in 0.4s, and a Case-to-Case link gives up the name entirely. Other navigations cross-fade (old 0.5s; new rises 24px over 0.9s from 0.15s).
 - **Reading text never animates** in place.
 
 ### Named Rules

@@ -126,7 +126,9 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
   .case__rail-sticky { position: sticky; top: 88px; margin-top: clamp(40px, 8vw, 120px); }
   .case__article { container-type: inline-size; padding-bottom: clamp(80px, 10vw, 160px); }
   .case__head { padding-top: clamp(40px, 7vw, 110px); max-width: 1100px; }
-  .case__crumbs { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 4px 18px; color: var(--ink-3); align-items: center; font-size: var(--t-meta); }
+  .case__crumbs { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 4px 0; color: var(--ink-3); align-items: center; font-size: var(--t-meta); }
+  .case__crumbs > span + span:not(.draft-marker)::before { content: '·' / ''; padding: 0 0.7em; }
+  .case__crumbs > .draft-marker { margin-left: 14px; }
   .case__title {
     font-size: clamp(2.8rem, 8cqi, 6rem);
     line-height: 0.92;
@@ -140,17 +142,18 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
 
   .tldr {
     margin: clamp(40px, 6vw, 80px) 0 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    /* Rows fill themselves: a Case without a Team line has three facts across, never an empty fourth cell. */
+    display: flex;
+    flex-wrap: wrap;
     gap: 0 var(--gutter);
     border-top: 1px solid var(--ink);
     max-width: 1100px;
   }
-  .tldr div { padding: 14px 0 18px; border-bottom: 1px solid var(--rule); }
+  .tldr div { flex: 1 1 220px; padding: 14px 0 18px; border-bottom: 1px solid var(--rule); }
   .tldr dt { font-size: var(--t-small); color: var(--ink-3); margin-bottom: 4px; }
   .tldr dd { margin: 0; font-size: var(--t-meta); }
   .tldr ul { display: grid; gap: 4px; }
-  .tldr__outcome { grid-column: 1 / -1; }
+  .tldr .tldr__outcome { flex-basis: 100%; }
   .tldr__outcome dd { font-size: var(--t-body); max-width: 70ch; }
   .tldr__type { color: var(--ink); font-weight: 520; margin-left: 6px; }
   .tldr__type::before { content: '·'; color: var(--ink-3); margin-right: 6px; font-weight: 400; }

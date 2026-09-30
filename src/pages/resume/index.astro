@@ -29,7 +29,7 @@ const roles = allRoles();
               <h3 class="cv__title">{r.title}</h3>
               <p class="cv__org">{r.org} · {r.where}</p>
               <ul class="cv__points">{r.highlights.map((p) => <li>{p}</li>)}</ul>
-              <a class="cv__more link" href={r.more} data-observe={`resume.more.${r.more.replace(/[^a-z-]/g, '')}`} data-observe-label={`more about ${r.title}`} data-observe-cannot="Whether the résumé line was enough.">Read more <Arrow /></a>
+              <a class="cv__more link" href={r.more} data-observe={`resume.more.${r.more.replace(/[^a-z-]/g, '')}`} data-observe-label={`more about ${r.title}`} data-observe-cannot="Whether the résumé line was enough.">{r.more.startsWith('/work/') ? 'Read the case' : 'On the journey'} <Arrow /></a>
             </div>
           </li>
         ))}
@@ -45,7 +45,7 @@ const roles = allRoles();
             <h3 class="cv__title">Cofounder, watched.</h3>
             <p class="cv__org">Movie and TV tracking and discovery app · launched, currently paused</p>
             <ul class="cv__points"><li>Research, product and interaction design, and front-end work, alongside two technical cofounders.</li></ul>
-            <a class="cv__more link" href="/work/watched/" data-observe="resume.more.watched" data-observe-label="more about watched." data-observe-cannot="Whether the résumé line was enough.">Read more <Arrow /></a>
+            <a class="cv__more link" href="/work/watched/" data-observe="resume.more.watched" data-observe-label="more about watched." data-observe-cannot="Whether the résumé line was enough.">Read the case <Arrow /></a>
           </div>
         </li>
       </ol>
@@ -94,8 +94,9 @@ const roles = allRoles();
   .cv__title { font-size: var(--t-h3); line-height: 1.08; letter-spacing: -0.028em; font-weight: 520; }
   .cv__org { color: var(--ink-2); margin-top: 4px; }
   .cv__points { margin-top: 10px; display: grid; gap: 6px; max-width: 66ch; }
-  .cv__points li { padding-left: 1em; text-indent: -1em; }
-  .cv__points li::before { content: '· '; color: var(--ink-3); }
+  /* The dot hangs in the margin, so every line of a point starts at the same edge. */
+  .cv__points li { position: relative; padding-left: 1em; }
+  .cv__points li::before { content: '·'; position: absolute; left: 0.2em; color: var(--ink-3); }
   .cv__more { display: inline-block; margin-top: 10px; font-size: var(--t-meta); text-decoration: none; }
   .cv__skills { display: grid; gap: 12px; padding-top: 18px; max-width: 72ch; }
   .cv__skills strong { font-weight: 560; }

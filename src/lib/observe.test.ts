@@ -73,6 +73,19 @@ describe('observation notes', () => {
     });
   });
 
+  it('notes opening a Case once, and stays quiet when the visit began on that Case', () => {
+    const obs = createObservation();
+    expect(obs.record({ type: 'open', t: 1000, id: 'watched', title: 'watched.' })).toMatchObject({
+      event: 'open',
+      shows: 'You opened watched.',
+      cannotShow: 'Whether it was what you came for.',
+    });
+    expect(obs.record({ type: 'open', t: 2000, id: 'watched', title: 'watched.' })).toBeNull();
+    const shared = createObservation();
+    shared.record({ type: 'arrive', t: 0, page: '/work/chegg-mexico/', pageName: 'Chegg Mexico' });
+    expect(shared.record({ type: 'open', t: 10, id: 'chegg-mexico', title: 'Chegg Mexico' })).toBeNull();
+  });
+
   it('notes depth separately for each page', () => {
     const obs = createObservation();
     obs.record({ type: 'depth', t: 1000, page: '/', fraction: 1 });
