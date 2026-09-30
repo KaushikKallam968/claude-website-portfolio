@@ -67,6 +67,7 @@ Claim boundaries that bind every surface:
 
 - Content spine (owner-accepted chapter copy, reading flow, draft cases, source syntheses): `portfolio-handoff/outputs/portfolio-reading-draft.md`, `portfolio-reading-flow.md`, `portfolio-selected-case-studies.md`, `portfolio-journey-content-map.md`, `portfolio-voice-guide.md`, and the source notes they cite.
 - Licensed material: Figtree (SIL OFL) and CC0 Poly Haven HDR skies in `portfolio-handoff/`.
+- No portrait of Kaushik on the site (owner decision, September 30, 2026).
 - Absent, and never to be fabricated: photos of Kaushik or his life, watched. screenshots or video, a résumé PDF, publishable employer artifacts, participant quotes, outcome metrics.
 
 ## Product Principles
