@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import CaseFigure from '../../components/CaseFigure.astro';
+import FigureScene from '../../components/FigureScene.astro';
 import NotesPanel from '../../components/NotesPanel.astro';
 import Arrow from '../../components/Arrow.astro';
 import { entryFor } from '../../data/journey';
@@ -42,7 +42,7 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
         </dl>
 
         <div class="case__figure">
-          {journeyEntry.figure && <CaseFigure kind={journeyEntry.figure} />}
+          {journeyEntry.figure && <FigureScene kind={journeyEntry.figure} />}
         </div>
 
         <div class="prose">

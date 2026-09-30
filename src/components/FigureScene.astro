@@ -1,0 +1,89 @@
+---
+/**
+ * A Case's figure told in steps. With motion, the figure holds still on screen while scrolling plays its
+ * argument one step at a time; otherwise the figure and its steps simply read top to bottom.
+ */
+import CaseFigure from './CaseFigure.astro';
+import type { FigureKind } from '../data/journey';
+
+interface Props {
+  kind: FigureKind;
+}
+const { kind } = Astro.props;
+
+const steps: Record<FigureKind, [number, string][]> = {
+  instrumentation: [
+    [0, 'Three search bars on one page.'],
+    [0.3, 'Each records the same event: search.'],
+    [0.52, 'The button records nothing at all.'],
+    [0.74, 'An unclear tag is a quality problem. A missing one is a coverage problem.'],
+  ],
+  discord: [
+    [0, 'Three concepts, each tested with 12 STEM students.'],
+    [0.26, 'Homework help: answers had to arrive inside Discord.'],
+    [0.48, 'Math solving: entering an equation got in the way.'],
+    [0.7, 'Quiz generation: explain wrong answers, add a timer.'],
+  ],
+  mexico: [
+    [0, 'Students searched for help in Spanish and in English.'],
+    [0.3, 'So a question asked in Spanish…'],
+    [0.54, '…should find its answer in Chegg’s English database.'],
+    [0.78, 'The presentation reports that this was implemented on chegg.mx.'],
+  ],
+  watched: [
+    [0, 'Taste analytics: ratings, genres and personal rankings.'],
+    [0.34, 'Recommendations that explain themselves.'],
+    [0.64, 'Search, with what’s trending.'],
+  ],
+  'ai-evaluation': [],
+};
+const list = steps[kind];
+---
+
+<div class="scene" data-fig-scene data-steps={JSON.stringify(list.map(([at]) => at))}>
+  <div class="scene__stage">
+    <CaseFigure kind={kind} scene />
+    {list.length > 0 && (
+      <ol class="scene__steps" aria-label="The figure, step by step">
+        {list.map(([, text], i) => (
+          <li data-step={i}><span class="scene__n num" aria-hidden="true">{i + 1}/{list.length}</span> {text}</li>
+        ))}
+      </ol>
+    )}
+  </div>
+</div>
+
+<style>
+  .scene__stage { display: grid; gap: 22px; }
+  .scene__steps { display: grid; gap: 8px; counter-reset: s; max-width: 60ch; }
+  .scene__steps li { display: grid; grid-template-columns: 3.2em 1fr; gap: 10px; font-size: var(--t-body); }
+  .scene__n { font-family: var(--mono); font-size: 0.75rem; color: var(--ink-3); padding-top: 0.3em; }
+
+  :global(html.scenes) .scene { height: 240vh; }
+  :global(html.scenes) .scene__stage {
+    position: sticky;
+    top: 64px;
+    height: calc(100svh - 64px);
+    align-content: center;
+    padding-block: 24px;
+  }
+  :global(html.scenes) .scene__steps { position: relative; min-height: 5.5em; }
+  @media (min-width: 1100px) and (min-height: 760px) {
+    :global(html.scenes) .scene :global(.fig__stage) { zoom: 1.32; }
+  }
+  :global(html.scenes) .scene__steps li {
+    position: absolute;
+    inset: 0 0 auto;
+    font-size: var(--t-lede);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    opacity: 0;
+    translate: 0 14px;
+    transition: opacity 0.5s var(--ease-out), translate 0.7s var(--ease-out);
+  }
+  :global(html.scenes) .scene__steps li.is-on { opacity: 1; translate: 0 0; }
+  :global(html.scenes) .scene__steps li.is-past { opacity: 0; translate: 0 -14px; }
+  @media (max-width: 1100px) {
+    :global(html.scenes) .scene__stage { top: calc(56px + 36px); height: calc(100svh - 92px); }
+  }
+</style>

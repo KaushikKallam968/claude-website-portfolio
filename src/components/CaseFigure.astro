@@ -12,11 +12,13 @@ import search from '../assets/watched/search.png';
 interface Props {
   kind: 'instrumentation' | 'ai-evaluation' | 'discord' | 'mexico' | 'watched';
   compact?: boolean;
+  /** Inside a FigureScene: parts are driven by scroll progress (--p) instead of playing once. */
+  scene?: boolean;
 }
-const { kind, compact = false } = Astro.props;
+const { kind, compact = false, scene = false } = Astro.props;
 ---
 
-<figure class:list={['fig', `fig--${kind}`, { 'fig--compact': compact }]} data-fig={kind}>
+<figure class:list={['fig', `fig--${kind}`, { 'fig--compact': compact, 'fig--scene': scene }]} data-fig={kind}>
   {kind === 'instrumentation' && (
     <div class="fig__stage inst">
       <div class="inst__page" aria-hidden="true">
@@ -198,6 +200,42 @@ const { kind, compact = false } = Astro.props;
     :global(html.js) .inst__log li, :global(html.js) .trace__row li, :global(html.js) .deck__table tbody tr,
     :global(html.js) .xl__result, :global(html.js) .xl__arrow { opacity: 1; translate: 0 0; }
   }
+  /* ---------- Scroll-driven parts (FigureScene sets --p from 0 to 1) ----------
+     Each part has a moment (--at) and eases in over a short stretch of scroll after it. */
+  :global(html.scenes) .fig--scene .inst__log li,
+  :global(html.scenes) .fig--scene .deck__table tbody tr,
+  :global(html.scenes) .fig--scene .xl__arrow,
+  :global(html.scenes) .fig--scene .xl__result {
+    --k: clamp(0, calc((var(--p, 0) - var(--at)) * 9), 1);
+    opacity: var(--k);
+    translate: 0 calc((1 - var(--k)) * 12px);
+    transition: none;
+  }
+  :global(html.scenes) .fig--scene .inst__log li { --at: calc(0.3 + var(--i) * 0.06); }
+  :global(html.scenes) .fig--scene .inst__log .inst__none { --at: 0.52; }
+  :global(html.scenes) .fig--scene .inst__field::after,
+  :global(html.scenes) .fig--scene .inst__btn::after {
+    animation: none;
+    opacity: clamp(0, calc(1 - max(calc((var(--p, 0) - var(--at)) * 8), calc((var(--at) - var(--p, 0)) * 8))), 1);
+  }
+  :global(html.scenes) .fig--scene .inst__field::after { --at: calc(0.08 + var(--i) * 0.07); }
+  :global(html.scenes) .fig--scene .inst__btn::after { --at: 0.54; }
+  :global(html.scenes) .fig--scene .deck__table tbody tr { --at: calc(0.24 + var(--i) * 0.22); }
+  :global(html.scenes) .fig--scene .xl__typed {
+    animation: none;
+    clip-path: inset(0 calc((1 - clamp(0, calc((var(--p, 0) - 0.04) * 3.6), 1)) * 100%) 0 0);
+  }
+  :global(html.scenes) .fig--scene .xl__arrow { --at: 0.3; }
+  :global(html.scenes) .fig--scene .xl__result { --at: 0.54; }
+  :global(html.scenes) .fig--scene .phone {
+    --k: clamp(0, calc((var(--p, 0) - var(--at)) * 4), 1);
+    opacity: var(--k);
+  }
+  :global(html.scenes) .fig--scene .phone--a { --at: 0.02; translate: calc(12% + (1 - var(--k)) * 30%) calc(8% + (1 - var(--k)) * 20%); rotate: calc(-4deg * var(--k)); }
+  :global(html.scenes) .fig--scene .phone--b { --at: 0.3; translate: 0 calc((1 - var(--k)) * 24%); }
+  :global(html.scenes) .fig--scene .phone--c { --at: 0.6; translate: calc(-12% - (1 - var(--k)) * 30%) calc(8% + (1 - var(--k)) * 20%); rotate: calc(4deg * var(--k)); }
+  :global(html.scenes) .fig--scene .fig__cap > span:first-child { display: none; }
+
   @media (max-width: 600px) {
     .inst { grid-template-columns: 1fr; }
     /* Too narrow to type on one line: the question wraps and simply appears. */

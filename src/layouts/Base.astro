@@ -55,6 +55,8 @@ const nav = [
       // The home page will draw its Field (WebGL): lay the page out for it from the first frame, so scroll
       // positions stay stable. motion.ts removes the class if the Field cannot start.
       try {
+        // Figures on Case pages become scroll scenes when motion is welcome.
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('scenes');
         if (location.pathname === '/' && 'WebGL2RenderingContext' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
           document.documentElement.classList.add('field');
         }

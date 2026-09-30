@@ -138,6 +138,31 @@ function chapters() {
   }
 }
 
+/** On Case pages the figure holds while scrolling plays it: progress drives its parts and its steps. */
+function figureScenes() {
+  document.querySelectorAll<HTMLElement>('[data-fig-scene]').forEach((scene) => {
+    const stage = scene.querySelector<HTMLElement>('.scene__stage')!;
+    const marks: number[] = JSON.parse(scene.dataset.steps ?? '[]');
+    const items = [...scene.querySelectorAll<HTMLElement>('[data-step]')];
+    let current = -1;
+    const update = (p: number) => {
+      stage.style.setProperty('--p', p.toFixed(4));
+      let step = 0;
+      marks.forEach((at, i) => {
+        if (p >= at) step = i;
+      });
+      if (step === current) return;
+      current = step;
+      items.forEach((li, i) => {
+        li.classList.toggle('is-on', i === step);
+        li.classList.toggle('is-past', i < step);
+      });
+    };
+    ScrollTrigger.create({ trigger: scene, start: 'top top+=64', end: 'bottom bottom', onUpdate: (st) => update(st.progress), onRefresh: (st) => update(st.progress) });
+    update(0);
+  });
+}
+
 /** Figures play their small demonstration once, when most of them is on screen. */
 function figures() {
   const figs = document.querySelectorAll<HTMLElement>('[data-fig]');
@@ -160,6 +185,7 @@ function figures() {
 
 export function startMotion() {
   figures();
+  if (!reduced()) figureScenes();
   if (reduced()) {
     startTimeShifts(true, livePaused);
     reveal();
