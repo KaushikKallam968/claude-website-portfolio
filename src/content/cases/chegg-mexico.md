@@ -12,7 +12,7 @@ outcome: A learner-context foundation for localization and a recommendation that
 outcomeType: Recommendation, implementation reported
 status: Mixed-methods study completed · cross-language search implementation reported
 shows:
-  - What the comparative survey and the interviews revealed about study habits, academic support and exam preparation.
+  - The needs the research identified around major projects, standardized-test preparation and academic support.
   - That students searched for help in both Spanish and English.
   - A concrete product change that followed from that finding.
 cannotShow:
