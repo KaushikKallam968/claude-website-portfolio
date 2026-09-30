@@ -9,6 +9,7 @@ export const KEYS = {
   livePaused: 'kk:paused',
   restore: 'kk:restore',
   introSeen: 'kk:intro',
+  expandFrom: 'kk:expand',
   origin: (caseId: string) => `kk:origin:${caseId}`,
 } as const;
 

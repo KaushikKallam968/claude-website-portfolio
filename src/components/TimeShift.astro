@@ -41,7 +41,7 @@ const far = Math.abs(from.place.lon - to.place.lon) > 120;
     </div>
     <div class="shift__words">
       <p class="shift__text" data-shift-text>From {short(from)} to {short(to)}.</p>
-      <a class="shift__next link" href={`#${to.id}`}>Continue to {to.label} <Arrow to="down" /></a>
+      <a class="shift__next link" href={`#${to.id}`} data-observe={`shift.${to.id}`} data-observe-label={`Continue to ${to.label}`} data-observe-cannot="Whether you wanted to skip the scene or see where it went.">Continue to {to.label} <Arrow to="down" /></a>
     </div>
   </div>
 </div>

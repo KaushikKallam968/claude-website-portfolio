@@ -95,8 +95,8 @@ const fieldPlaces = chapters.map((c) => ({
           <p class="close__email"><a class="link link--under" href={`mailto:${closing.email}`} data-observe="contact.email" data-observe-label="my email address" data-observe-cannot="Whether you will write.">{closing.email}</a></p>
           <ul class="close__links">
             <li><a class="link link--under" href={closing.linkedin} rel="me" data-observe="contact.linkedin" data-observe-label="LinkedIn" data-observe-cannot="Whether we are already connected.">LinkedIn <Arrow to="up-right" /></a></li>
-            <li><a class="link link--under" href="/resume/">Résumé <Arrow /></a></li>
-            <li><a class="link link--under" href="/work/">Selected work <Arrow /></a></li>
+            <li><a class="link link--under" href="/resume/" data-observe="contact.resume" data-observe-label="Résumé" data-observe-cannot="Whether it is for you or to pass along.">Résumé <Arrow /></a></li>
+            <li><a class="link link--under" href="/work/" data-observe="contact.work" data-observe-label="Selected work" data-observe-cannot="Whether you want to see the evidence again.">Selected work <Arrow /></a></li>
           </ul>
         </div>
       </div>
@@ -208,7 +208,7 @@ const fieldPlaces = chapters.map((c) => ({
   .close { padding-top: clamp(120px, 16vw, 240px); scroll-margin-top: 64px; }
   .close__title {
     grid-column: 1 / span 10;
-    font-size: clamp(2.6rem, 7.2vw, 8.5rem);
+    font-size: clamp(2.6rem, 6.4vw, 6rem);
     line-height: 0.9;
     letter-spacing: -0.04em;
     font-weight: 520;

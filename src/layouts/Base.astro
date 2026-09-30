@@ -63,6 +63,21 @@ const nav = [
         if (sessionStorage.getItem('kk:notes') === 'true') document.documentElement.classList.add('notes-off');
         if (sessionStorage.getItem('kk:paused') === 'true') document.documentElement.classList.add('live-paused');
       } catch (e) {}
+      // Arriving at a Case from its row: the new page opens out of the row's outline (see global.css).
+      // This has to be registered before first render, so it lives here rather than in a module.
+      addEventListener('pagereveal', function (e) {
+        var d = document.documentElement;
+        var raw = null;
+        try { raw = sessionStorage.getItem('kk:expand'); sessionStorage.removeItem('kk:expand'); } catch (err) {}
+        if (!e.viewTransition || !raw) return;
+        try {
+          var r = JSON.parse(raw);
+          var px = function (v) { return Math.max(0, Math.round(v)) + 'px'; };
+          d.style.setProperty('--vt-from', 'inset(' + px(r.top) + ' ' + px(r.right) + ' ' + px(r.bottom) + ' ' + px(r.left) + ')');
+          d.classList.add('vt-expand');
+          e.viewTransition.finished.finally(function () { d.classList.remove('vt-expand'); });
+        } catch (err) {}
+      });
       // Failsafe: if the motion bundle never runs, reveal everything that waits for it.
       setTimeout(function () {
         var d = document.documentElement;
@@ -74,7 +89,7 @@ const nav = [
   <body>
     <a class="skip" href={`#${mainId}`}>Skip to content</a>
     <header class="top grid" data-top>
-      <a class="top__name" href="/" aria-label="Kaushik Kallam, home">Kaushik Kallam</a>
+      <a class="top__name" href="/" aria-label="Kaushik Kallam, home" data-observe="nav.home" data-observe-label="my name in the top bar" data-observe-cannot="Whether you wanted to start over.">Kaushik Kallam</a>
       <p class="top__where label num" aria-hidden="true"><span>New York</span> <span data-clock="America/New_York">--:--</span></p>
       <nav class="top__nav" aria-label="Primary">
         {nav.map((n) => (

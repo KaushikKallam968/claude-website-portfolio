@@ -8,11 +8,12 @@
 <aside class="notes" aria-labelledby="notes-title" data-notes>
   <div class="notes__head">
     <h2 id="notes-title" class="notes__title mono">Notes<span class="notes__long"> on this visit</span> <span class="notes__count num" data-notes-count>0</span></h2>
-    <button class="notes__toggle mono" type="button" aria-expanded="true" aria-controls="notes-list" data-notes-toggle>Hide</button>
+    <button class="notes__toggle mono" type="button" aria-expanded="true" aria-controls="notes-list" data-notes-toggle data-observe="notes.toggle" data-observe-label="the notes switch" data-observe-cannot="Whether the notes were useful or in the way.">Hide</button>
   </div>
   <p class="notes__latest" data-notes-latest aria-hidden="true"></p>
   <p class="notes__about">This page keeps notes on what you do here, and on what each note can’t explain. They stay in your browser.</p>
-  <p class="notes__live"><button class="notes__pause mono" type="button" aria-pressed="false" data-live-pause>Pause live</button> <span>Stops the clocks and the running totals.</span></p>
+  <p class="notes__live"><button class="notes__pause mono" type="button" aria-pressed="false" data-live-pause data-observe="live.pause" data-observe-label="Pause live" data-observe-cannot="Whether the moving clocks were a distraction.">Pause live</button> <span>Stops the clocks and the running totals.</span></p>
+  <p class="notes__live notes__live--lens" hidden><button class="notes__pause mono" type="button" aria-pressed="false" data-lens-toggle data-observe="lens.toggle" data-observe-label="the tracking lens" data-observe-cannot="What you hoped to find in it.">Show tracking</button> <span>Outlines what this page records, and what it doesn’t.</span></p>
   <ol class="notes__list" id="notes-list" data-notes-list>
     <noscript><li class="notes__empty">With scripts off, there’s nothing to note. That’s an honest dataset too.</li></noscript>
   </ol>
@@ -38,6 +39,8 @@
   .notes__about { margin: 10px 0 0; color: var(--ink-2); max-width: 34ch; }
   .notes__live { margin: 8px 0 18px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
   .notes__pause { text-transform: uppercase; letter-spacing: 0.06em; color: var(--note); }
+  .notes__live--lens { margin-top: -10px; }
+  .notes .notes__live[hidden] { display: none !important; }
   .notes__pause:hover { text-decoration: underline; text-underline-offset: 3px; }
   .notes__list { display: grid; gap: 14px; }
   :global(.note) {

@@ -13,9 +13,9 @@ const roles = allRoles();
       <h1 class="cv__name">Kaushik Kallam</h1>
       <p class="cv__role">Senior Quantitative UX Researcher · New York</p>
       <ul class="cv__contact">
-        <li><a class="link link--under" href={`mailto:${closing.email}`}>{closing.email}</a></li>
-        <li><a class="link link--under" href={closing.linkedin} rel="me">linkedin.com/in/kaushikkallam</a></li>
-        <li class="cv__print"><button type="button" class="link link--under" data-print>Save as PDF</button></li>
+        <li><a class="link link--under" href={`mailto:${closing.email}`} data-observe="contact.email" data-observe-label="my email address" data-observe-cannot="Whether you will write.">{closing.email}</a></li>
+        <li><a class="link link--under" href={closing.linkedin} rel="me" data-observe="contact.linkedin" data-observe-label="LinkedIn" data-observe-cannot="Whether we are already connected.">linkedin.com/in/kaushikkallam</a></li>
+        <li class="cv__print"><button type="button" class="link link--under" data-print data-observe="resume.print" data-observe-label="Save as PDF" data-observe-cannot="Whether it is for you or to pass along.">Save as PDF</button></li>
       </ul>
     </header>
 
@@ -29,7 +29,7 @@ const roles = allRoles();
               <h3 class="cv__title">{r.title}</h3>
               <p class="cv__org">{r.org} · {r.where}</p>
               <ul class="cv__points">{r.highlights.map((p) => <li>{p}</li>)}</ul>
-              <a class="cv__more link" href={r.more}>Read more <Arrow /></a>
+              <a class="cv__more link" href={r.more} data-observe={`resume.more.${r.more.replace(/[^a-z-]/g, '')}`} data-observe-label={`more about ${r.title}`} data-observe-cannot="Whether the résumé line was enough.">Read more <Arrow /></a>
             </div>
           </li>
         ))}
@@ -45,7 +45,7 @@ const roles = allRoles();
             <h3 class="cv__title">Cofounder, watched.</h3>
             <p class="cv__org">Movie and TV tracking and discovery app · launched, currently paused</p>
             <ul class="cv__points"><li>Research, product and interaction design, and front-end work, alongside two technical cofounders.</li></ul>
-            <a class="cv__more link" href="/work/watched/">Read more <Arrow /></a>
+            <a class="cv__more link" href="/work/watched/" data-observe="resume.more.watched" data-observe-label="more about watched." data-observe-cannot="Whether the résumé line was enough.">Read more <Arrow /></a>
           </div>
         </li>
       </ol>
@@ -82,7 +82,7 @@ const roles = allRoles();
 <style>
   .cv { padding: 64px var(--margin) clamp(80px, 10vw, 160px); max-width: 1180px; }
   .cv__head { padding-top: clamp(40px, 7vw, 110px); }
-  .cv__name { margin-top: 18px; font-size: clamp(3rem, 9vw, 8rem); line-height: 0.86; letter-spacing: -0.04em; font-weight: 530; }
+  .cv__name { margin-top: 18px; font-size: clamp(3rem, 8vw, 6rem); line-height: 0.86; letter-spacing: -0.04em; font-weight: 530; }
   .cv__role { margin-top: 18px; font-size: var(--t-lede); letter-spacing: -0.015em; }
   .cv__contact { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 26px; }
   .cv__block { margin-top: clamp(48px, 6vw, 88px); }

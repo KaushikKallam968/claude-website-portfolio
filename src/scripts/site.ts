@@ -3,6 +3,7 @@ import { startNotes } from './notes';
 import { startReadout } from './readout';
 import { rememberOrigins, restoreIfPending, restoreOnPageShow, wireDisclosures, wireLivePause, wireTopBar } from './navigation';
 import { startMotion } from './motion';
+import { startLens } from './lens';
 
 wireLivePause();
 restoreIfPending();
@@ -13,4 +14,5 @@ startReadout();
 rememberOrigins();
 wireDisclosures();
 wireTopBar();
+startLens();
 startMotion();

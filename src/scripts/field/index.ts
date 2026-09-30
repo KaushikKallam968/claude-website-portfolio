@@ -204,7 +204,7 @@ export async function startField(): Promise<FieldHandle | null> {
     const name = sampleName(heading!, spacing);
     nameCount = name.count;
     renderer.sizes.name = spacing * 0.94;
-    renderer.sizes.map = narrow ? 1.5 : 2.1;
+    renderer.sizes.map = narrow ? 2.3 : 2.1;
     renderer.sizes.visit = narrow ? 2.4 : 3.2;
 
     const nIdx = Array.from({ length: name.count }, (_, i) => i).sort((a, b) => name.points[a * 2] - name.points[b * 2]);
@@ -496,6 +496,7 @@ export async function startField(): Promise<FieldHandle | null> {
       l.el.style.opacity = o.toFixed(3);
       l.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
       l.el.classList.toggle('is-active', isActive);
+      l.el.classList.toggle('is-left', x > vw - 150);
     }
   };
 

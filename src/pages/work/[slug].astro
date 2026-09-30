@@ -65,20 +65,20 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
         </section>
 
         <nav class="case__next" aria-label="Where next">
-          <a class="case__return" href={`/#${chapter.id}`} data-return data-case-id={entry.id} data-chapter-id={chapter.id} data-chapter-title={chapter.label}>
+          <a class="case__return" href={`/#${chapter.id}`} data-return data-case-id={entry.id} data-chapter-id={chapter.id} data-chapter-title={chapter.label} data-observe="case.return" data-observe-label="Return" data-observe-cannot="Whether you finished reading.">
             <Arrow to="left" />
             <span class="case__return-label" data-return-label>Explore {chapter.label}</span>
           </a>
           <ul class="case__more">
-            <li><a class="link link--under" href="/work/">All selected work <Arrow /></a></li>
+            <li><a class="link link--under" href="/work/" data-observe="case.all-work" data-observe-label="All selected work" data-observe-cannot="Whether you are comparing cases.">All selected work <Arrow /></a></li>
             {related && (
               <li>
-                <a class="link link--under" href={`/work/${related.id}/`} data-case-link={related.id} data-observe-label={related.data.title}>
+                <a class="link link--under" href={`/work/${related.id}/`} data-case-link={related.id} data-observe={`case.${related.id}`} data-observe-label={related.data.title} data-observe-cannot="Whether it was the connection or the title that pulled you on.">
                   Related: {related.data.title} <Arrow />
                 </a>
               </li>
             )}
-            <li><a class="link link--under" href="/#contact">Get in touch <Arrow /></a></li>
+            <li><a class="link link--under" href="/#contact" data-observe="case.contact" data-observe-label="Get in touch" data-observe-cannot="Whether you will write.">Get in touch <Arrow /></a></li>
           </ul>
         </nav>
       </article>

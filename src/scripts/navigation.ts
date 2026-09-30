@@ -20,6 +20,10 @@ export function rememberOrigins() {
         : { kind: 'chapter', chapterId: a.dataset.originChapter!, entryId: caseId, scrollY: Math.round(scrollY) };
     if (origin) session.set(KEYS.origin(caseId), { origin });
     else session.remove(KEYS.origin(caseId));
+    // The row that was clicked becomes the Case page: the next page opens out of its outline.
+    const row = a.closest('.entry, .row') ?? a;
+    const r = row.getBoundingClientRect();
+    session.set(KEYS.expandFrom, { top: r.top, right: innerWidth - r.right, bottom: innerHeight - r.bottom, left: r.left });
     record({ type: 'open', t: elapsed(), id: caseId, title: a.dataset.observeLabel ?? a.textContent?.trim() ?? caseId });
   });
 }
