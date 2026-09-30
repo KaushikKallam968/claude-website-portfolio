@@ -32,6 +32,8 @@ Owner-confirmed biographical record (background, not a required route): born in 
 
 Curated journey content, confirmed in the earlier project: New York (current work) → Texas (career) → Silicon Valley (Chegg internship) → Atlanta (Inspire Brands) → Texas (education) → Singapore (life outside work), then contact. It is a curated reverse narrative, not a date sort. The two Texas chapters stay distinct. Childhood stops and a return to Tirupati are excluded.
 
+Each internship lives in its own city, and Singapore holds only personal life (owner decision, September 30, 2026). Texas: career is JPMorganChase only. The Chegg contract that followed the internship (remote from Texas, August to November 2024, with the Chegg Discord case) is told in the Silicon Valley chapter as "After the summer", beside the internship it grew out of; it stays attributed to Chegg and marked remote from Texas.
+
 Roles and dates:
 
 - Senior Quantitative UX Researcher · JPMorganChase · NYC · June 2026 to present (formal profile title: Senior Quantitative Behavioral Researcher; the site uses the functional title).

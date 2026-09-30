@@ -124,7 +124,7 @@ export const chapters: Chapter[] = [
     id: 'texas-career',
     title: 'Texas',
     label: 'Texas: career',
-    work: 'Chase Mobile · Chegg Discord',
+    work: 'Chase Mobile · account opening',
     place: { name: 'Plano, Texas', lat: 33.0198, lon: -96.6989, timeZone: 'America/Chicago' },
     period: '2024 to 2026',
     lead: 'Before moving to New York, I worked on another team at JPMorganChase in Texas.',
@@ -163,11 +163,49 @@ export const chapters: Chapter[] = [
         draft: true,
       },
     ],
+  },
+  {
+    id: 'silicon-valley',
+    title: 'Silicon Valley',
+    label: 'Silicon Valley',
+    work: 'Chegg Mexico · Chegg Discord',
+    place: { name: 'Santa Clara County, California', lat: 37.3541, lon: -121.9552, timeZone: 'America/Los_Angeles' },
+    period: 'Summer 2024',
+    intro: [
+      'In the summer of 2024, I interned at Chegg in Silicon Valley, working on understanding students’ needs and evaluating learning experiences.',
+    ],
+    roles: [
+      {
+        title: 'UX Research intern',
+        org: 'Chegg',
+        period: 'June to August 2024',
+        where: 'Santa Clara County, California',
+        highlights: ['Mixed-methods localization research for Mexico: a 1,000-student comparative survey and 12 interviews, leading to a cross-language search recommendation.'],
+        more: '/work/chegg-mexico/',
+      },
+    ],
+    entries: [
+      {
+        id: 'chegg-mexico',
+        title: 'Chegg Mexico',
+        kind: 'case',
+        context: 'Chegg · Mixed-methods localization research',
+        preview: [
+          'Localizing a learning product meant understanding how students studied, the support they relied on, and how they moved between languages.',
+          'Interviews revealed that students searched in both Spanish and English. I recommended that a Spanish search could retrieve a relevant answer from Chegg’s English database.',
+        ],
+        contribution: 'I worked across the survey and interview phases and made the cross-language search recommendation.',
+        status: 'Mixed-methods study completed · cross-language search implementation reported',
+        action: 'Explore the Mexico case',
+        figure: 'mexico',
+        draft: true,
+      },
+    ],
     subsections: [
       {
-        heading: 'Earlier in Texas: Chegg contract work',
+        heading: 'After the summer: Chegg contract work',
         text: [
-          'Before joining Chase, I returned to Texas and continued working remotely with Chegg after my Silicon Valley internship. I was one of two interns who moved into a contractor role.',
+          'After the internship, I returned to Texas and kept working with Chegg remotely until I joined Chase. I was one of two interns who moved into a contractor role.',
           'That work included studying how AI-powered academic support could fit into students’ existing Discord routines.',
         ],
         role: {
@@ -195,44 +233,6 @@ export const chapters: Chapter[] = [
             draft: true,
           },
         ],
-      },
-    ],
-  },
-  {
-    id: 'silicon-valley',
-    title: 'Silicon Valley',
-    label: 'Silicon Valley',
-    work: 'Chegg Mexico',
-    place: { name: 'Santa Clara County, California', lat: 37.3541, lon: -121.9552, timeZone: 'America/Los_Angeles' },
-    period: 'Summer 2024',
-    intro: [
-      'The contract followed a summer at Chegg in Silicon Valley, where I worked on understanding students’ needs and evaluating learning experiences.',
-    ],
-    roles: [
-      {
-        title: 'UX Research intern',
-        org: 'Chegg',
-        period: 'June to August 2024',
-        where: 'Santa Clara County, California',
-        highlights: ['Mixed-methods localization research for Mexico: a 1,000-student comparative survey and 12 interviews, leading to a cross-language search recommendation.'],
-        more: '/work/chegg-mexico/',
-      },
-    ],
-    entries: [
-      {
-        id: 'chegg-mexico',
-        title: 'Chegg Mexico',
-        kind: 'case',
-        context: 'Chegg · Mixed-methods localization research',
-        preview: [
-          'Localizing a learning product meant understanding how students studied, the support they relied on, and how they moved between languages.',
-          'Interviews revealed that students searched in both Spanish and English. I recommended that a Spanish search could retrieve a relevant answer from Chegg’s English database.',
-        ],
-        contribution: 'I worked across the survey and interview phases and made the cross-language search recommendation.',
-        status: 'Mixed-methods study completed · cross-language search implementation reported',
-        action: 'Explore the Mexico case',
-        figure: 'mexico',
-        draft: true,
       },
     ],
   },
@@ -330,9 +330,24 @@ export function entryFor(id: string) {
   return found;
 }
 
-/** Every Role, most recent first (the Journey's order is already reverse chronological). */
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+/** When a Role ended, from its period ("June to August 2024", "June 2026 to present"), as a sortable number. */
+function ended(period: string) {
+  const end = period.split(' to ').pop()!.trim();
+  if (end === 'present') return Infinity;
+  const [month, year] = end.split(' ');
+  return Number(year) * 12 + MONTHS.indexOf(month);
+}
+
+/**
+ * Every Role, most recent first. A Chapter can tell its roles in story order (Silicon Valley tells the
+ * internship before the contract that followed it), so the résumé sorts them by when each ended.
+ */
 export function allRoles() {
-  return chapters.flatMap((c) => [...c.roles, ...(c.subsections ?? []).flatMap((s) => (s.role ? [s.role] : []))]);
+  return chapters
+    .flatMap((c) => [...c.roles, ...(c.subsections ?? []).flatMap((s) => (s.role ? [s.role] : []))])
+    .sort((a, b) => ended(b.period) - ended(a.period));
 }
 
 export const kindLabels: Record<EntryKind, string> = {

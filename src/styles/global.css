@@ -153,10 +153,10 @@ html:not(.js) [data-clock], html:not(.js) .chapter__meta-live, html:not(.js) .sh
 .link--under:hover { animation: relink 0.9s var(--ease-out); }
 @keyframes relink { 0% { background-position: 100% 100%; background-size: 100% 1px; } 45% { background-position: 100% 100%; background-size: 0 1px; } 46% { background-position: 0 100%; } 100% { background-position: 0 100%; background-size: 100% 1px; } }
 
-/* On touch, text links keep their size and their underline but gain a 44px-tall hit area. */
+/* On touch, text links and Case titles keep their size and their underline but gain a 44px-tall hit area. */
 @media (pointer: coarse) {
-  .link, .top__name { position: relative; }
-  .link::after, .top__name::after { content: ''; position: absolute; inset: -11px -6px; }
+  .link, .top__name, .entry__link, .row__link { position: relative; }
+  .link::after, .top__name::after, .entry__link::after, .row__link::after { content: ''; position: absolute; inset: -11px -6px; }
 }
 
 .draft-marker {
