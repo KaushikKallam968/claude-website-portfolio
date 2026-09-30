@@ -212,9 +212,13 @@ export async function startField(): Promise<FieldHandle | null> {
     return { x, y, z: cityZoom };
   };
 
+  // What the dots were last built for: the name's dots depend on the screen's width and the name's size only.
+  let builtFor = { width: 0, size: 0 };
+  const nameSize = () => parseFloat(getComputedStyle(heading!).fontSize);
+
   function buildDots() {
-    const cs = getComputedStyle(heading!);
-    const size = parseFloat(cs.fontSize);
+    const size = nameSize();
+    builtFor = { width: innerWidth, size };
     const spacing = Math.min(5.2, Math.max(2.3, size / 52));
     const name = sampleName(heading!, spacing);
     renderer.sizes.name = spacing * (narrow ? 1.08 : 0.94);
@@ -746,8 +750,10 @@ export async function startField(): Promise<FieldHandle | null> {
     resizeTimer = window.setTimeout(() => {
       labels.forEach((l) => (l.w = 0));
       collectQuiet();
+      // A phone's URL bar sliding in and out changes only the height: the dots stay as they are.
+      const reshaped = innerWidth !== builtFor.width || nameSize() !== builtFor.size;
       measure();
-      buildDots();
+      if (reshaped) buildDots();
       updateVisit();
     }, 160);
   });
