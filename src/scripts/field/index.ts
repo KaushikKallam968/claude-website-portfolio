@@ -550,6 +550,7 @@ export async function startField(): Promise<FieldHandle | null> {
   };
 
   type Box = { x0: number; y0: number; x1: number; y1: number };
+  const nameWords = [...document.querySelectorAll<HTMLElement>('.hero__word')];
   const placeLabels = () => {
     const show = frame.routeVis;
     const leg = frame.leg[2] > 0 ? [frame.leg[0], frame.leg[1]] : [];
@@ -563,7 +564,10 @@ export async function startField(): Promise<FieldHandle | null> {
         const [x, y] = toScreen(l.x, l.y);
         return { x0: x - 12, y0: y - 12, x1: x + 12, y1: y + 12 };
       });
-    const text: Box[] = quietRects.map((q) => ({ x0: q.left - 8, y0: q.top - 8, x1: q.right + 8, y1: q.bottom + 8 }));
+    // The name's words are obstacles too: its letters are real text, drawn by the dots while it forms.
+    const text: Box[] = [...quietRects, ...nameWords.map((w) => w.getBoundingClientRect())]
+      .filter((q) => q.bottom > 0 && q.top < vh)
+      .map((q) => ({ x0: q.left - 8, y0: q.top - 8, x1: q.right + 8, y1: q.bottom + 8 }));
     const overlaps = (a: Box, b: Box) => !(a.x1 < b.x0 || a.x0 > b.x1 || a.y1 < b.y0 || a.y0 > b.y1);
     const placed: Box[] = [];
     for (const l of [...labels].sort((a, b) => rank(a.t) - rank(b.t))) {

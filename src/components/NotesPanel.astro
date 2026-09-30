@@ -56,6 +56,13 @@
   :global(.note__cannot::before) { content: 'can’t tell: '; opacity: 0.7; }
   :global(.note--untagged .note__t::after) { content: ' gap'; }
   .notes__empty { color: var(--ink-2); }
+  /* Touch: the notes switches get 44px hit areas, spaced so they never overlap. */
+  @media (pointer: coarse) {
+    .notes__pause, .notes__toggle { position: relative; }
+    .notes__pause::after, .notes__toggle::after { content: ''; position: absolute; inset: -13px -8px; }
+    .notes__live { margin: 14px 0 26px; }
+    .notes__live--lens { margin-top: 0; }
+  }
   :global(html.notes-off) .notes__list,
   :global(html.notes-off) .notes__about,
   :global(html.notes-off) .notes__live { display: none; }
@@ -73,18 +80,20 @@
       z-index: 39;
       display: grid;
       grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-rows: minmax(21px, auto);
       column-gap: 12px;
       align-items: baseline;
       background: var(--paper);
       border-bottom: 1px solid var(--note);
-      padding: 7px var(--margin) 8px;
+      /* 44px tall, so the Show toggle's hit area can fill it. */
+      padding: 11px var(--margin);
       transition: transform 0.7s var(--ease-out);
     }
     :global(html.nav-hidden:not(.notes-open)) .notes { transform: translateY(calc(-100% - var(--top-h, 64px))); }
     .notes__head { display: contents; }
     .notes__title { grid-column: 1; grid-row: 1; white-space: nowrap; }
     .notes__toggle { grid-column: 3; grid-row: 1; position: relative; }
-    .notes__toggle::after { content: ''; position: absolute; inset: -14px -12px; }
+    .notes__toggle::after { content: ''; position: absolute; inset: -13px -12px; }
     .notes__latest {
       display: block;
       grid-column: 2;

@@ -150,6 +150,12 @@ html { scrollbar-color: var(--ink-3) var(--paper); caret-color: var(--note); acc
 .link--under:hover { animation: relink 0.9s var(--ease-out); }
 @keyframes relink { 0% { background-position: 100% 100%; background-size: 100% 1px; } 45% { background-position: 100% 100%; background-size: 0 1px; } 46% { background-position: 0 100%; } 100% { background-position: 0 100%; background-size: 100% 1px; } }
 
+/* On touch, text links keep their size and their underline but gain a 44px-tall hit area. */
+@media (pointer: coarse) {
+  .link, .top__name { position: relative; }
+  .link::after, .top__name::after { content: ''; position: absolute; inset: -11px -6px; }
+}
+
 .draft-marker {
   display: inline-block; font-family: var(--sans); font-size: var(--t-data); font-weight: 520; letter-spacing: 0.01em; line-height: 1.4;
   color: var(--ink-2); border: 1px solid var(--rule); padding: 0 6px; vertical-align: middle;
