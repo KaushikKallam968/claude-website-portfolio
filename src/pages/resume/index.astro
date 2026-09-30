@@ -1,10 +1,20 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Arrow from '../../components/Arrow.astro';
-import { allRoles, closing } from '../../data/journey';
+import { allEntries, allRoles, closing, type Role } from '../../data/journey';
+
+const summaries = new Map(allEntries().filter(({ entry }) => entry.kind === 'summary').map(({ entry }) => [`/#${entry.id}`, entry]));
+
+/** What a Role's link says: a Case is read, a Summary is read in place, anything else is found on the Journey. */
+function moreLink(r: Role) {
+  const summary = summaries.get(r.more);
+  if (r.more.startsWith('/work/')) return { label: 'Read the case', observe: `more about ${r.title}` };
+  if (summary) return { label: 'Read the summary', observe: `the summary of ${summary.title}` };
+  return { label: 'On the journey', observe: `more about ${r.title}` };
+}
 
 /** Built from the Journey's Roles (the owner's LinkedIn profile, résumé and accepted chapter copy). No metrics are added. */
-const roles = allRoles();
+const roles = allRoles().map((r) => ({ ...r, link: moreLink(r) }));
 ---
 
 <Base title="Résumé · Kaushik Kallam" current="resume" description="Résumé of Kaushik Kallam, Senior Quantitative UX Researcher at JPMorganChase in New York.">
@@ -29,7 +39,7 @@ const roles = allRoles();
               <h3 class="cv__title">{r.title}</h3>
               <p class="cv__org">{r.org} · {r.where}</p>
               <ul class="cv__points">{r.highlights.map((p) => <li>{p}</li>)}</ul>
-              <a class="cv__more link" href={r.more} data-observe={`resume.more.${r.more.replace(/[^a-z-]/g, '')}`} data-observe-label={`more about ${r.title}`} data-observe-cannot="Whether the résumé line was enough.">{r.more.startsWith('/work/') ? 'Read the case' : 'On the journey'} <Arrow /></a>
+              <a class="cv__more link" href={r.more} data-observe={`resume.more.${r.more.replace(/[^a-z-]/g, '')}`} data-observe-label={r.link.observe} data-observe-cannot="Whether the résumé line was enough.">{r.link.label} <Arrow /></a>
             </div>
           </li>
         ))}
