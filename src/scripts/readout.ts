@@ -9,7 +9,7 @@ const listFormat = new Intl.ListFormat('en', { type: 'conjunction' });
  * spent in a Chapter (the introduction, this close, Cases, other pages) is its own row, so the rows add up
  * to the total. Chapters with less than a second of reading are left out (that moment joins everywhere else),
  * and a line says when that is all of them, so a visitor who jumps straight to Contact sees an honest short
- * readout rather than a column of zeros.
+ * readout rather than a column of zeros. With no Case opened either, that one line says both.
  *
  * It is a snapshot of the visit up to the close, taken as the close rises into view: reading the readout does
  * not change it, so nothing re-flows while it is read. Leaving and coming back takes a new one.
@@ -39,17 +39,24 @@ export function startReadout() {
       li.style.setProperty('--share', String(ms / longest));
       li.querySelector('.readout__value')!.textContent = formatDuration(ms);
     });
-    if (empty) empty.hidden = bars.some((li) => li.dataset.bar !== 'outside' && !li.hidden);
+    const noChapters = !bars.some((li) => li.dataset.bar !== 'outside' && !li.hidden);
+    const noCases = r.casesOpened.length === 0;
     // The portrait is drawn into these rows, so it re-measures when the set of rows changes.
     const now = bars.map((li) => (li.hidden ? 0 : 1)).join('');
     if (now !== shown) {
       shown = now;
       document.dispatchEvent(new CustomEvent('readout:rows'));
     }
+    // Nothing in a Chapter and no Case opened is one statement, not two lines that say the same thing.
+    if (empty) {
+      empty.hidden = !noChapters;
+      empty.textContent = noCases ? 'You haven’t stopped in a chapter or opened a case. That could mean many things.' : 'You haven’t spent a second in any chapter.';
+    }
+    cases.hidden = noChapters && noCases;
     const one = r.casesOpened.length === 1;
-    cases.textContent = r.casesOpened.length
-      ? `${sentence(`You opened ${listFormat.format(r.casesOpened.map((c) => c.title))}`)} Whether ${one ? 'it was' : 'they were'} what you came for, this site can’t tell.`
-      : 'You didn’t open a case. That could mean many things.';
+    cases.textContent = noCases
+      ? 'You didn’t open a case. That could mean many things.'
+      : `${sentence(`You opened ${listFormat.format(r.casesOpened.map((c) => c.title))}`)} Whether ${one ? 'it was' : 'they were'} what you came for, this site can’t tell.`;
     // The portrait is drawn from the same moment.
     document.dispatchEvent(new CustomEvent('readout:paint'));
   };
