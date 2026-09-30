@@ -120,7 +120,8 @@ const nav = [
     .top__where { display: none; }
     .top__nav { gap: 12px; }
   }
+  /* Room for the notes ticker that sits under the top bar on smaller screens. */
   @media (max-width: 1100px) {
-    :global(body) { padding-bottom: 56px; }
+    :global(body:has(.notes)) { padding-top: 36px; }
   }
 </style>

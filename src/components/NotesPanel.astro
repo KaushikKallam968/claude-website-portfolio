@@ -58,47 +58,58 @@
   :global(html.notes-off) .notes__live { display: none; }
   .notes__latest { display: none; }
 
-  /* Phones and tablets: the notes rest as a small chip in the corner, briefly show each new note,
-     and open into a sheet along the bottom edge. */
+  /* Phones and tablets: the notes become a one-line ticker under the top bar, showing the latest note.
+     It leaves with the top bar while reading down and returns with it, so it never sits over the text
+     being read. Show opens the full list as a sheet under the bar. */
   @media (max-width: 1100px) {
     .notes {
       position: fixed;
-      right: var(--margin);
-      bottom: calc(12px + env(safe-area-inset-bottom));
-      z-index: 30;
-      max-width: min(30rem, calc(100vw - 2 * var(--margin)));
+      top: var(--top-h, 64px);
+      left: 0;
+      right: 0;
+      z-index: 39;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      column-gap: 12px;
+      align-items: baseline;
       background: var(--paper);
-      border: 1px solid var(--note);
-      padding: 0 12px 8px;
-      overscroll-behavior: contain;
+      border-bottom: 1px solid var(--note);
+      padding: 7px var(--margin) 8px;
+      transition: transform 0.7s var(--ease-out);
     }
-    .notes__head { border-top: 0; padding-top: 8px; gap: 16px; }
-    :global(html:not(.notes-open)) .notes__long { display: none; }
+    :global(html.nav-hidden:not(.notes-open)) .notes { transform: translateY(calc(-100% - var(--top-h, 64px))); }
+    .notes__head { display: contents; }
+    .notes__title { grid-column: 1; grid-row: 1; white-space: nowrap; }
+    .notes__toggle { grid-column: 3; grid-row: 1; }
     .notes__latest {
-      margin: 4px 0 0;
+      display: block;
+      grid-column: 2;
+      grid-row: 1;
+      margin: 0;
       color: var(--ink);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 34ch;
     }
-    :global(html.notes-peek) .notes__latest { display: block; animation: peek 0.6s var(--ease-out) both; }
-    @keyframes peek { from { opacity: 0; translate: 0 6px; } }
+    .notes__about, .notes__live, .notes__list { grid-column: 1 / -1; }
+    :global(html:not(.notes-open)) .notes__long,
     :global(html:not(.notes-open)) .notes__list,
     :global(html:not(.notes-open)) .notes__about,
     :global(html:not(.notes-open)) .notes__live { display: none; }
+    :global(html.notes-peek) .notes__latest { animation: peek 0.6s var(--ease-out) both; }
+    @keyframes peek { from { opacity: 0; translate: 0 6px; } }
     :global(html.notes-open) .notes {
-      left: 0; right: 0; bottom: 0;
-      max-width: none;
-      max-height: 60svh;
+      max-height: min(60svh, calc(100svh - var(--top-h, 64px)));
       overflow: auto;
-      border-width: 1px 0 0;
-      padding: 0 var(--margin) calc(10px + env(safe-area-inset-bottom));
+      overscroll-behavior: contain;
+      padding-bottom: 16px;
     }
-    :global(html.notes-open) .notes__head { padding-top: 12px; }
-    :global(html.notes-open) .notes__latest { display: none; }
+    :global(html.notes-open) .notes__latest { visibility: hidden; }
     :global(html.notes-open) .notes__list { display: grid; }
     :global(html.notes-open) .notes__about { display: block; }
     :global(html.notes-open) .notes__live { display: flex; }
+  }
+  @media (max-width: 720px) {
+    .notes { --top-h: 56px; }
   }
 </style>

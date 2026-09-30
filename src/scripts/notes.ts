@@ -157,14 +157,16 @@ function wireChapters() {
 
 const compact = () => matchMedia('(max-width: 1100px)').matches;
 
-/** On small screens the notes rest as a chip; a new note opens it just long enough to be read. */
+/** On small screens the ticker under the top bar shows the latest note; a new one slides in. */
 let peekTimer = 0;
 function peek() {
   const root = document.documentElement;
   if (!compact() || root.classList.contains('notes-open')) return;
+  root.classList.remove('notes-peek');
+  void root.offsetWidth; // restart the animation for back-to-back notes
   root.classList.add('notes-peek');
   clearTimeout(peekTimer);
-  peekTimer = window.setTimeout(() => root.classList.remove('notes-peek'), 4200);
+  peekTimer = window.setTimeout(() => root.classList.remove('notes-peek'), 700);
 }
 
 function wireToggle() {

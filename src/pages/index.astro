@@ -57,7 +57,7 @@ const pad = (v: number) => String(v).padStart(2, '0');
 
     <section class="close" id="contact" aria-labelledby="close-title" data-chapter-section="contact" data-chapter-title="Contact">
       <div class="grid">
-        <h2 id="close-title" class="close__title" tabindex="-1">Your visit, as this page saw it</h2>
+        <h2 id="close-title" class="close__title" tabindex="-1">Your visit, as this site saw it</h2>
         <div class="readout" data-readout>
           <p class="readout__total"><span class="mono num" data-readout-total>0 s</span> so far on this site</p>
           <ol class="readout__bars" data-readout-bars aria-label="Time spent in each chapter">
@@ -69,7 +69,7 @@ const pad = (v: number) => String(v).padStart(2, '0');
               </li>
             ))}
             <li data-bar="outside" class="readout__outside">
-              <span class="readout__label">Outside the chapters</span>
+              <span class="readout__label">Everywhere else</span>
               <span class="readout__track" aria-hidden="true"><span class="readout__fill"></span></span>
               <span class="readout__value mono num">0 s</span>
             </li>
@@ -77,7 +77,7 @@ const pad = (v: number) => String(v).padStart(2, '0');
           <p class="readout__cases" data-readout-cases>No cases opened yet.</p>
         </div>
         <div class="close__text">
-          <p class="close__honest">That’s everything this page could observe. It can’t tell me what you were looking for, so I’d rather ask.</p>
+          <p class="close__honest">That’s everything this site could observe. It can’t tell me what you were looking for, so I’d rather ask.</p>
           <p>{closing.text}</p>
           <p class="close__email"><a class="link link--under" href={`mailto:${closing.email}`} data-observe="contact.email" data-observe-label="my email address" data-observe-cannot="Whether you will write.">{closing.email}</a></p>
           <ul class="close__links">

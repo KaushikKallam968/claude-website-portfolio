@@ -90,8 +90,9 @@ export function wireTopBar() {
     () => {
       const y = scrollY;
       root.classList.toggle('scrolled', y > 8);
-      const focusInBar = Boolean(document.activeElement?.closest('.top'));
-      root.classList.toggle('nav-hidden', y > last && y > 400 && !focusInBar);
+      const focusInBar = Boolean(document.activeElement?.closest('.top, .notes'));
+      const notesOpen = root.classList.contains('notes-open');
+      root.classList.toggle('nav-hidden', y > last && y > 400 && !focusInBar && !notesOpen);
       last = y;
     },
     { passive: true },
