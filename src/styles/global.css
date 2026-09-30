@@ -199,6 +199,8 @@ html.field:not(.motion-done) .route__list { --rule-w: 0; }
   text-shadow: 0 0 2px var(--paper), 0 0 4px var(--paper), 0 0 8px var(--paper), 0 0 14px var(--paper);
 }
 .field-label__name { text-transform: uppercase; letter-spacing: 0.06em; }
+/* A paper backing so route lines and rings never run through the words. */
+.field-label__name, .field-label__time { background: var(--paper); padding: 2px 3px; }
 .field-label.is-left { padding: 0 14px 0 0; translate: -100% -50%; flex-direction: row-reverse; }
 .field-label__time { color: var(--ink-2); }
 .field-label.is-active, .field-label.is-active .field-label__time { color: var(--note); }
