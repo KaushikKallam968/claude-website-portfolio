@@ -134,7 +134,8 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
         const steps = Math.abs(state.off);
         const f0 = flight(count0);
         const k = near ? Math.min(1, Math.max(0, (flight(p) - f0) / Math.max(0.05, 1 - f0))) : Math.min(1, Math.max(0, (p - count0) / countSpan));
-        showHour(Math.min(steps, Math.floor(k * steps + 0.45)), animate);
+        // A band's hours turn as the traveller covers the distance, the last one as it lands.
+        showHour(Math.min(steps, Math.floor(k * steps + (near ? 0.05 : 0.45))), animate);
         [2, 3].forEach((i) => gsap.set(reels[i], { yPercent: y(state.to[i] + DIGITS_PER_TURN) }));
         // The route line fills with the traveller, not ahead of it.
         line?.style.setProperty('--p', (near ? flight(p) : inOut(p)).toFixed(3));

@@ -127,6 +127,9 @@
       grid-column: 2;
       grid-row: 1;
       margin: 0;
+      /* The line is read, never pressed: taps pass through to the bar-wide Show target, even while a new note
+         peeks in (its motion would otherwise lift it above that target). */
+      pointer-events: none;
       color: var(--ink);
       white-space: nowrap;
       overflow: hidden;

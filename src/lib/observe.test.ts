@@ -15,6 +15,13 @@ describe('observation notes', () => {
     });
   });
 
+  it('names the page a pointing note is about, and never doubles a full stop', () => {
+    const obs = createObservation();
+    expect(obs.record({ type: 'point', t: 10, tag: 'lens.toggle', label: 'the tracking lens', pageName: 'Chegg Mexico' })?.shows).toBe('You pointed at the tracking lens on Chegg Mexico.');
+    expect(obs.record({ type: 'point', t: 20, tag: 'case.watched', label: 'watched.', pageName: 'the journey' })?.shows).toBe('You pointed at watched. on the journey.');
+    expect(obs.record({ type: 'point', t: 30, tag: 'case.watched', label: 'watched.' })?.shows).toBe('You pointed at watched.');
+  });
+
   it('lets an element say what pointing at it cannot show', () => {
     const obs = createObservation();
     const note = obs.record({ type: 'point', t: 1200, tag: 'hero.name', label: 'my name', cannotShow: 'Whether you were reading it or passing through.' });

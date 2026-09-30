@@ -119,7 +119,8 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
     font-weight: 520;
   }
   /* Only the words slide: a transformed ancestor would shrink the row-wide link target to itself. */
-  .row__text { display: inline-block; transition: translate 0.8s var(--ease-out); }
+  /* 18ch, the Case heading's measure: a long title wraps the same way at both ends of the transition. */
+  .row__text { display: inline-block; max-width: 18ch; transition: translate 0.8s var(--ease-out); }
   .row__link { text-decoration: none; }
   .row__link:focus-visible { outline: none; }
   .row:has(.row__link:focus-visible) { outline: 2px solid var(--note); outline-offset: 8px; }

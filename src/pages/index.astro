@@ -307,7 +307,8 @@ const fieldPlaces = chapters.map((c) => ({
   @media (max-width: 900px) {
     .readout, .close__text, .close__title { grid-column: 1 / -1; grid-row: auto; }
     .readout__bars { grid-template-columns: 1fr; }
-    .readout__bars li { grid-template-columns: 1fr auto; grid-template-areas: 'label value' 'track track'; }
+    /* Stacked, a label's descenders keep clear of the first row of dots beneath it. */
+    .readout__bars li { grid-template-columns: 1fr auto; grid-template-areas: 'label value' 'track track'; row-gap: 6px; }
     .readout__label { grid-area: label; }
     .readout__track { grid-area: track; }
     .readout__value { grid-area: value; }

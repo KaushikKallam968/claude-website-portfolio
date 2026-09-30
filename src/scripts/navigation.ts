@@ -23,7 +23,7 @@ export function rememberOrigins() {
     else session.remove(KEYS.origin(caseId));
     // The row that was clicked becomes the Case page: the next page opens out of its outline, and only its
     // title travels to the Case's heading. Every other title stays part of the page, so none is left behind.
-    const title = a.closest('.entry, .row')?.querySelector<HTMLElement>('.entry__link, .row__link');
+    const title = a.closest('.entry, .row')?.querySelector<HTMLElement>('.entry__text, .row__text');
     nameTravellingTitle(fromCase ? null : title ?? null, caseId);
     const row = a.closest('.entry, .row') ?? a;
     const r = row.getBoundingClientRect();
@@ -42,7 +42,7 @@ function nameTravellingTitle(el: HTMLElement | null, caseId: string) {
   if (travelling) travelling.style.viewTransitionName = '';
   travelling = el;
   if (el) el.style.viewTransitionName = `case-${caseId}`;
-  const heading = document.getElementById('case-title');
+  const heading = document.querySelector<HTMLElement>('.case__title-text');
   if (heading && !el) heading.style.viewTransitionName = 'none';
 }
 
@@ -101,7 +101,7 @@ export function restoreOnPageShow() {
     if (!(e as PageTransitionEvent).persisted) return;
     restoreIfPending();
     // Back from the Case: the heading's name was only for the way out (the way back is named in Base.astro).
-    document.getElementById('case-title')?.style.removeProperty('view-transition-name');
+    document.querySelector<HTMLElement>('.case__title-text')?.style.removeProperty('view-transition-name');
   });
 }
 

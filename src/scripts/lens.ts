@@ -217,7 +217,8 @@ export function startLens() {
         const clash = (t: { x0: number; y0: number; x1: number; y1: number }) => x0 < t.x1 && x0 + m.labelW > t.x0 && y0 + dy < t.y1 && y0 + dy + m.labelH > t.y0;
         // Clear of labels already placed, and of every other outlined control, so no label covers a control.
         const hits = () => taken.some(clash) || rects.some((o, j) => j !== i && !covered[j] && o.width > 0 && clash({ x0: o.left - 4, y0: o.top - 4, x1: o.right + 4, y1: o.bottom + 4 }));
-        for (let k = 0; k < 4 && hits(); k++) dy += (below ? 1 : -1) * (m.labelH + 2);
+        // Two steps at most: a label further from its outline than that no longer reads as its name.
+        for (let k = 0; k < 2 && hits(); k++) dy += (below ? 1 : -1) * (m.labelH + 2);
         // With no clear place the label is left out; the outline still marks the control.
         const clear = !hits();
         m.label.style.visibility = clear ? '' : 'hidden';

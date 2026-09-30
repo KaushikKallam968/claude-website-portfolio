@@ -97,6 +97,7 @@ function wirePointing() {
       t: elapsed(),
       tag,
       label: el.dataset.observeLabel ?? el.textContent?.trim() ?? tag,
+      pageName: pageName(),
       cannotShow: el.dataset.observeCannot,
     });
   });

@@ -5,7 +5,7 @@
 import { sentence } from './format';
 
 export type RawEvent =
-  | { type: 'point'; t: number; tag: string; label: string; cannotShow?: string }
+  | { type: 'point'; t: number; tag: string; label: string; pageName?: string; cannotShow?: string }
   | { type: 'press'; t: number; tag: string | null; label?: string }
   /** Where the visit began; its name, because the note is read on later pages too. */
   | { type: 'arrive'; t: number; page: string; pageName: string }
@@ -67,7 +67,7 @@ export function createObservation() {
             event: 'point',
             tag: e.tag,
             quality: 'tagged',
-            shows: `You pointed at ${e.label}.`,
+            shows: sentence(`You pointed at ${e.label}${e.pageName ? ` on ${e.pageName}` : ''}`),
             cannotShow: e.cannotShow ?? 'Whether you meant to open it.',
           };
         case 'press':

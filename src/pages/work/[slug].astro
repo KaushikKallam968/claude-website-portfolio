@@ -28,7 +28,7 @@ const last = at + 1 === ordered.length;
     <div class="case__layout">
       <article class="case__article" aria-labelledby="case-title">
         <header class="case__head">
-          <h1 id="case-title" class:list={['case__title', { 'case__title--long': d.title.length > 25 }]} style={`view-transition-name: case-${entry.id}`}>{d.title}</h1>
+          <h1 id="case-title" class:list={['case__title', { 'case__title--long': d.title.length > 25 }]}><span class="case__title-text" style={`view-transition-name: case-${entry.id}`}>{d.title}</span></h1>
           <p class="case__crumbs">
             <span>{keepDots(d.context)}</span>
             <span>Case {d.order} of {ordered.length}</span>
@@ -144,6 +144,8 @@ const last = at + 1 === ordered.length;
   }
   /* Long titles step down so the question and summary still share the first screen. */
   .case__title--long { font-size: var(--t-page-long); max-width: 18ch; }
+  /* The words that travel from a row title: a box measured by line height, like the row's own words. */
+  .case__title-text { display: inline-block; }
   .case__question { margin-top: clamp(22px, 3vw, 40px); font-size: var(--t-lede); line-height: 1.32; letter-spacing: -0.015em; max-width: 34ch; }
 
   .tldr {

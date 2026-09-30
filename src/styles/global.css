@@ -204,7 +204,9 @@ html.vt-return::view-transition-new(root) { animation: 0.45s cubic-bezier(0.16, 
 /* The travelling title is always one solid title: each image keeps its own proportions as it scales with the
    moving box, and they hand over in a short cut at mid-flight, so neither a gap nor a double exposure shows.
    A heading with no partner leaves in place with the page; one with nothing to come from arrives with it. */
-.entry__link, .row__link, .case__title { view-transition-class: case-title; }
+/* The words themselves travel (the title's text, not its link), so every end of the flight is a box of the same
+   shape as the words in it. */
+.entry__text, .row__text, .case__title-text { view-transition-class: case-title; }
 ::view-transition-old(.case-title) { animation: 0.16s linear 0.42s both vt-out; }
 ::view-transition-new(.case-title) { animation: 0.16s linear 0.42s both vt-fade; }
 ::view-transition-old(.case-title):only-child { animation: 0.3s cubic-bezier(0.16, 1, 0.3, 1) both vt-out; }
