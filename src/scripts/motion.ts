@@ -117,7 +117,7 @@ function chapters() {
     const word = ch.querySelector<HTMLElement>('.chapter__word');
     const head = ch.querySelector('.chapter__head');
     if (word) {
-      const s = SplitText.create(word, { type: 'words,chars', charsClass: 'ch', wordsClass: 'wd', mask: 'chars', aria: 'auto' });
+      const s = SplitText.create(word, { type: 'words,chars', charsClass: 'ch', wordsClass: 'wd', mask: 'chars', aria: 'none' });
       gsap.from(s.chars, {
         yPercent: 110,
         duration: 1.3,
@@ -146,6 +146,8 @@ function chapters() {
  */
 function figureScenes() {
   const STEP_MS = 2400;
+  // Parts are hidden for the step sequence only once this script is running, so a failed load never hides them.
+  if (document.querySelector('[data-fig-scene]')) document.documentElement.classList.add('scenes');
   document.querySelectorAll<HTMLElement>('[data-fig-scene]').forEach((scene) => {
     const stage = scene.querySelector<HTMLElement>('.scene__stage')!;
     const marks: number[] = JSON.parse(scene.dataset.steps ?? '[]');
@@ -165,6 +167,11 @@ function figureScenes() {
     const play = () => {
       clearTimeout(timer);
       if (step >= marks.length - 1) return;
+      // Paused: wait, and carry on when live motion resumes.
+      if (livePaused()) {
+        timer = window.setTimeout(play, 500);
+        return;
+      }
       show(step + 1);
       timer = window.setTimeout(play, STEP_MS);
     };

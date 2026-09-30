@@ -176,7 +176,7 @@ const fieldPlaces = chapters.map((c) => ({
     padding: 12px 10px 16px 0;
     text-decoration: none;
     position: relative;
-    font-size: 0.9375rem;
+    font-size: var(--t-meta);
   }
   .route__item::before {
     content: '';
@@ -191,7 +191,7 @@ const fieldPlaces = chapters.map((c) => ({
   .route__item:hover::before, .route__item:focus-visible::before, .route__item[aria-current='true']::before { transform: scaleX(1); }
   .route__no { color: var(--ink-3); }
   .route__place { font-weight: 520; letter-spacing: -0.01em; line-height: 1.2; }
-  .route__meta { color: var(--ink-3); display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.6875rem; }
+  .route__meta { color: var(--ink-3); display: flex; gap: 8px; flex-wrap: wrap; font-size: var(--t-data-s); }
 
   @media (max-width: 1100px) {
     .rail { position: static; width: auto; }
@@ -208,7 +208,7 @@ const fieldPlaces = chapters.map((c) => ({
   .close { padding-top: clamp(120px, 16vw, 240px); scroll-margin-top: 64px; }
   .close__title {
     grid-column: 1 / span 10;
-    font-size: clamp(2.6rem, 6.4vw, 6rem);
+    font-size: var(--t-page);
     line-height: 0.9;
     letter-spacing: -0.04em;
     font-weight: 520;
@@ -217,23 +217,23 @@ const fieldPlaces = chapters.map((c) => ({
   /* The visit is the last image: a chart at display scale, drawn (with the Field) in the dots that drew the
      name and the world. */
   .readout { grid-column: 1 / span 8; margin-top: clamp(40px, 5vw, 72px); color: var(--note); }
-  .readout__total { font-size: 0.9375rem; color: var(--ink-2); margin-bottom: 18px; }
-  .readout__total .mono { font-size: 0.8125rem; color: var(--note); margin-right: 0.3em; }
+  .readout__total { font-size: var(--t-meta); color: var(--ink-2); margin-bottom: 18px; }
+  .readout__total .mono { font-size: var(--t-small); color: var(--note); margin-right: 0.3em; }
   /* One grid for all rows, so every track starts on the same line and lengths compare. */
   .readout__bars { display: grid; grid-template-columns: max-content 1fr 5.5em; gap: clamp(10px, 1.4vw, 20px) clamp(14px, 2vw, 32px); }
   .readout__bars li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: end; }
-  .readout__label { color: var(--ink); font-size: clamp(1.25rem, 0.8rem + 1vw, 1.9rem); line-height: 1; letter-spacing: -0.028em; font-weight: 520; white-space: nowrap; }
+  .readout__label { color: var(--ink); font-size: var(--t-readout); line-height: 1; letter-spacing: -0.028em; font-weight: 520; white-space: nowrap; }
   .readout__track { height: 14px; background: var(--note-soft); position: relative; overflow: hidden; }
   .readout__fill { position: absolute; inset: 0; background: var(--note); transform: scaleX(var(--share, 0)); transform-origin: left; transition: transform 1.2s var(--ease-out); }
   .readout__outside .readout__label { color: var(--ink-2); }
-  .readout__unit { margin-top: 14px; color: var(--note); font-size: 0.9375rem; }
+  .readout__unit { margin-top: 14px; color: var(--note); font-size: var(--t-meta); }
   /* With the Field running, the bars are drawn in dots: the same dots that drew the name and the world. */
   :global(html.field-on) .readout__track { height: clamp(34px, 3.6vw, 52px); background: none; overflow: visible; border-bottom: 1px solid var(--rule); }
   :global(html.field-on) .readout__fill { display: none; }
   .readout__outside .readout__fill { background: var(--ink-3); }
   @media (prefers-reduced-motion: reduce) { .readout__fill { transition: none; } }
-  .readout__value { text-align: right; font-size: 0.875rem; }
-  .readout__cases { margin-top: 18px; color: var(--ink-2); font-size: 0.9375rem; }
+  .readout__value { text-align: right; font-size: var(--t-fine); }
+  .readout__cases { margin-top: 18px; color: var(--ink-2); font-size: var(--t-meta); }
   /* The hand-off shares the final screen with the portrait. */
   .close__text {
     grid-column: 9 / -1;
@@ -248,7 +248,7 @@ const fieldPlaces = chapters.map((c) => ({
     letter-spacing: -0.012em;
   }
   .close__honest { color: var(--note); }
-  .close__email { font-size: clamp(1.4rem, 0.9rem + 1.1vw, 2.1rem); letter-spacing: -0.03em; font-weight: 520; margin-top: 0.4em; overflow-wrap: anywhere; }
+  .close__email { font-size: var(--t-email); letter-spacing: -0.03em; font-weight: 520; margin-top: 0.4em; overflow-wrap: anywhere; }
   .close__links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: var(--t-body); }
   .foot { margin-top: clamp(80px, 10vw, 160px); padding-block: 22px; border-top: 1px solid var(--rule); }
   .foot p:first-child { grid-column: 1 / span 6; }

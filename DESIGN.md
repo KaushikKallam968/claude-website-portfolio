@@ -18,6 +18,8 @@ colors:
   rule-dark: "rgb(236 235 230 / 0.16)"
   note-dark: "#8e98ff"
   note-soft-dark: "rgb(142 152 255 / 0.12)"
+  print-paper: "#fff"
+  print-ink: "#000"
 typography:
   display:
     fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
@@ -44,6 +46,46 @@ typography:
     fontWeight: 530
     lineHeight: 0.92
     letterSpacing: "-0.04em"
+  page-title-long:
+    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(2.4rem, 6cqi, 4.5rem)"
+    fontWeight: 530
+    lineHeight: 0.92
+    letterSpacing: "-0.04em"
+  page-title-wide:
+    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(2.6rem, 6.4vw, 6rem)"
+    fontWeight: 530
+    lineHeight: 0.9
+    letterSpacing: "-0.04em"
+  row-title:
+    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(2rem, 6cqi, 5rem)"
+    fontWeight: 520
+    lineHeight: 0.95
+    letterSpacing: "-0.04em"
+  clock-far:
+    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(4.4rem, 22cqi, 19rem)"
+    fontWeight: 440
+    lineHeight: 1
+    letterSpacing: "-0.04em"
+  readout-label:
+    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(1.25rem, 0.8rem + 1vw, 1.9rem)"
+    fontWeight: 520
+    lineHeight: 1
+    letterSpacing: "-0.028em"
+  email:
+    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(1.4rem, 0.9rem + 1.1vw, 2.1rem)"
+    fontWeight: 520
+    letterSpacing: "-0.03em"
+  arrow:
+    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(1.5rem, 3cqi, 2.6rem)"
+    fontWeight: 400
+    lineHeight: 1
   title:
     fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem)"
@@ -62,6 +104,16 @@ typography:
     fontWeight: 400
     lineHeight: 1.55
     fontFeature: "'ss01' on"
+  meta:
+    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.9375rem"
+    fontWeight: 400
+    lineHeight: 1.45
+  fine:
+    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.875rem"
+    fontWeight: 400
+    lineHeight: 1.45
   label:
     fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.8125rem"
@@ -79,9 +131,15 @@ typography:
     fontWeight: 400
     lineHeight: 1
     letterSpacing: "0.06em"
+  micro:
+    fontFamily: "Fragment Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
+    fontSize: "0.625rem"
+    fontWeight: 400
+    lineHeight: 1
 rounded:
   none: "0px"
   focus: "1px"
+  device: "16px"
 spacing:
   margin: "clamp(16px, 2.3vw, 36px)"
   gutter: "clamp(12px, 1.5vw, 24px)"
@@ -214,13 +272,18 @@ Dark theme swaps each token for its `-dark` twin with no structural change. The 
 - **Display** (530, clamp(4.2rem, 18.6vw, 23rem), 0.76): the hero name only. Two lines, the second flush right. With the Field running the HTML letters are transparent and the dots draw them, sampled from the same font, size, tracking and baseline.
 - **Headline** (520, clamp(3.25rem, 12.5cqi, 10rem), 0.84): Chapter titles, with a qualifier at 0.24em in ink-2.
 - **Clock** (440, clamp(3.4rem, 13cqi, 11.5rem), 1, tabular): Time Shift digits in blue; the far Pacific crossing sets at clamp(4.4rem, 22cqi, 19rem) on its own row. The day tag ("+1 day") sits at max(0.14em, 0.875rem), 520.
-- **Page title** (530, clamp(2.8rem, 8cqi, 6rem), 0.92): Case title, Work title; the close title (520, clamp(2.6rem, 6.4vw, 6rem), 0.9), the résumé name (clamp(3rem, 8vw, 6rem), 0.86) and the 404 title (clamp(3rem, 8vw, 6rem), 0.88) share the 6rem ceiling. Work rows and the Case Return link use a 5rem ceiling.
+- **Page title** (530, clamp(2.8rem, 8cqi, 6rem), 0.92): Case title, Work title; Case titles over 25 characters step down to clamp(2.4rem, 6cqi, 4.5rem) so the question and summary share the first screen; the close title (520, clamp(2.6rem, 6.4vw, 6rem), 0.9), the résumé name (clamp(3rem, 8vw, 6rem), 0.86) and the 404 title (clamp(3rem, 8vw, 6rem), 0.88) share the 6rem ceiling. Work rows and the Case Return link use a 5rem ceiling.
 - **Title** (520, `--t-h3`, 1.08): Entry titles, the Prologue sentence, résumé role titles, Case prose h2, limits heading, Also-list names.
 - **Lede** (400 to 520, `--t-lede`, 1.3 to 1.4): hero role and point of view, chapter text, Time Shift sentence, Case question, close text, résumé section heads. Readout row labels sit between lede and title (520, clamp(1.25rem, 0.8rem + 1vw, 1.9rem), 1).
 - **Body** (400, `--t-body`, 1.55; Case prose 1.62): reading text, capped at 52 to 66ch. Figure steps use it too.
-- **Label** (400, 0.8125rem, 0.01em, ink-3): dt labels, footers, metadata.
-- **Data** (Fragment Mono 400, 0.75rem): chapter coordinates, local times and periods, route numbers, readout values (0.875rem), figure step numbers, event and language codes inside figures, the lens tally.
-- **Data small** (Fragment Mono 400, 0.6875rem): note timestamps and "can't tell" lines, Field place labels (name uppercase at 0.06em, then live time), the lens cursor tag. Uppercase mono at 0.06em is also the Notes header, its controls, the Prologue clock and the Time Shift route row.
+- **Meta** (400, `--t-meta` 0.9375rem): entry context lines, captions, secondary actions, status lines, notes-rail text.
+- **Fine** (400, `--t-fine` 0.875rem): figure text and tables, readout values.
+- **Label** (400, `--t-small` 0.8125rem, 0.01em, ink-3): dt labels, footers, metadata.
+- **Data** (Fragment Mono 400, `--t-data` 0.75rem): chapter coordinates, local times and periods, route numbers, readout values (0.875rem), figure step numbers, event and language codes inside figures, the lens tally.
+- **Data small** (Fragment Mono 400, `--t-data-s` 0.6875rem): note timestamps and "can't tell" lines, Field place labels (name uppercase at 0.06em, then live time), the lens cursor tag. Uppercase mono at 0.06em is also the Notes header, its controls, the Prologue clock and the Time Shift route row.
+- **Micro** (Fragment Mono 400, `--t-micro` 0.625rem): lens outline tags and the language codes in the Mexico figure.
+
+Every size in the code is one of these steps; a new size means a new named step here first.
 
 Weights sit in a narrow band: 400 for reading, 440 for clocks and qualifiers, 520 for emphasis and titles, 530 for the largest display, 560 for `strong` and the top-bar name. Headings are `text-wrap: balance`; paragraphs are `pretty`. Numerals that update or align use `tabular-nums`.
 

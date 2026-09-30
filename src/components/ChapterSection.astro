@@ -22,8 +22,9 @@ const groups: { text: string[]; roles: Role[]; heading?: string; entries: Chapte
 <section class="chapter" id={chapter.id} aria-labelledby={`chapter-${chapter.id}`} data-chapter-section={chapter.id} data-chapter-title={chapter.label}>
   <header class="chapter__head grid">
     <h2 class="chapter__title" id={`chapter-${chapter.id}`} tabindex="-1">
-      <span class="chapter__word">{chapter.title}</span>
-      {qualifier && <span class="chapter__qual">{qualifier}</span>}
+      <span class="visually-hidden">{chapter.label}</span>
+      <span class="chapter__word" aria-hidden="true">{chapter.title}</span>
+      {qualifier && <span class="chapter__qual" aria-hidden="true">{qualifier}</span>}
     </h2>
     <dl class="chapter__meta mono num">
       <div><dt>Place</dt><dd>{chapter.place.name}</dd></div>
@@ -113,7 +114,7 @@ const groups: { text: string[]; roles: Role[]; heading?: string; entries: Chapte
   .chapter__lead { color: var(--ink-3); }
   .chapter__facts { display: grid; gap: 6px; font-size: var(--t-body); margin-top: 0.4em; }
   .chapter__facts li { border-top: 1px solid var(--rule); padding-top: 8px; }
-  .chapter__roles { grid-column: 10 / -1; display: grid; gap: 18px; align-content: start; font-size: 0.9375rem; }
+  .chapter__roles { grid-column: 10 / -1; display: grid; gap: 18px; align-content: start; font-size: var(--t-meta); }
   .chapter__roles li { display: grid; gap: 2px; border-top: 1px solid var(--ink); padding-top: 10px; }
   .role__title { font-weight: 520; }
   .entries { margin: clamp(40px, 6vw, 80px) var(--margin) 0; padding-inline: 0; border-bottom: 1px solid var(--rule); }

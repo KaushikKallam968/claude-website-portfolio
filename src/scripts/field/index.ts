@@ -369,15 +369,20 @@ export async function startField(): Promise<FieldHandle | null> {
       }
     });
     renderer.setVisit(visit);
+    force = true;
   }
 
   buildDots();
   measure();
 
+  // Set whenever something changes that scroll position alone would not reveal (colours, the portrait).
+  let force = true;
+
   // ---------- Colours follow the theme ----------
   const readColors = () => {
     const cs = getComputedStyle(root);
     renderer.colors = { ink: cssColor(cs.getPropertyValue('--ink')), note: cssColor(cs.getPropertyValue('--note')) };
+    force = true;
   };
   readColors();
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readColors);
@@ -453,7 +458,6 @@ export async function startField(): Promise<FieldHandle | null> {
     cam: { ...worldCam }, route: 1, routeVis: 0, leg: [0, 0, 0], traveller: [0, 0], active: -1,
     nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, clip: -1e5, quiet: new Float32Array(24),
   };
-  const t0 = performance.now();
   let idle = false;
 
   // ---------- Quiet zones: text that must stay readable over the map ----------
@@ -582,14 +586,24 @@ export async function startField(): Promise<FieldHandle | null> {
       const isActive = rank(l.t) === 0;
       if (choice) placed.push(choice.box);
       l.el.style.opacity = choice ? (show * (isActive || frame.active === -1 ? 1 : 0.6)).toFixed(3) : '0';
+      l.el.style.visibility = choice ? '' : 'hidden';
       l.el.style.transform = `translate3d(${(x + (choice?.dx ?? 0)).toFixed(1)}px, ${(y + (choice?.dy ?? 0)).toFixed(1)}px, 0)`;
       l.el.classList.toggle('is-active', isActive);
       l.el.classList.toggle('is-left', Boolean(choice?.left));
     }
   };
 
+  // Only draw when something changed: scroll, the arrival, the pointer's warmth, dots in flight, or the
+  // pulsing places of a scene (which rest while live motion is paused).
+  let clock = 0;
+  let lastTick = performance.now();
+  let lastKey = '';
   gsap.ticker.add(() => {
     if (document.hidden || lost) return;
+    const now = performance.now();
+    const paused = livePaused();
+    if (!paused) clock += (now - lastTick) / 1000;
+    lastTick = now;
     compute();
     const inHero = scrollY < heroBottom || frame.stage < 0.999;
     if (!inHero && frame.mapVis < 0.002) {
@@ -600,12 +614,22 @@ export async function startField(): Promise<FieldHandle | null> {
       }
       return;
     }
-    if (idle) labelLayer.style.visibility = '';
+    if (idle) {
+      labelLayer.style.visibility = '';
+      force = true;
+    }
     idle = false;
-    const now = performance.now();
-    frame.time = (now - t0) / 1000;
-    frame.sun = sun;
     fillTrail(now);
+    let warm = 0;
+    for (let i = 0; i < TRAIL; i++) warm += trail[i * 3 + 2];
+    const inFlight = (frame.stage > 0.001 && frame.stage < 0.999) || (frame.stage > 1.001 && frame.stage < 1.999);
+    const pulsing = frame.routeVis > 0.001 && !paused;
+    const key = `${scrollY}|${frame.stage.toFixed(4)}|${frame.mapIn}|${frame.route}|${frame.mapVis.toFixed(3)}|${vw}x${vh}`;
+    if (!force && !intro.running && warm < 0.002 && !(inFlight && !paused) && !pulsing && key === lastKey) return;
+    lastKey = key;
+    force = false;
+    frame.time = clock;
+    frame.sun = sun;
     fillQuiet();
     renderer.draw(frame);
     placeLabels();

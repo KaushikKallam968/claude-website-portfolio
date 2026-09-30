@@ -106,8 +106,8 @@ const { kind, compact = false, scene = false } = Astro.props;
     position: relative;
     overflow: hidden;
   }
-  .fig__cap { display: grid; gap: 6px; font-size: 0.875rem; color: var(--ink-2); max-width: 52ch; }
-  .fig__note { color: var(--ink-3); font-size: 0.8125rem; }
+  .fig__cap { display: grid; gap: 6px; font-size: var(--t-fine); color: var(--ink-2); max-width: 52ch; }
+  .fig__note { color: var(--ink-3); font-size: var(--t-small); }
 
   /* Instrumentation: three searches, one record */
   .inst { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: center; }
@@ -116,7 +116,7 @@ const { kind, compact = false, scene = false } = Astro.props;
   .inst__bar { margin: 0; }
   .inst__field, .inst__btn {
     display: block;
-    font-size: 0.75rem;
+    font-size: var(--t-data);
     color: var(--ink-3);
     border: 1px solid var(--ink-3);
     padding: 7px 9px;
@@ -139,7 +139,7 @@ const { kind, compact = false, scene = false } = Astro.props;
   .trace { display: grid; gap: 14px; }
   .trace__row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .trace__row li {
-    font-size: 0.75rem;
+    font-size: var(--t-data);
     padding: 6px 9px;
     border: 1px solid var(--ink-3);
     background: var(--paper);
@@ -162,7 +162,7 @@ const { kind, compact = false, scene = false } = Astro.props;
   .trace__ok { border-color: var(--ink) !important; font-weight: 520; }
 
   /* Discord: a decision table */
-  .deck__table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  .deck__table { width: 100%; border-collapse: collapse; font-size: var(--t-fine); }
   .deck__table th, .deck__table td { text-align: left; padding: 10px 12px 10px 0; border-top: 1px solid var(--rule); vertical-align: top; }
   .deck__table thead th { font-size: var(--t-small); font-weight: 400; color: var(--ink-3); border-top: 0; }
   .deck__table tbody th { font-weight: 520; }
@@ -171,9 +171,9 @@ const { kind, compact = false, scene = false } = Astro.props;
 
   /* Mexico: a search that crosses languages */
   .xl { display: grid; gap: 10px; }
-  .xl__query, .xl__result { margin: 0; display: flex; gap: 12px; align-items: center; background: var(--paper); border: 1px solid var(--ink-3); padding: 10px 12px; font-size: 0.9375rem; }
+  .xl__query, .xl__result { margin: 0; display: flex; gap: 12px; align-items: center; background: var(--paper); border: 1px solid var(--ink-3); padding: 10px 12px; font-size: var(--t-meta); }
   .xl__result { border-color: var(--ink); }
-  .xl__lang { color: var(--ink-3); border: 1px solid currentColor; padding: 1px 5px; font-size: 0.625rem; flex: none; }
+  .xl__lang { color: var(--ink-3); border: 1px solid currentColor; padding: 1px 5px; font-size: var(--t-micro); flex: none; }
   .xl__arrow { margin: 0; color: var(--ink-2); font-size: var(--t-small); padding-left: 12px; }
   .xl__arrow :global(.arrow) { color: var(--ink-3); margin-right: 6px; }
   .xl__typed { border-right: 1.5px solid var(--ink); padding-right: 2px; white-space: nowrap; overflow: hidden; min-width: 0; }
@@ -218,7 +218,10 @@ const { kind, compact = false, scene = false } = Astro.props;
   :global(html.scenes) .fig--scene .xl__arrow,
   :global(html.scenes) .fig--scene .xl__result {
     --k: clamp(0, calc((var(--p, 0) - var(--at)) * 9), 1);
-    opacity: var(--k);
+    /* Upcoming parts rest in ink-3 (still AA on the figure ground) and settle to their own colour as their
+       step plays: nothing starts invisible, and no text ever drops below contrast. */
+    opacity: 1;
+    color: color-mix(in oklab, var(--c, var(--ink)) calc(var(--k) * 100%), var(--ink-3));
     translate: 0 calc((1 - var(--k)) * 12px);
     transition: none;
   }
@@ -236,11 +239,13 @@ const { kind, compact = false, scene = false } = Astro.props;
     animation: none;
     clip-path: inset(0 calc((1 - clamp(0, calc((var(--p, 0) - 0.04) * 3.6), 1)) * 100%) 0 0);
   }
-  :global(html.scenes) .fig--scene .xl__arrow { --at: 0.3; }
+  :global(html.scenes) .fig--scene .xl__arrow { --at: 0.3; --c: var(--ink-2); }
+  :global(html.scenes) .fig--scene .inst__log .inst__none { --c: var(--ink-3); }
   :global(html.scenes) .fig--scene .xl__result { --at: 0.54; }
   :global(html.scenes) .fig--scene .phone {
     --k: clamp(0, calc((var(--p, 0) - var(--at)) * 4), 1);
-    opacity: var(--k);
+    opacity: calc(0.22 + 0.78 * var(--k));
+    filter: grayscale(calc(1 - var(--k)));
   }
   :global(html.scenes) .fig--scene .phone--a { --at: 0.02; translate: calc(12% + (1 - var(--k)) * 30%) calc(8% + (1 - var(--k)) * 20%); rotate: calc(-4deg * var(--k)); }
   :global(html.scenes) .fig--scene .phone--b { --at: 0.3; translate: 0 calc((1 - var(--k)) * 24%); }

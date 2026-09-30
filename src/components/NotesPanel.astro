@@ -12,7 +12,7 @@
   </div>
   <p class="notes__latest" data-notes-latest aria-hidden="true"></p>
   <p class="notes__about">This page keeps notes on what you do here, and on what each note can’t explain. They stay in your browser.</p>
-  <p class="notes__live"><button class="notes__pause mono" type="button" aria-pressed="false" data-live-pause data-observe="live.pause" data-observe-label="Pause live" data-observe-cannot="Whether the moving clocks were a distraction.">Pause live</button> <span>Stops the clocks and the running totals.</span></p>
+  <p class="notes__live"><button class="notes__pause mono" type="button" aria-pressed="false" data-live-pause data-observe="live.pause" data-observe-label="Pause live" data-observe-cannot="Whether the moving clocks were a distraction.">Pause live</button> <span>Stops the clocks, the running totals and the motion that plays on its own.</span></p>
   <p class="notes__live notes__live--lens" hidden><button class="notes__pause mono" type="button" aria-pressed="false" data-lens-toggle data-observe="lens.toggle" data-observe-label="the tracking lens" data-observe-cannot="What you hoped to find in it.">Show tracking</button> <span>Outlines what this page records, and what it doesn’t.</span></p>
   <ol class="notes__list" id="notes-list" data-notes-list>
     <noscript><li class="notes__empty">With scripts off, there’s nothing to note. That’s an honest dataset too.</li></noscript>
@@ -50,9 +50,9 @@
     padding-top: 10px;
     border-top: 1px dotted color-mix(in oklab, var(--note) 50%, transparent);
   }
-  :global(.note__t) { font-family: var(--mono); font-size: 0.6875rem; padding-top: 2px; }
+  :global(.note__t) { font-family: var(--mono); font-size: var(--t-data-s); padding-top: 2px; }
   :global(.note__shows) { color: var(--ink); }
-  :global(.note__cannot) { grid-column: 2; font-family: var(--mono); font-size: 0.6875rem; margin-top: 3px; }
+  :global(.note__cannot) { grid-column: 2; font-family: var(--mono); font-size: var(--t-data-s); margin-top: 3px; }
   :global(.note__cannot::before) { content: 'can’t tell: '; opacity: 0.7; }
   :global(.note--untagged .note__t::after) { content: ' gap'; }
   .notes__empty { color: var(--ink-2); }
@@ -83,7 +83,8 @@
     :global(html.nav-hidden:not(.notes-open)) .notes { transform: translateY(calc(-100% - var(--top-h, 64px))); }
     .notes__head { display: contents; }
     .notes__title { grid-column: 1; grid-row: 1; white-space: nowrap; }
-    .notes__toggle { grid-column: 3; grid-row: 1; }
+    .notes__toggle { grid-column: 3; grid-row: 1; position: relative; }
+    .notes__toggle::after { content: ''; position: absolute; inset: -14px -12px; }
     .notes__latest {
       display: block;
       grid-column: 2;

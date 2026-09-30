@@ -118,11 +118,13 @@ export function startLens() {
   const place = () => {
     let tagged = 0;
     let gaps = 0;
-    for (const m of marks) {
-      const r = m.el.getBoundingClientRect();
+    // Read every rect before writing any style, so the loop never forces a layout per element.
+    const rects = marks.map((m) => m.el.getBoundingClientRect());
+    marks.forEach((m, i) => {
+      const r = rects[i];
       const onScreen = r.bottom > 0 && r.top < innerHeight && r.width > 0;
       m.box.style.display = onScreen ? '' : 'none';
-      if (!onScreen) continue;
+      if (!onScreen) return;
       m.box.style.transform = `translate3d(${r.left - 4}px, ${r.top - 4}px, 0)`;
       m.box.style.width = `${r.width + 8}px`;
       m.box.style.height = `${r.height + 8}px`;
@@ -131,7 +133,7 @@ export function startLens() {
       m.box.classList.toggle('is-right', r.left > innerWidth - 220);
       if (m.tagged) tagged++;
       else gaps++;
-    }
+    });
     tally.textContent = `On screen: ${tagged} tracked · ${gaps} not tracked`;
     raf = requestAnimationFrame(place);
   };

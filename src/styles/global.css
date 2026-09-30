@@ -42,9 +42,22 @@
   --ease-scene: cubic-bezier(0.86, 0, 0.07, 1);
 
   --t-body: clamp(1rem, 0.94rem + 0.28vw, 1.1875rem);
-  --t-small: 0.8125rem;
+  --t-meta: 0.9375rem;   /* metadata, captions, secondary actions */
+  --t-fine: 0.875rem;    /* figure text, readout values */
+  --t-small: 0.8125rem;  /* labels */
+  --t-data: 0.75rem;     /* mono: data, clocks, notes titles */
+  --t-data-s: 0.6875rem; /* mono: note timestamps, place labels */
+  --t-micro: 0.625rem;   /* mono: lens tags, language codes */
   --t-lede: clamp(1.25rem, 1.05rem + 0.8vw, 1.75rem);
   --t-h3: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+  /* Display steps */
+  --t-page: clamp(2.6rem, 6.4vw, 6rem);            /* close title, résumé name, 404 */
+  --t-page-long: clamp(2.4rem, 6cqi, 4.5rem);      /* Case titles over 25 characters */
+  --t-row: clamp(2rem, 6cqi, 5rem);                /* Work rows, the Case Return link */
+  --t-readout: clamp(1.25rem, 0.8rem + 1vw, 1.9rem); /* visit readout row names */
+  --t-email: clamp(1.4rem, 0.9rem + 1.1vw, 2.1rem);  /* the closing email address */
+  --t-arrow: clamp(1.5rem, 3cqi, 2.6rem);          /* Work row arrows */
+  --t-clock-far: clamp(4.4rem, 22cqi, 19rem);      /* the Pacific crossing clock */
 
   color-scheme: light;
 }
@@ -121,7 +134,7 @@ html { scrollbar-color: var(--ink-3) var(--paper); caret-color: var(--note); acc
   padding-inline: var(--margin);
 }
 
-.mono { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.01em; line-height: 1.5; }
+.mono { font-family: var(--mono); font-size: var(--t-data); letter-spacing: 0.01em; line-height: 1.5; }
 .label { font-size: var(--t-small); color: var(--ink-3); letter-spacing: 0.01em; }
 .num { font-variant-numeric: tabular-nums; }
 
@@ -138,17 +151,23 @@ html { scrollbar-color: var(--ink-3) var(--paper); caret-color: var(--note); acc
 @keyframes relink { 0% { background-position: 100% 100%; background-size: 100% 1px; } 45% { background-position: 100% 100%; background-size: 0 1px; } 46% { background-position: 0 100%; } 100% { background-position: 0 100%; background-size: 100% 1px; } }
 
 .draft-marker {
-  display: inline-block; font-family: var(--sans); font-size: 0.75rem; font-weight: 520; letter-spacing: 0.01em; line-height: 1.4;
+  display: inline-block; font-family: var(--sans); font-size: var(--t-data); font-weight: 520; letter-spacing: 0.01em; line-height: 1.4;
   color: var(--ink-2); border: 1px solid var(--rule); padding: 0 6px; vertical-align: middle;
 }
 
+/* Reduced motion: nothing moves or animates, but state changes still read, as short colour and opacity fades. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-property: opacity, color, background-color, border-color, outline-color !important;
+    transition-duration: 0.18s !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Entrance states exist only when scripts run and only until motion.ts (or the inline failsafe) is done. */
 .js:not(.motion-done) .hero__word, .js:not(.motion-done) [data-reveal] { opacity: 0; }
-.ch { will-change: transform; }
 @media (prefers-reduced-motion: reduce) {
   .js .hero__word, .js [data-reveal] { opacity: 1; }
 }
@@ -194,9 +213,8 @@ html.field:not(.motion-done) .route__list { --rule-w: 0; }
   position: absolute; left: 0; top: 0; margin: 0;
   display: flex; gap: 8px; align-items: baseline;
   padding-left: 14px; translate: 0 -50%;
-  font-family: var(--mono); font-size: 0.6875rem; line-height: 1; white-space: nowrap;
-  color: var(--ink); will-change: transform, opacity;
-  text-shadow: 0 0 2px var(--paper), 0 0 4px var(--paper), 0 0 8px var(--paper), 0 0 14px var(--paper);
+  font-family: var(--mono); font-size: var(--t-data-s); line-height: 1; white-space: nowrap;
+  color: var(--ink);
 }
 .field-label__name { text-transform: uppercase; letter-spacing: 0.06em; }
 /* A paper backing so route lines and rings never run through the words. */
@@ -212,7 +230,7 @@ html.field:not(.motion-done) .route__list { --rule-w: 0; }
 /* ---------- The instrumentation lens ---------- */
 .lens-cursor {
   position: fixed; left: 0; top: 0; z-index: 60; margin: 0; pointer-events: none;
-  font-family: var(--mono); font-size: 0.6875rem; line-height: 1; white-space: nowrap;
+  font-family: var(--mono); font-size: var(--t-data-s); line-height: 1; white-space: nowrap;
   padding: 5px 7px; background: var(--paper); color: var(--note); border: 1px solid var(--note);
   opacity: 0; scale: 0.92; transform-origin: 0 0;
   transition: opacity 0.25s var(--ease-out), scale 0.45s var(--ease-out);
@@ -226,7 +244,7 @@ html.lens-on .lens-layer { display: block; }
 .lens-box { position: absolute; left: 0; top: 0; border: 1px dashed var(--note); background: var(--note-soft); }
 .lens-box span {
   position: absolute; left: -1px; bottom: 100%; padding: 3px 5px; white-space: nowrap;
-  font-family: var(--mono); font-size: 0.625rem; line-height: 1; background: var(--note); color: var(--paper);
+  font-family: var(--mono); font-size: var(--t-micro); line-height: 1; background: var(--note); color: var(--paper);
 }
 /* With a fine pointer the cursor tag names what it is over, so outlines carry no labels over the text;
    on touch the label sits inside the outline's top edge. */
@@ -236,8 +254,8 @@ html.lens-on .lens-layer { display: block; }
 .lens-box.is-right span { left: auto; right: -1px; }
 .lens-box.is-gap { border-color: var(--ink-2); background: repeating-linear-gradient(-45deg, transparent 0 5px, var(--rule) 5px 6px); }
 .lens-box.is-gap span { background: var(--ink); }
-.lens-scan { position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--note); box-shadow: 0 0 14px 1px var(--note); opacity: 0; }
+.lens-scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--note); opacity: 0; }
 .lens-tally {
   position: absolute; left: var(--margin); bottom: calc(16px + env(safe-area-inset-bottom)); margin: 0;
-  font-family: var(--mono); font-size: 0.75rem; background: var(--note); color: var(--paper); padding: 6px 10px;
+  font-family: var(--mono); font-size: var(--t-data); background: var(--note); color: var(--paper); padding: 6px 10px;
 }
