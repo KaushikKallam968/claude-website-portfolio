@@ -12,11 +12,18 @@ Cloudflare Pages is an equally good choice if you'd rather keep DNS and hosting 
 
 ## Steps
 
-1. **Resolve drafts and disclosure first.** Every Case is marked DRAFT. Confirm the copy, and decide what JPMorganChase and Chegg detail is cleared for a public page. If employer detail is not cleared, keep the Cases' research questions public and protect the bodies (research on researcher portfolios shows password-protected cases with public questions are common and accepted).
+1. **Resolve drafts and disclosure first.** Done: the owner confirmed the copy and cleared the employer detail on September 30, 2026.
 2. **Buy a domain** such as your name, then set it as the `SITE_URL` environment variable in Vercel (for example `https://yourdomain.com`). The build uses it for canonical and social-image links and leaves those tags out when it is not set.
 3. **Create the Vercel project** from `KaushikKallam968/claude-website-portfolio` (the repository's current name). Framework preset: Astro. Build command `npm run build`, output `dist`.
 4. **Keep preview protection on** (Vercel Authentication for previews), and point the production domain at `main` once the branch is merged.
 5. **Add a social preview image** (an Open Graph card) before sharing links on LinkedIn.
 6. **Don't add analytics that contradict the site.** The notes margin says nothing leaves the visitor's browser. If you want traffic numbers, use a privacy-first, cookieless counter and update that sentence to say exactly what is counted.
 
-Nothing has been deployed. Deployment needs your explicit go-ahead.
+## Current deployment
+
+Deployed publicly on September 30, 2026, at the owner's request, with the copy confirmed and the Draft markers removed.
+
+- **Live at:** https://website-nu-five-41.vercel.app (the production domain of the existing, previously empty `website` project in the owner's Vercel team). The per-deployment `*-kaushikkallam-5085s-projects.vercel.app` URLs stay behind Vercel login, as the team's protection setting intends; the production domain is public.
+- **Why that project:** the Vercel connection used from Claude sessions may deploy but may not create or change projects (both return 403), so a new `kaushik-kallam` project could not be made from a session.
+- **How it is deployed:** a production deployment built by Vercel from this repository's `claude/repo-cleanup-9zbcni` branch at a given commit (framework Astro, `npm ci`, `npm run build`, output `dist`, Node 22). The project is not linked to the repository, so a push does not redeploy; each update is a new deployment from a session.
+- **Still open, for the owner in the Vercel dashboard:** a nicer address (rename the project and add `kaushikkallam.vercel.app` or a custom domain under Settings, Domains), the `SITE_URL` environment variable once a domain is chosen, and linking the project to the repository if pushes should deploy automatically.
