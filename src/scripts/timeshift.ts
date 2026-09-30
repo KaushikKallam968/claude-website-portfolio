@@ -125,13 +125,19 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
           fit();
           scrub(self.progress);
         },
+        // Arriving at a scene shows the times as they are now, never a minute old.
+        onToggle: (self) => {
+          if (!self.isActive || paused()) return;
+          state = paint();
+          scrub(last);
+        },
       });
       scrub(0);
       setInterval(() => {
         if (paused() || !ScrollTrigger.isInViewport(el)) return;
         state = paint();
         scrub(last);
-      }, 30000);
+      }, 15000);
       return;
     }
 

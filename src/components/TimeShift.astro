@@ -7,7 +7,7 @@
  * Scenes are sized by the distance flown. An ocean crossing is a full pinned scene; a domestic hop is a
  * shorter window onto the map that scrolls with the page (60 to 80vh, longer for longer flights).
  */
-import type { Chapter } from '../data/journey';
+import { shortPlace, type Chapter } from '../data/journey';
 import { distanceKm } from '../lib/geo';
 import Arrow from './Arrow.astro';
 
@@ -16,7 +16,7 @@ interface Props {
   to: Chapter;
 }
 const { from, to } = Astro.props;
-const short = (c: Chapter) => c.place.name.split(',')[0];
+const short = shortPlace;
 const reel = Array.from({ length: 30 }, (_, i) => i % 10);
 const km = distanceKm([from.place.lon, from.place.lat], [to.place.lon, to.place.lat]);
 const far = km > 6000;

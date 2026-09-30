@@ -227,7 +227,15 @@ function wireToggle() {
   };
   addEventListener('scroll', () => isOpen() && Math.abs(scrollY - openedAt) > 48 && close(), { passive: true });
   document.addEventListener('pointerdown', (e) => {
-    if (isOpen() && !(e.target as Element).closest('.notes, .lens-bar')) close();
+    if (!isOpen() || (e.target as Element).closest('.notes, .lens-bar')) return;
+    close();
+    // The tap that dismisses the sheet only dismisses it: the click it produces must not open what was under it.
+    const swallow = (ev: Event) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+    };
+    document.addEventListener('click', swallow, { capture: true, once: true });
+    setTimeout(() => document.removeEventListener('click', swallow, { capture: true }), 600);
   });
   addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && isOpen() && !root.classList.contains('lens-on')) close();
@@ -243,8 +251,18 @@ export function startNotes() {
     notes.push({ t: 0, event: 'point', tag: 'page.arrive', quality: 'tagged', shows: 'You arrived.', cannotShow: 'From where, or what you hoped to find.' });
   }
   render();
-  // The next page need not explain the notes again.
+  // The next page need not explain the notes again. On this one, the explanation folds away while the first
+  // map scene has the margin faded out, so the change is never seen happening.
   session.set(KEYS.notesKnown, true);
+  const root = document.documentElement;
+  if (!root.classList.contains('notes-known')) {
+    const mo = new MutationObserver(() => {
+      if (!root.classList.contains('in-scene')) return;
+      root.classList.add('notes-known');
+      mo.disconnect();
+    });
+    mo.observe(root, { attributes: true, attributeFilter: ['class'] });
+  }
   wireToggle();
   wirePointing();
   wireDepth();

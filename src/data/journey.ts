@@ -315,6 +315,9 @@ export const closing = {
   linkedin: 'https://www.linkedin.com/in/kaushikkallam/',
 };
 
+/** A Chapter's place as the map and the Time Shifts name it: the city alone ("Santa Clara", not "Santa Clara County, California"). */
+export const shortPlace = (c: Chapter) => c.place.name.split(',')[0].replace(/ County$/, '');
+
 /** Every Entry in reading order, with the Chapter it belongs to (for Origin and Selected Work). */
 export function allEntries() {
   return chapters.flatMap((c) => [

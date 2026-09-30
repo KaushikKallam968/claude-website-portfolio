@@ -475,12 +475,23 @@ export async function startField(): Promise<FieldHandle | null> {
   const collectQuiet = () => (quietEls = [...document.querySelectorAll<HTMLElement>('[data-quiet]')]);
   collectQuiet();
   const quietRects: DOMRect[] = [];
+  // A quiet zone hugs its content: a full-width row holding a short line of text clears only around the text,
+  // so the map is never cut into flat strips.
+  const tight = (el: HTMLElement) => {
+    let [x0, y0, x1, y1] = [Infinity, Infinity, -Infinity, -Infinity];
+    for (const k of el.children) {
+      const q = k.getBoundingClientRect();
+      if (q.width === 0 || q.height === 0) continue;
+      [x0, y0, x1, y1] = [Math.min(x0, q.left), Math.min(y0, q.top), Math.max(x1, q.right), Math.max(y1, q.bottom)];
+    }
+    return x0 === Infinity ? el.getBoundingClientRect() : new DOMRect(x0, y0, x1 - x0, y1 - y0);
+  };
   const fillQuiet = () => {
     quiet.fill(0);
     quietRects.length = 0;
     for (const el of quietEls) {
       if (quietRects.length === QUIET) break;
-      const r = el.getBoundingClientRect();
+      const r = tight(el);
       if (r.bottom < -40 || r.top > vh + 40 || r.width === 0) continue;
       quiet.set([r.left - 10, r.top - 10, r.right + 10, r.bottom + 10], quietRects.length * 4);
       quietRects.push(r);
@@ -624,14 +635,15 @@ export async function startField(): Promise<FieldHandle | null> {
       const clear = (b: Box) =>
         !placed.some((p) => overlaps(b, p)) && !text.some((t) => overlaps(b, t)) && !markers.some((m) => m.x0 !== own.x0 && overlaps(b, m));
       // Labels belong to scenes: none while the map is only fading in or out behind reading text.
-      const choice =
-        !crowded && frame.route >= l.t - 0.0001 && show > 0.45 && y > frame.clip[0] + 30 && y < frame.clip[1] - 30 ? candidates.find((c) => clear(c.box)) : undefined;
+      const eligible = !crowded && frame.route >= l.t - 0.0001 && show > 0.45 && y > frame.clip[0] + 30 && y < frame.clip[1] - 30;
+      // A place that could be named claims its spot even when no label fits, so a neighbour never takes its name.
+      if (eligible) named.push([x, y]);
+      const choice = eligible ? candidates.find((c) => clear(c.box)) : undefined;
       const isActive = rank(l.t) === 0;
-      if (choice) {
-        placed.push(choice.box);
-        named.push([x, y]);
-      }
-      l.el.style.opacity = choice ? (show * (isActive || frame.active === -1 ? 1 : 0.6)).toFixed(3) : '0';
+      if (choice) placed.push(choice.box);
+      // Places other than the one being read step back in colour, not opacity, so their paper stays solid.
+      l.el.style.opacity = choice ? show.toFixed(3) : '0';
+      l.el.classList.toggle('is-dim', !isActive && frame.active !== -1);
       l.el.style.visibility = choice ? '' : 'hidden';
       l.el.style.transform = `translate3d(${(x + (choice?.dx ?? 0)).toFixed(1)}px, ${(y + (choice?.dy ?? 0)).toFixed(1)}px, 0)`;
       l.el.classList.toggle('is-active', isActive);

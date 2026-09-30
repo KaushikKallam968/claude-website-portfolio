@@ -86,11 +86,12 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
   .work__layout { --rail: clamp(250px, 22vw, 340px); display: grid; grid-template-columns: minmax(0, 1fr) var(--rail); gap: var(--gutter); padding-inline: var(--margin); }
   .work__main { container-type: inline-size; }
   .work__rail-sticky { position: sticky; top: 88px; margin-top: clamp(40px, 8vw, 120px); }
-  .work__head { padding-top: clamp(40px, 7vw, 110px); max-width: 1000px; }
+  /* A tighter head, so two Case titles share the first screen on a laptop. */
+  .work__head { padding-top: clamp(32px, 4.4vw, 72px); max-width: 1000px; }
   .work__title { font-size: clamp(2.8rem, 8cqi, 6rem); line-height: 0.92; letter-spacing: -0.04em; font-weight: 530; }
   .work__intro { margin-top: 24px; font-size: var(--t-lede); line-height: 1.32; letter-spacing: -0.015em; max-width: 38ch; color: var(--ink-2); }
 
-  .index { margin-top: clamp(48px, 7vw, 100px); border-bottom: 1px solid var(--rule); }
+  .index { margin-top: clamp(40px, 4.4vw, 72px); border-bottom: 1px solid var(--rule); }
   .row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;

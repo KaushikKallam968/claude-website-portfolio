@@ -103,7 +103,9 @@ void main() {
   // onto the world.
   a *= mix(smoothstep(uClip.x, uClip.x + 60.0, p.y) * (1.0 - smoothstep(uClip.y - 48.0, uClip.y, p.y)), 1.0, aVisit.z * t2);
   // Map dots and dots in flight clear out from behind reading text; the name and the settled portrait never do.
-  float moving = t1 * (1.0 - t2) + sin(3.14159 * t2);
+  // A dot counts as moving as soon as it leaves the name, so the first moments of the dissolve never dust
+  // the identity text with half-cleared dots.
+  float moving = clamp(t1 * 8.0, 0.0, 1.0) * (1.0 - t2) + sin(3.14159 * t2);
   a *= 1.0 - quietAt(p) * clamp(moving, 0.0, 1.0);
   vColor = vec4(col, a);
   vSize = size * uDpr;

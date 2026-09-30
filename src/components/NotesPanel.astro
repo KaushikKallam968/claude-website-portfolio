@@ -67,6 +67,8 @@
   :global(html.notes-off) .notes__about,
   :global(html.notes-off) .notes__live { display: none; }
   .notes__latest { display: none; }
+  /* Without scripts the switch could not do anything, so it is not shown. */
+  :global(html:not(.js)) .notes__toggle { display: none; }
   /* Wide screens: folded, the panel keeps its header and the latest note on one line; and once the notes have
      explained themselves (the visit's first page), later pages show only the switches, not their descriptions. */
   @media (min-width: 1101px) {
@@ -110,6 +112,9 @@
     .notes__title { grid-column: 1; grid-row: 1; white-space: nowrap; }
     .notes__toggle { grid-column: 3; grid-row: 1; position: relative; }
     .notes__toggle::after { content: ''; position: absolute; inset: -13px -12px; }
+    /* Closed, the whole ticker opens the sheet: the target spans the bar, not just the corner word. */
+    :global(html:not(.notes-open)) .notes__toggle { position: static; }
+    :global(html:not(.notes-open)) .notes__toggle::after { inset: 0; }
     .notes__latest {
       display: block;
       grid-column: 2;

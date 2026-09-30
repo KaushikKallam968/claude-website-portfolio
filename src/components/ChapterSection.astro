@@ -1,5 +1,5 @@
 ---
-import { qualifierOf, type Chapter, type Role } from '../data/journey';
+import { qualifierOf, type Chapter, type Role, shortPlace } from '../data/journey';
 import EntryRow from './EntryRow.astro';
 import TimeShift from './TimeShift.astro';
 
@@ -16,10 +16,16 @@ const groups: { text: string[]; roles: Role[]; heading?: string; entries: Chapte
   { text: chapter.intro, roles: chapter.roles, entries: chapter.entries },
   ...(chapter.subsections ?? []).map((s) => ({ heading: s.heading, text: s.text, roles: s.role ? [s.role] : [], entries: s.entries })),
 ];
+// What reaching a Chapter can't tell, in its own words where the Chapter changes the question.
+const reachCannot =
+  ({
+    nyc: 'Whether you will follow the journey back.',
+    singapore: 'Whether you came this far for the work or for the person.',
+  } as Record<string, string>)[chapter.id] ?? 'Whether the place or the work kept you reading.';
 ---
 
 {previous && <TimeShift from={previous} to={chapter} />}
-<section class="chapter" id={chapter.id} aria-labelledby={`chapter-${chapter.id}`} data-chapter-section={chapter.id} data-chapter-title={chapter.label} data-place={chapter.place.name.split(',')[0]} data-tz={chapter.place.timeZone}>
+<section class="chapter" id={chapter.id} aria-labelledby={`chapter-${chapter.id}`} data-chapter-section={chapter.id} data-chapter-title={chapter.label} data-place={shortPlace(chapter)} data-tz={chapter.place.timeZone} data-observe-reach={chapter.id} data-observe-shows={`You reached ${chapter.label}.`} data-observe-cannot={reachCannot}>
   <header class="chapter__head grid">
     <h2 class="chapter__title" id={`chapter-${chapter.id}`} tabindex="-1">
       <span class="visually-hidden">{chapter.label}</span>
@@ -99,6 +105,8 @@ const groups: { text: string[]; roles: Role[]; heading?: string; entries: Chapte
     padding-bottom: 0.4em;
   }
   .chapter__meta div { display: grid; grid-template-columns: 7.5em 1fr; gap: 6px; }
+  /* Without scripts no clock runs, so the local-time row is left out rather than shown empty. */
+  :global(html:not(.js)) .chapter__meta-live { display: none; }
   .chapter__meta dt { color: var(--ink-3); }
   .chapter__meta dd { margin: 0; color: var(--ink); }
   .chapter__body { margin-top: clamp(40px, 6vw, 88px); row-gap: 32px; }
