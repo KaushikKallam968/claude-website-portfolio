@@ -612,10 +612,12 @@ export async function startField(): Promise<FieldHandle | null> {
         return { x0: x - 12, y0: y - 12, x1: x + 12, y1: y + 12 };
       });
     // The name's words are obstacles too: its letters are real text, drawn by the dots while it forms.
-    // The traveller moves through the labels' places, so it is an obstacle too while a leg is flown.
+    // The traveller moves through the labels' places, so it is an obstacle too while a leg is flown, except
+    // for the place it is taking off from or landing on: that place keeps its name as the traveller arrives.
+    let traveller: { x: number; y: number; box: Box } | null = null;
     if (frame.leg[2] > 0 && frame.leg[2] < 1) {
       const [tx, ty] = toScreen(frame.traveller[0], frame.traveller[1]);
-      markers.push({ x0: tx - 14, y0: ty - 14, x1: tx + 14, y1: ty + 14 });
+      traveller = { x: tx, y: ty, box: { x0: tx - 14, y0: ty - 14, x1: tx + 14, y1: ty + 14 } };
     }
     const text: Box[] = [...quietRects, ...nameWords.map((w) => w.getBoundingClientRect())]
       .filter((q) => q.bottom > 0 && q.top < vh)
@@ -637,13 +639,19 @@ export async function startField(): Promise<FieldHandle | null> {
         { dx: -14, dy: -18, left: false, box: { x0: x - 2, y0: y - 27, x1: x + w - 12, y1: y - 10 } },
         { dx: -14, dy: 18, left: false, box: { x0: x - 2, y0: y + 10, x1: x + w - 12, y1: y + 27 } },
       ].filter((c) => c.box.x0 > 4 && c.box.x1 < vw - 4);
-      const clear = (b: Box) =>
-        !placed.some((p) => overlaps(b, p)) && !text.some((t) => overlaps(b, t)) && !markers.some((m) => m.x0 !== own.x0 && overlaps(b, m));
+      const atThisPlace = traveller !== null && Math.hypot(traveller.x - x, traveller.y - y) < 30;
+      // A spot clear of the traveller is preferred even here; only when it sits on the marker, and every spot
+      // touches it, does the label take its place beside it anyway.
+      const clear = (b: Box, ofTraveller = true) =>
+        !placed.some((p) => overlaps(b, p)) &&
+        !text.some((t) => overlaps(b, t)) &&
+        !markers.some((m) => m.x0 !== own.x0 && overlaps(b, m)) &&
+        !(traveller && ofTraveller && overlaps(b, traveller.box));
       // Labels belong to scenes: none while the map is only fading in or out behind reading text.
       const eligible = !crowded && frame.route >= l.t - 0.0001 && show > 0.45 && y > frame.clip[0] + 30 && y < frame.clip[1] - 30;
       // A place that could be named claims its spot even when no label fits, so a neighbour never takes its name.
       if (eligible) named.push([x, y]);
-      const choice = eligible ? candidates.find((c) => clear(c.box)) : undefined;
+      const choice = eligible ? (candidates.find((c) => clear(c.box)) ?? (atThisPlace ? candidates.find((c) => clear(c.box, false)) : undefined)) : undefined;
       const isActive = rank(l.t) === 0;
       if (choice) placed.push(choice.box);
       // Places other than the one being read step back in colour, not opacity, so their paper stays solid.

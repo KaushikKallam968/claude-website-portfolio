@@ -318,11 +318,15 @@ export const closing = {
 /** A Chapter's place as the map and the Time Shifts name it: the city alone ("Santa Clara", not "Santa Clara County, California"). */
 export const shortPlace = (c: Chapter) => c.place.name.split(',')[0].replace(/ County$/, '');
 
-/** Every Entry in reading order, with the Chapter it belongs to (for Origin and Selected Work). */
+/**
+ * Every Entry in reading order, with the Chapter it belongs to (for Origin and Selected Work) and where the
+ * work was done: the place of the Role it sits under. A Chapter can tell work done elsewhere (the Chegg
+ * contract, remote from Texas), and work with no Role (watched.) claims no place.
+ */
 export function allEntries() {
   return chapters.flatMap((c) => [
-    ...c.entries.map((e) => ({ entry: e, chapter: c })),
-    ...(c.subsections ?? []).flatMap((s) => s.entries.map((e) => ({ entry: e, chapter: c }))),
+    ...c.entries.map((e) => ({ entry: e, chapter: c, where: c.roles[0]?.where })),
+    ...(c.subsections ?? []).flatMap((s) => s.entries.map((e) => ({ entry: e, chapter: c, where: (s.role ?? c.roles[0])?.where }))),
   ]);
 }
 

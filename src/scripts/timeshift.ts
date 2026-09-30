@@ -4,6 +4,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const DIGITS_PER_TURN = 10;
+/** The Field's flight curve (cubic in-out), so a band's clock and its traveller keep time together. */
+const inOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 /** Wall-clock hour, minute and calendar date in a time zone. */
 function wallClock(tz: string, at: Date) {
@@ -76,16 +78,15 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
       let last = 0;
       const hourOf = (d: number[]) => d[0] * 10 + d[1];
       // A pinned scene counts through most of its pin. A domestic band is scrubbed across its whole passage
-      // (top entering at 90% of the screen to bottom leaving at 10%), and counts while its clock, at the foot
-      // of the band, is on screen.
+      // (top entering at 90% of the screen to bottom leaving at 10%), and starts counting once its clock, at
+      // the foot of the band, is on screen.
       const near = el.classList.contains('shift--near');
       let count0 = 0.12;
-      let countSpan = 0.66;
+      const countSpan = 0.66;
       const fit = () => {
         if (!near) return;
         const h = el.offsetHeight / innerHeight;
         count0 = (h - 0.1) / (h + 0.8) + 0.02;
-        countSpan = 0.3;
       };
       fit();
       // Scroll decides which hour is shown; the roll to it is timed, so the reels always come to rest on a
@@ -125,10 +126,14 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
         day.textContent = dayShift > 0 ? '+1 day' : dayShift < 0 ? '−1 day' : '';
         day.style.opacity = dayShift !== 0 ? '1' : '0';
       };
+      // A domestic band's hours count with the flight: from when its clock comes on screen until the traveller
+      // lands, in step with the Field's leg (flown over the middle 60% of the same passage, on the same curve).
+      const flight = (p: number) => inOut(Math.min(1, Math.max(0, (p - 0.2) / 0.6)));
       const scrub = (p: number, animate = true) => {
         last = p;
         const steps = Math.abs(state.off);
-        const k = Math.min(1, Math.max(0, (p - count0) / countSpan));
+        const f0 = flight(count0);
+        const k = near ? Math.min(1, Math.max(0, (flight(p) - f0) / Math.max(0.05, 1 - f0))) : Math.min(1, Math.max(0, (p - count0) / countSpan));
         showHour(Math.min(steps, Math.floor(k * steps + 0.45)), animate);
         [2, 3].forEach((i) => gsap.set(reels[i], { yPercent: y(state.to[i] + DIGITS_PER_TURN) }));
         line?.style.setProperty('--p', p.toFixed(3));
@@ -150,11 +155,11 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
         },
       });
       scrub(0);
-      setInterval(() => {
-        if (paused() || !ScrollTrigger.isInViewport(el)) return;
+      document.addEventListener('clock:minute', () => {
+        if (!ScrollTrigger.isInViewport(el)) return;
         state = paint();
         scrub(last, false);
-      }, 15000);
+      });
       return;
     }
 
@@ -181,10 +186,10 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
       });
     }
 
-    setInterval(() => {
-      if (paused() || !ScrollTrigger.isInViewport(el)) return;
+    document.addEventListener('clock:minute', () => {
+      if (!ScrollTrigger.isInViewport(el)) return;
       const next = paint();
       if (next.to.join('') !== state.to.join('')) place((state = next).to);
-    }, 30000);
+    });
   });
 }

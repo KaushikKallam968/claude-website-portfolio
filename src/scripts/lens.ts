@@ -187,7 +187,14 @@ export function startLens() {
       return Boolean(hit && !marks[i].el.contains(hit) && hit.closest('.top, .notes') && !hit.closest('.top, .notes')!.contains(marks[i].el));
     });
     const labelled = coarse.matches;
-    const taken: { x0: number; y0: number; x1: number; y1: number }[] = [];
+    // The notes ticker's line is text a reader follows, so no label is laid over it.
+    const avoid = labelled
+      ? [...document.querySelectorAll<HTMLElement>('.notes__latest')]
+          .map((e) => e.getBoundingClientRect())
+          .filter((q) => q.width > 0 && q.bottom > 0 && q.top < innerHeight)
+          .map((q) => ({ x0: q.left, y0: q.top, x1: q.right, y1: q.bottom }))
+      : [];
+    const taken: { x0: number; y0: number; x1: number; y1: number }[] = [...avoid];
     marks.forEach((m, i) => {
       const r = rects[i];
       const onScreen = r.bottom > 0 && r.top < innerHeight && r.width > 0 && !covered[i];

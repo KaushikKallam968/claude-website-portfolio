@@ -194,14 +194,21 @@ html:not(.js) [data-clock], html:not(.js) .chapter__meta-live, html:not(.js) .sh
 @keyframes vt-in { from { opacity: 0; transform: translateY(24px); } }
 /* Opening a Case: the clicked row grows into the page while the old page steps back. */
 html.vt-expand::view-transition-old(root) { animation: 0.38s cubic-bezier(0.16, 1, 0.3, 1) both vt-step-back; }
-/* The page's content fades in behind the travelling title, so the two never collide in the growing row. */
-html.vt-expand::view-transition-new(root) { animation: 1s cubic-bezier(0.86, 0, 0.07, 1) both vt-expand, 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both vt-fade; }
+/* The page's content waits until the travelling title is nearly home, so the title never crosses words. */
+html.vt-expand::view-transition-new(root) { animation: 1s cubic-bezier(0.86, 0, 0.07, 1) both vt-expand, 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.64s both vt-fade; }
 html.vt-expand::view-transition-group(*) { animation-duration: 1s; }
-/* A travelling title changes size and line breaks on the way, so it cross-fades at its own scale from the top
-   left rather than stretching; a heading with no partner on the next page leaves quickly, with the page. */
+/* Returning, the reverse: the Case steps back, its heading travels alone to its title, and the page fills in
+   around it once it is nearly there. */
+html.vt-return::view-transition-old(root) { animation: 0.38s cubic-bezier(0.16, 1, 0.3, 1) both vt-step-back; }
+html.vt-return::view-transition-new(root) { animation: 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both vt-fade; }
+/* The travelling title is always one solid title: each image keeps its own proportions as it scales with the
+   moving box, and they hand over in a short cut at mid-flight, so neither a gap nor a double exposure shows.
+   A heading with no partner leaves in place with the page; one with nothing to come from arrives with it. */
 .entry__link, .row__link, .case__title { view-transition-class: case-title; }
-::view-transition-old(.case-title), ::view-transition-new(.case-title) { height: 100%; object-fit: none; object-position: left top; }
-html.vt-orphan::view-transition-old(.case-title) { animation: 0.4s cubic-bezier(0.16, 1, 0.3, 1) both vt-out; }
+::view-transition-old(.case-title) { animation: 0.16s linear 0.42s both vt-out; }
+::view-transition-new(.case-title) { animation: 0.16s linear 0.42s both vt-fade; }
+::view-transition-old(.case-title):only-child { animation: 0.3s cubic-bezier(0.16, 1, 0.3, 1) both vt-out; }
+::view-transition-new(.case-title):only-child { animation: 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both vt-fade; }
 @keyframes vt-step-back { to { opacity: 0; transform: scale(0.975); } }
 @keyframes vt-expand { from { clip-path: var(--vt-from, inset(50% 0 50% 0)); } to { clip-path: inset(0 0 0 0); } }
 @keyframes vt-fade { from { opacity: 0; } }
@@ -244,6 +251,8 @@ html.field:not(.motion-done) .route__list { --rule-w: 0; }
 @media (min-width: 1101px) {
   html.field .rail { transition: opacity 0.6s var(--ease-out); }
   html.in-scene .rail { opacity: 0; pointer-events: none; }
+  /* Keyboard focus inside the margin brings it back: nothing focusable is ever invisible. */
+  html.in-scene .rail:focus-within { opacity: 1; pointer-events: auto; }
 }
 
 /* ---------- The instrumentation lens ---------- */

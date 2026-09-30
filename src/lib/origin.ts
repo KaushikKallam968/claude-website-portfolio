@@ -36,7 +36,7 @@ export function returnTargetFor(caseRef: CaseRef, origin: Origin | null): Return
       scrollY: origin.scrollY,
     };
   }
-  // No Origin (a shared link or a related Case): Back belongs to the browser, Return offers the Case's Chapter.
+  // No Origin (a shared link or the next Case): Back belongs to the browser, Return offers the Case's Chapter.
   return {
     href: `/#${caseRef.chapterId}`,
     label: `Explore ${caseRef.chapterTitle}`,

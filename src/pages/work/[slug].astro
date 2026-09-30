@@ -17,7 +17,10 @@ const { Content } = await render(entry);
 const d = entry.data;
 const ordered = [...all].sort((a, b) => a.data.order - b.data.order);
 const { entry: journeyEntry, chapter } = entryFor(entry.id);
-const related = d.related ? all.find((c) => c.id === d.related) : undefined;
+// Cases read in order ("Case 2 of 4"), so each offers the next; the last offers the first again.
+const at = ordered.findIndex((c) => c.id === entry.id);
+const next = ordered[(at + 1) % ordered.length];
+const nextLabel = at + 1 < ordered.length ? 'Next case' : 'First case';
 ---
 
 <Base title={`${d.title} · Kaushik Kallam`} description={d.question} current="work">
@@ -72,10 +75,10 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
           </a>
           <ul class="case__more">
             <li><a class="link link--under" href="/work/" data-observe="case.all-work" data-observe-label="All selected work" data-observe-cannot="Whether you are comparing cases.">All selected work <Arrow /></a></li>
-            {related && (
+            {next.id !== entry.id && (
               <li>
-                <a class="link link--under" href={`/work/${related.id}/`} data-case-link={related.id} data-observe={`case.${related.id}`} data-observe-label={related.data.title} data-observe-cannot="Whether it was the connection or the title that pulled you on.">
-                  Related: {related.data.title} <Arrow />
+                <a class="link link--under" href={`/work/${next.id}/`} data-case-link={next.id} data-observe={`case.${next.id}`} data-observe-label={next.data.title} data-observe-cannot="Whether you are reading them all or looking for one.">
+                  {nextLabel}: {next.data.title} <Arrow />
                 </a>
               </li>
             )}
@@ -127,9 +130,12 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
   .case__article { container-type: inline-size; padding-bottom: clamp(80px, 10vw, 160px); }
   .case__head { padding-top: clamp(40px, 7vw, 110px); max-width: 1100px; }
   .case__crumbs { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 4px 0; color: var(--ink-3); align-items: center; font-size: var(--t-meta); }
-  .case__crumbs > span + span:not(.draft-marker)::before { content: '·' / ''; padding: 0 0.7em; }
+  /* The dot ends the part before it, so a wrapped line never starts with one. */
+  .case__crumbs > span:has(+ span:not(.draft-marker))::after { content: '·' / ''; padding: 0 0.3em; }
   .case__crumbs > .draft-marker { margin-left: 14px; }
   .case__title {
+    /* The box hugs the words, like the title it travels from, so the two scale alike in the transition. */
+    width: fit-content;
     font-size: clamp(2.8rem, 8cqi, 6rem);
     line-height: 0.92;
     letter-spacing: -0.04em;

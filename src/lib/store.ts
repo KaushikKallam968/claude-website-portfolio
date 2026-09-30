@@ -11,6 +11,7 @@ export const KEYS = {
   restore: 'kk:restore',
   introSeen: 'kk:intro',
   expandFrom: 'kk:expand',
+  lastCase: 'kk:last-case',
   origin: (caseId: string) => `kk:origin:${caseId}`,
 } as const;
 

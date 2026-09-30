@@ -69,6 +69,29 @@ export function restoreIfPending() {
   if (r.bottom < 0 || r.top > innerHeight) el.scrollIntoView({ block: 'center' });
 }
 
+/**
+ * Back from a Case when the browser could not keep this page in its back-forward cache: it restores the scroll
+ * but not focus. Focus returns to that Case's title if it is on screen, so the next Tab carries on from there
+ * instead of starting over at the top of the page.
+ */
+export function restoreFocusOnBack() {
+  const caseId = document.querySelector<HTMLElement>('main[data-case]')?.dataset.case;
+  if (caseId) addEventListener('pagehide', () => session.set(KEYS.lastCase, caseId));
+  const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+  const last = session.get<string | null>(KEYS.lastCase, null);
+  if (nav?.type !== 'back_forward' || !last || caseId) return;
+  const run = () =>
+    requestAnimationFrame(() => {
+      const link = document.querySelector<HTMLElement>(`.entry__link[data-case-link="${last}"], .row__link[data-case-link="${last}"]`);
+      const r = link?.getBoundingClientRect();
+      if (!link || !r || r.bottom < 0 || r.top > innerHeight || document.activeElement !== document.body) return;
+      link.focus({ preventScroll: true });
+      session.remove(KEYS.lastCase);
+    });
+  if (document.readyState === 'complete') run();
+  else addEventListener('load', run, { once: true });
+}
+
 /** A page restored from the back-forward cache runs no scripts again; restore focus when it is shown. */
 export function restoreOnPageShow() {
   addEventListener('pageshow', (e) => {

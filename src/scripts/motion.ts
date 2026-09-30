@@ -136,7 +136,9 @@ function chapters() {
       const s = SplitText.create(word, { type: 'words,chars', charsClass: 'ch', wordsClass: 'wd', mask: 'chars', aria: 'none' });
       const qual = ch.querySelector<HTMLElement>('.chapter__qual');
       const tl = gsap.timeline({ scrollTrigger: { trigger: head, start: 'top 82%', once: true } });
-      tl.from(s.chars, { yPercent: 110, duration: 1.3, stagger: 0.03, ease: 'out' });
+      // Far enough below the mask that no ascender peeks over its edge before the word rises (the headline's
+      // line height is tighter than its glyphs).
+      tl.from(s.chars, { yPercent: 140, duration: 1.3, stagger: 0.03, ease: 'out' });
       // The qualifier follows its word in, never ahead of it.
       if (qual) tl.from(qual, { opacity: 0, x: -14, duration: 0.8, ease: 'out' }, 0.45);
       // So does the place's data: it never stands on screen above a heading that has not arrived yet.

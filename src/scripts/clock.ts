@@ -23,9 +23,19 @@ function tick() {
   });
 }
 
+/**
+ * Every clock on the page turns over together, on the minute, so a Time Shift and the map's labels never
+ * disagree. Other live parts listen for `clock:minute`.
+ */
 export function startClocks() {
   tick();
-  setInterval(() => {
-    if (!livePaused()) tick();
-  }, 15000);
+  const next = () =>
+    setTimeout(() => {
+      if (!livePaused()) {
+        tick();
+        document.dispatchEvent(new CustomEvent('clock:minute'));
+      }
+      next();
+    }, 60000 - (Date.now() % 60000) + 20);
+  next();
 }

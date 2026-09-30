@@ -38,7 +38,7 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
               <p class="row__q">{c.data.question}</p>
               <p class="row__meta">
                 <span>{keepDots(c.data.context)}</span>
-                <span>{c.journey.chapter.label}</span>
+                {c.journey.where && <span>{c.journey.where}</span>}
                 <span>{c.data.timeline}</span>
                 {c.data.draft && <span class="draft-marker" title="Draft copy awaiting Kaushik’s confirmation">Draft</span>}
               </p>
@@ -126,7 +126,8 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
   .row { cursor: pointer; }
   .row__q { margin-top: 14px; font-size: var(--t-body); color: var(--ink-2); max-width: 58ch; }
   .row__meta { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 2px 0; align-items: center; color: var(--ink-3); font-size: var(--t-meta); }
-  .row__meta > span + span:not(.draft-marker)::before { content: '·' / ''; padding: 0 0.7em; }
+  /* The dot ends the part before it, so a wrapped line never starts with one. */
+  .row__meta > span:has(+ span:not(.draft-marker))::after { content: '·' / ''; padding: 0 0.3em; }
   .row__meta > .draft-marker { margin-left: 14px; }
   .row__facts { margin: 18px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px var(--gutter); max-width: 70ch; }
   .row__facts dt { font-size: var(--t-small); color: var(--ink-3); }

@@ -1,13 +1,14 @@
 import { startClocks } from './clock';
 import { startNotes } from './notes';
 import { startReadout } from './readout';
-import { rememberOrigins, restoreIfPending, restoreOnPageShow, wireDisclosures, wireLivePause, wireTopBar, wireTopWhere, wireRowLinks } from './navigation';
+import { rememberOrigins, restoreFocusOnBack, restoreIfPending, restoreOnPageShow, wireDisclosures, wireLivePause, wireTopBar, wireTopWhere, wireRowLinks } from './navigation';
 import { startMotion } from './motion';
 import { startLens } from './lens';
 
 wireLivePause();
 restoreIfPending();
 restoreOnPageShow();
+restoreFocusOnBack();
 startClocks();
 startNotes();
 startReadout();

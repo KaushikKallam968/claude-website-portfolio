@@ -19,7 +19,6 @@ cannotShow:
   - A launched bot, or the outcome of an alpha.
   - Any change in how much students learned.
   - A single participant pool. The discovery and concept-test groups are counted separately.
-related: chegg-mexico
 draft: true
 ---
 

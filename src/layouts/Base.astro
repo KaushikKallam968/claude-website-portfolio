@@ -91,10 +91,8 @@ const nav = [
           var tr = t && t.getBoundingClientRect();
           if (tr && tr.bottom > 0 && tr.top < innerHeight) {
             t.style.viewTransitionName = 'case-' + back;
-            e.viewTransition.finished.finally(function () { t.style.viewTransitionName = ''; });
-          } else {
-            d.classList.add('vt-orphan');
-            e.viewTransition.finished.finally(function () { d.classList.remove('vt-orphan'); });
+            d.classList.add('vt-return');
+            e.viewTransition.finished.finally(function () { t.style.viewTransitionName = ''; d.classList.remove('vt-return'); });
           }
         }
         if (!e.viewTransition || !raw) return;

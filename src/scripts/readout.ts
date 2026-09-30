@@ -1,6 +1,8 @@
 import { readout, elapsed } from './notes';
 import { livePaused } from './navigation';
-import { formatDuration } from '../lib/format';
+import { formatDuration, sentence } from '../lib/format';
+
+const listFormat = new Intl.ListFormat('en', { type: 'conjunction' });
 
 /**
  * The closing readout: what the site observed this visit, in the same honest terms as the notes. Time not
@@ -44,9 +46,9 @@ export function startReadout() {
       shown = now;
       document.dispatchEvent(new CustomEvent('readout:rows'));
     }
-    const titles = r.casesOpened.map((c) => c.title).join(', ');
+    const one = r.casesOpened.length === 1;
     cases.textContent = r.casesOpened.length
-      ? `You opened ${titles}${/[.!?]$/.test(titles) ? '' : '.'}`
+      ? `${sentence(`You opened ${listFormat.format(r.casesOpened.map((c) => c.title))}`)} Whether ${one ? 'it was' : 'they were'} what you came for, this site can’t tell.`
       : 'You didn’t open a case. That could mean many things.';
     // The portrait is drawn from the same moment.
     document.dispatchEvent(new CustomEvent('readout:paint'));

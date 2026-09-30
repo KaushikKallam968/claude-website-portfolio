@@ -18,4 +18,12 @@ describe('the journey', () => {
     expect(entryFor('chegg-discord').chapter.id).toBe('silicon-valley');
     expect(entryFor('chegg-mexico').chapter.id).toBe('silicon-valley');
   });
+
+  it('says where each piece of work was done, not only which Chapter tells it', () => {
+    expect(entryFor('chegg-discord').where).toBe('Remote from Texas');
+    expect(entryFor('chegg-mexico').where).toBe('Santa Clara County, California');
+    expect(entryFor('instrumentation').where).toBe('New York');
+    // watched. is told in Singapore but was not made there, so it claims no place.
+    expect(entryFor('watched').where).toBeUndefined();
+  });
 });

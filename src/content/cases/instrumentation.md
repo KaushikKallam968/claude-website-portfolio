@@ -20,7 +20,6 @@ cannotShow:
   - That any instrumentation has been repaired yet.
   - Whether teams have adopted it. The work is still being publicized.
   - A measured improvement in data quality or in the decisions it informs.
-related: chegg-discord
 draft: true
 ---
 
