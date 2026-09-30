@@ -239,6 +239,9 @@ export function startLens() {
     if (!on) document.querySelector('.lens-cursor')?.classList.remove('is-on');
     cancelAnimationFrame(raf);
     if (!on) return;
+    // On a small screen the lens is switched on from the Notes sheet; the sheet steps aside so the outlines
+    // and their labels fall on the page, not on its text.
+    document.dispatchEvent(new CustomEvent('lens:on'));
     build();
     place();
     if (reduce()) return;

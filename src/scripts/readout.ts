@@ -11,8 +11,8 @@ const listFormat = new Intl.ListFormat('en', { type: 'conjunction' });
  * and a line says when that is all of them, so a visitor who jumps straight to Contact sees an honest short
  * readout rather than a column of zeros.
  *
- * It is a snapshot of the visit up to the close, taken as the close comes near: reading the readout does not
- * change it, so nothing re-flows while it is read. Leaving and coming back takes a new one.
+ * It is a snapshot of the visit up to the close, taken as the close rises into view: reading the readout does
+ * not change it, so nothing re-flows while it is read. Leaving and coming back takes a new one.
  */
 export function startReadout() {
   const root = document.querySelector<HTMLElement>('[data-readout]');
@@ -54,13 +54,16 @@ export function startReadout() {
     document.dispatchEvent(new CustomEvent('readout:paint'));
   };
 
-  // Paint once now and again a screen before the readout arrives, so rows are settled before they are seen,
-  // and then hold still while it is in view.
+  // Paint once now, and again as the close's top rises past 60% of the screen: the reader has finished the last
+  // Chapter (its final entry can sit just above the close), the dot portrait is about to form from this same
+  // snapshot, and the rows (below the title and the hand-off) are still out of sight. It then holds still while
+  // the close is in view.
   paint();
+  const close = root.closest('section') ?? root;
   new IntersectionObserver(
     ([en]) => {
       if (en.isIntersecting && !livePaused()) paint();
     },
-    { rootMargin: '100% 0px' },
-  ).observe(root);
+    { rootMargin: '0px 0px -40% 0px' },
+  ).observe(close);
 }

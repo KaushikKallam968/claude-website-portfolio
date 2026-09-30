@@ -83,14 +83,15 @@ export function record(e: RawEvent) {
 export const readout = () => observation.readout(elapsed());
 
 function wirePointing() {
-  const lastNoted = new Map<string, number>();
+  const noted = new Set<string>();
   document.addEventListener('pointerover', (ev) => {
     if ((ev as PointerEvent).pointerType === 'touch') return;
     const el = (ev.target as Element).closest<HTMLElement>('[data-observe]');
     if (!el) return;
     const tag = el.dataset.observe!;
-    if (elapsed() - (lastNoted.get(tag) ?? -Infinity) < 20000) return; // one note per element per 20 s
-    lastNoted.set(tag, elapsed());
+    // Pointing at a control is noted once per page: pointing again adds nothing a reader could learn from.
+    if (noted.has(tag)) return;
+    noted.add(tag);
     record({
       type: 'point',
       t: elapsed(),
@@ -243,6 +244,7 @@ function wireToggle() {
   addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && isOpen() && !root.classList.contains('lens-on')) close();
   });
+  document.addEventListener('lens:on', () => isOpen() && close());
 }
 
 export function startNotes() {

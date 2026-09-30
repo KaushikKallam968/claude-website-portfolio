@@ -136,7 +136,8 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
         const k = near ? Math.min(1, Math.max(0, (flight(p) - f0) / Math.max(0.05, 1 - f0))) : Math.min(1, Math.max(0, (p - count0) / countSpan));
         showHour(Math.min(steps, Math.floor(k * steps + 0.45)), animate);
         [2, 3].forEach((i) => gsap.set(reels[i], { yPercent: y(state.to[i] + DIGITS_PER_TURN) }));
-        line?.style.setProperty('--p', p.toFixed(3));
+        // The route line fills with the traveller, not ahead of it.
+        line?.style.setProperty('--p', (near ? flight(p) : inOut(p)).toFixed(3));
       };
       ScrollTrigger.create({
         trigger: el,
@@ -155,8 +156,9 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
         },
       });
       scrub(0);
+      // Every Time Shift keeps the real time even off screen (it is cheap), so none shows a stale minute as it
+      // comes into view.
       document.addEventListener('clock:minute', () => {
-        if (!ScrollTrigger.isInViewport(el)) return;
         state = paint();
         scrub(last, false);
       });
@@ -187,7 +189,6 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
     }
 
     document.addEventListener('clock:minute', () => {
-      if (!ScrollTrigger.isInViewport(el)) return;
       const next = paint();
       if (next.to.join('') !== state.to.join('')) place((state = next).to);
     });

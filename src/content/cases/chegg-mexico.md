@@ -17,7 +17,7 @@ shows:
   - A concrete product change that followed from that finding.
 cannotShow:
   - Adoption, learning gains or business results after the change.
-  - Findings for students who don’t speak English. The interview sample did.
+  - Findings for students who don’t speak English; everyone interviewed did.
   - An independent audit of the implementation, which is reported in my presentation notes.
 draft: true
 ---
