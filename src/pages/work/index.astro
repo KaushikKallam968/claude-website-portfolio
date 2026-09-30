@@ -135,6 +135,8 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
   .row__facts dd { margin: 2px 0 0; font-size: var(--t-meta); }
   .row__arrow { grid-column: 2; grid-row: 1; font-size: var(--t-arrow); align-self: start; padding-top: 0.2em; transition: translate 0.8s var(--ease-out); }
   .row:hover .row__text { translate: 12px 0; }
+  /* A press shows at once, though a mouse click waits 240ms to open, in case it is the start of a double click. */
+  .row:has(.row__link):active .row__text { opacity: 0.62; transition: translate 0.8s var(--ease-out), opacity 0.08s linear; }
   .row:hover .row__arrow { translate: 8px 0; }
 
   .also { margin-top: clamp(56px, 8vw, 110px); }

@@ -1,6 +1,7 @@
 import { createObservation, type Note, type RawEvent } from '../lib/observe';
 import { formatElapsed } from '../lib/format';
 import { KEYS, session } from '../lib/store';
+import { createHoverIntent } from '../lib/hover';
 
 /**
  * Wires the observation layer to the page. Events are kept in sessionStorage only and replayed on each
@@ -46,6 +47,18 @@ function noteElement(n: Note) {
   return li;
 }
 
+/** The list shows the latest notes; the count covers the whole visit, so the list says what it leaves out. */
+function renderEarlier() {
+  if (!listEl) return;
+  listEl.querySelector('.notes__earlier')?.remove();
+  const hidden = notes.length - VISIBLE_NOTES;
+  if (hidden <= 0) return;
+  const li = document.createElement('li');
+  li.className = 'notes__earlier';
+  li.textContent = `${hidden} earlier ${hidden === 1 ? 'note' : 'notes'} not shown.`;
+  listEl.append(li);
+}
+
 function render(fresh?: Note) {
   if (!listEl) return;
   if (countEl) countEl.textContent = String(notes.length);
@@ -56,11 +69,13 @@ function render(fresh?: Note) {
     li.classList.add('note--fresh');
     listEl.prepend(li);
     requestAnimationFrame(() => requestAnimationFrame(() => li.classList.remove('note--fresh')));
-    while (listEl.children.length > VISIBLE_NOTES) listEl.lastElementChild?.remove();
+    listEl.querySelectorAll('.note').forEach((n, i) => i >= VISIBLE_NOTES && n.remove());
+    renderEarlier();
     peek();
     return;
   }
   listEl.replaceChildren(...notes.slice(-VISIBLE_NOTES).reverse().map(noteElement));
+  renderEarlier();
 }
 
 /** State changes always persist; moment-to-moment signals persist only when they produced a note. */
@@ -84,8 +99,13 @@ export const readout = () => observation.readout(elapsed());
 
 function wirePointing() {
   const noted = new Set<string>();
+  const hover = createHoverIntent();
+  addEventListener('pointermove', (ev) => hover.moved(ev.clientX, ev.clientY), { passive: true });
+  addEventListener('scroll', () => hover.scrolled(), { passive: true });
   document.addEventListener('pointerover', (ev) => {
     if ((ev as PointerEvent).pointerType === 'touch') return;
+    // Content scrolling under a resting pointer is not pointing.
+    if (!hover.counts(ev.clientX, ev.clientY)) return;
     const el = (ev.target as Element).closest<HTMLElement>('[data-observe]');
     if (!el) return;
     const tag = el.dataset.observe!;

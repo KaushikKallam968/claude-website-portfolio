@@ -315,9 +315,14 @@ export async function startField(): Promise<FieldHandle | null> {
           h: tr.height,
         };
       });
-      visitEndY = visitDoc.y - vh * 0.62;
       const close = bars.closest('section');
       closeDocTop = close ? close.getBoundingClientRect().top + sy : visitDoc.y - vh * 0.5;
+      // The pour ends with the rows 62% of the way down the screen, or sooner if the page can't scroll that far
+      // (a short readout on a phone or a tall screen) or if Contact lands short of it, so it always finishes
+      // where the reader can stop.
+      const maxY = document.documentElement.scrollHeight - vh;
+      const contactY = close ? closeDocTop - (parseFloat(getComputedStyle(close).scrollMarginTop) || 0) - 64 : Infinity;
+      visitEndY = Math.min(visitDoc.y - vh * 0.62, maxY - 4, contactY);
       const last = places.length - 1;
       windows.push({ kind: 'visit', start: Math.min(closeDocTop - vh * 0.5, visitEndY - 200), end: visitEndY, nextTop: Infinity, from: last, to: last });
     }

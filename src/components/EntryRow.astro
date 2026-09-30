@@ -124,6 +124,8 @@ const href = `/work/${entry.id}/`;
   button[aria-expanded='true'] :global(.arrow) { rotate: -90deg; }
   .entry:has(.entry__link) { cursor: pointer; }
   .entry:has(.entry__link):hover .entry__text { translate: 8px 0; }
+  /* A press shows at once, though a mouse click waits 240ms to open, in case it is the start of a double click. */
+  .entry:has(.entry__link):active .entry__text { opacity: 0.62; transition: translate 0.8s var(--ease-out), opacity 0.08s linear; }
 
   @media (max-width: 900px) {
     .entry__main, .entry__side { grid-column: 1 / -1; }
