@@ -14,7 +14,8 @@ const cases = defineCollection({
     contribution: z.string(),
     team: z.string().optional(),
     timeline: z.string(),
-    methods: z.array(z.string()),
+    /** The research methods used. Left out when a Case has none to name (watched.), so Contribution is not said twice. */
+    methods: z.array(z.string()).min(1).optional(),
     outcome: z.string(),
     /** The kind of outcome, so a recommendation never reads as a measured result. */
     outcomeType: z.enum(['Delivered capability', 'Recommendations', 'Recommendation, implementation reported', 'Launched, now paused']),

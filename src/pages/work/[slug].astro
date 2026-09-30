@@ -41,7 +41,7 @@ const last = at + 1 === ordered.length;
           <div><dt>Contribution</dt><dd>{d.contribution}</dd></div>
           {d.team && <div><dt>Team</dt><dd>{d.team}</dd></div>}
           <div><dt>Timeline</dt><dd>{d.timeline}</dd></div>
-          <div><dt>Methods</dt><dd><ul>{d.methods.map((m) => <li>{m}</li>)}</ul></dd></div>
+          {d.methods && <div><dt>Methods</dt><dd><ul>{d.methods.map((m) => <li>{m}</li>)}</ul></dd></div>}
           <div class="tldr__outcome"><dt>Outcome <span class="tldr__type">{d.outcomeType}</span></dt><dd>{d.outcome}</dd></div>
         </dl>
 
