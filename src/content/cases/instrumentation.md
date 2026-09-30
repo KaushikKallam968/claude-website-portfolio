@@ -1,11 +1,9 @@
 ---
 title: Data Instrumentation Coverage and Quality
 order: 1
-chapterId: nyc
-chapterTitle: New York
 context: JPMorganChase · Payments
 question: When a product records an interaction, does that record actually explain what the person did?
-role: Researcher. I created the cross-product dashboard and the assessment pipeline.
+contribution: I created the cross-product dashboard and the assessment pipeline.
 timeline: 2026, ongoing
 methods:
   - Instrumentation coverage audit
@@ -20,9 +18,8 @@ shows:
   - How products compare, and where to look first.
 cannotShow:
   - That any instrumentation has been repaired yet.
-  - Adoption beyond the teams it is being shared with.
+  - Whether teams have adopted it. The work is still being publicized.
   - A measured improvement in data quality or in the decisions it informs.
-figure: instrumentation
 related: chegg-discord
 draft: true
 ---
@@ -41,7 +38,7 @@ I created a cross-product HTML dashboard for the Payments line of business. It c
 
 **Coverage** asks where interactions need instrumentation: which actions leave no trace, and what should be tagged.
 
-**Quality** asks whether the tags that exist mean enough to support analysis. Many were automatically generated technical labels, such as component names. Others were ambiguous. A tag can fire thousands of times and still not tell us what a person did.
+**Quality** asks whether the tags that exist mean enough to support analysis. Many were automatically generated technical labels, such as component names. Others were ambiguous. A tag can fire often and still not tell us what a person did.
 
 **Prioritization** brings the two together. Poor-quality tags attached to large numbers of interactions matter more than rare ones, and products with large coverage gaps stand out. There is no formal scoring model behind this; the point is to make the next instrumentation question obvious.
 

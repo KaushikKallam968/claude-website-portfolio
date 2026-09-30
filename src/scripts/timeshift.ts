@@ -5,26 +5,29 @@ gsap.registerPlugin(ScrollTrigger);
 
 const DIGITS_PER_TURN = 10;
 
-function parts(tz: string, at: Date) {
-  const p = new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit', day: 'numeric', hourCycle: 'h23' }).formatToParts(at);
+/** Wall-clock hour, minute and calendar date in a time zone. */
+function wallClock(tz: string, at: Date) {
+  const p = new Intl.DateTimeFormat('en-GB', { timeZone: tz, year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(at);
   const get = (t: string) => Number(p.find((x) => x.type === t)?.value ?? 0);
-  return { h: get('hour'), m: get('minute'), day: get('day') };
+  return { y: get('year'), mo: get('month'), d: get('day'), h: get('hour'), m: get('minute') };
+}
+
+/** The zone's offset from UTC in minutes at this moment (daylight saving included). */
+function utcOffsetMinutes(tz: string, at: Date) {
+  const w = wallClock(tz, at);
+  return Math.round((Date.UTC(w.y, w.mo - 1, w.d, w.h, w.m) - Math.floor(at.getTime() / 60000) * 60000) / 60000);
 }
 
 /** Offset in whole hours between two time zones right now (positive: `to` is ahead). */
 function offsetHours(fromTz: string, toTz: string, at: Date) {
-  const f = parts(fromTz, at);
-  const t = parts(toTz, at);
-  let diff = t.h * 60 + t.m - (f.h * 60 + f.m);
-  if (t.day !== f.day) diff += t.day > f.day || (f.day > 25 && t.day === 1) ? 1440 : -1440;
-  return Math.round(diff / 60);
+  return Math.round((utcOffsetMinutes(toTz, at) - utcOffsetMinutes(fromTz, at)) / 60);
 }
 
 const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen'];
 const hoursPhrase = (n: number) => `${words[n] ?? n} hour${n === 1 ? '' : 's'}`;
 
 /** Every Time Shift rolls from the previous place's clock to the next place's clock as it enters. */
-export function startTimeShifts(reduced: boolean) {
+export function startTimeShifts(reduced: boolean, paused: () => boolean) {
   document.querySelectorAll<HTMLElement>('[data-shift]').forEach((el) => {
     const { fromTz, toTz, from, to } = el.dataset as Record<string, string>;
     const reels = [...el.querySelectorAll<HTMLElement>('[data-reel] .reel__strip')];
@@ -33,14 +36,16 @@ export function startTimeShifts(reduced: boolean) {
 
     const paint = () => {
       const now = new Date();
-      const a = parts(fromTz, now);
-      const b = parts(toTz, now);
+      const a = wallClock(fromTz, now);
+      const b = wallClock(toTz, now);
       const off = offsetHours(fromTz, toTz, now);
       text.textContent =
         off === 0
           ? `${to} keeps the same time as ${from}.`
           : `${to} is ${hoursPhrase(Math.abs(off))} ${off > 0 ? 'ahead of' : 'behind'} ${from}.`;
-      day.textContent = b.day !== a.day ? (off > 0 ? '+1 day' : '−1 day') : '';
+      const sameDate = a.y === b.y && a.mo === b.mo && a.d === b.d;
+      day.textContent = sameDate ? '' : off > 0 ? '+1 day' : '−1 day';
+      if (!sameDate) text.textContent += off > 0 ? ' It’s already tomorrow there.' : ' It’s still yesterday there.';
       const digits = (t: { h: number; m: number }) => [Math.floor(t.h / 10), t.h % 10, Math.floor(t.m / 10), t.m % 10];
       return { from: digits(a), to: digits(b), off };
     };
@@ -83,7 +88,7 @@ export function startTimeShifts(reduced: boolean) {
     }
 
     setInterval(() => {
-      if (!ScrollTrigger.isInViewport(el)) return;
+      if (paused() || !ScrollTrigger.isInViewport(el)) return;
       const next = paint();
       if (next.to.join('') !== state.to.join('')) place((state = next).to);
     }, 30000);

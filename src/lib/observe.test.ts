@@ -35,7 +35,7 @@ describe('observation notes', () => {
 
   it('notes each quarter of scroll depth once', () => {
     const obs = createObservation();
-    const depths = [0.1, 0.26, 0.3, 0.52, 0.49, 0.8, 1].map((fraction, i) => obs.record({ type: 'depth', t: i * 1000, fraction }));
+    const depths = [0.1, 0.26, 0.3, 0.52, 0.49, 0.8, 1].map((fraction, i) => obs.record({ type: 'depth', t: i * 1000, page: '/', fraction }));
     expect(depths.map((n) => n?.shows ?? null)).toEqual([
       null,
       'You scrolled past a quarter of this page.',
@@ -46,6 +46,13 @@ describe('observation notes', () => {
       'You reached the end of this page.',
     ]);
     expect(depths[1]?.cannotShow).toBe('Whether you read it or skimmed it.');
+  });
+
+  it('notes depth separately for each page', () => {
+    const obs = createObservation();
+    obs.record({ type: 'depth', t: 1000, page: '/', fraction: 1 });
+    expect(obs.record({ type: 'depth', t: 2000, page: '/work/watched/', fraction: 0.3 })?.shows).toBe('You scrolled past a quarter of this page.');
+    expect(obs.record({ type: 'depth', t: 3000, page: '/', fraction: 1 })).toBeNull();
   });
 
   it('only notes a pause once it is long enough to mean something', () => {

@@ -40,17 +40,24 @@ const nav = [
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content={new URL('/og.png', Astro.site).href} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    {Astro.site && (
+      <>
+        <meta property="og:image" content={new URL('/og.png', Astro.site).href} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).href} />
+      </>
+    )}
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).href} />
     <script is:inline>
       // Scripts are on: allow entrance states that hide text until motion reveals it.
       document.documentElement.classList.add('js');
       try {
-        if (sessionStorage.getItem('kk:notes') === 'off') document.documentElement.classList.add('notes-off');
+        if (sessionStorage.getItem('kk:notes') === 'true') document.documentElement.classList.add('notes-off');
+        if (sessionStorage.getItem('kk:paused') === 'true') document.documentElement.classList.add('live-paused');
       } catch (e) {}
+      // Failsafe: if the motion bundle never runs, reveal everything that waits for it.
+      setTimeout(function () { document.documentElement.classList.add('motion-done'); }, 4000);
     </script>
   </head>
   <body>
@@ -114,6 +121,6 @@ const nav = [
     .top__nav { gap: 12px; }
   }
   @media (max-width: 1100px) {
-    :global(body) { padding-bottom: 64px; }
+    :global(body) { padding-bottom: 56px; }
   }
 </style>

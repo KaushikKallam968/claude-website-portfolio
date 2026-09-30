@@ -4,6 +4,7 @@
  * internal artifacts, and each says so. watched. uses real screenshots from its public App Store listing.
  */
 import { Image } from 'astro:assets';
+import Arrow from './Arrow.astro';
 import taste from '../assets/watched/taste-analytics.png';
 import rec from '../assets/watched/ai-recommendation.png';
 import search from '../assets/watched/search.png';
@@ -35,7 +36,7 @@ const { kind, compact = false } = Astro.props;
     </div>
     <figcaption class="fig__cap">
       <span>Three different searches produce one identical record, and the button produces none. Quality and coverage are different problems.</span>
-      <span class="fig__note mono">Illustration of the idea, not the internal dashboard.</span>
+      <span class="fig__note">Illustration of the idea, not the internal dashboard.</span>
     </figcaption>
   )}
 
@@ -50,35 +51,36 @@ const { kind, compact = false } = Astro.props;
     </div>
     <figcaption class="fig__cap">
       <span>Both runs are correct. Only one of them is efficient, and judging the result alone can’t tell them apart.</span>
-      <span class="fig__note mono">Illustration. Internal signals and definitions are not shown.</span>
+      <span class="fig__note">Illustration. Internal signals and definitions are not shown.</span>
     </figcaption>
   )}
 
   {kind === 'discord' && (
     <div class="fig__stage deck">
       <table class="deck__table">
-        <thead><tr><th scope="col">Concept</th><th scope="col">What decided it</th><th scope="col">Next step</th></tr></thead>
+        <thead><tr><th scope="col">Concept</th><th scope="col">What students raised</th><th scope="col">Next step</th></tr></thead>
         <tbody>
-          <tr style="--i:0"><th scope="row">Homework help</th><td>Answers had to arrive inside Discord, not elsewhere</td><td><span class="deck__go">Advance</span></td></tr>
-          <tr style="--i:1"><th scope="row">Math solving</th><td>Typing an equation was the barrier</td><td><span class="deck__iter">Iterate first</span></td></tr>
-          <tr style="--i:2"><th scope="row">Quiz generation</th><td>Explain wrong answers, add a timer</td><td><span class="deck__go">Toward alpha</span></td></tr>
+          <tr style="--i:0"><th scope="row">Homework help</th><td>Wanted detailed answers inside Discord, not a link elsewhere</td><td><span class="deck__go">Toward alpha</span></td></tr>
+          <tr style="--i:1"><th scope="row">Math solving</th><td>Entering an equation was friction, and they expected image-to-text</td><td><span class="deck__iter">Iterate first</span></td></tr>
+          <tr style="--i:2"><th scope="row">Quiz generation</th><td>Wanted explanations for wrong answers, and a timer</td><td><span class="deck__go">Toward alpha</span></td></tr>
         </tbody>
       </table>
     </div>
     <figcaption class="fig__cap">
-      <span>The same interest in AI help led to three different decisions, each settled by an input or output detail.</span>
+      <span>Each concept got its own next step. How students expected to enter questions and receive answers came up in all three.</span>
+      <span class="fig__note">Summary of the recommendations, not the research deck.</span>
     </figcaption>
   )}
 
   {kind === 'mexico' && (
     <div class="fig__stage xl" aria-hidden="true">
       <p class="xl__query"><span class="xl__lang mono">ES</span><span class="xl__typed">¿Cómo resuelvo una ecuación cuadrática?</span></p>
-      <p class="xl__arrow mono">search crosses the language boundary</p>
+      <p class="xl__arrow"><Arrow to="down" /> The search crosses the language boundary</p>
       <p class="xl__result"><span class="xl__lang mono">EN</span><span>How to solve a quadratic equation</span></p>
     </div>
     <figcaption class="fig__cap">
       <span>Students searched in both languages, so a Spanish question should be able to find an English answer.</span>
-      <span class="fig__note mono">Illustration of the recommendation, not the chegg.mx interface.</span>
+      <span class="fig__note">Illustration of the recommendation, not the chegg.mx interface.</span>
     </figcaption>
   )}
 
@@ -103,7 +105,7 @@ const { kind, compact = false } = Astro.props;
     overflow: hidden;
   }
   .fig__cap { display: grid; gap: 6px; font-size: 0.875rem; color: var(--ink-2); max-width: 52ch; }
-  .fig__note { color: var(--note); font-size: 0.6875rem; }
+  .fig__note { color: var(--ink-3); font-size: 0.8125rem; }
 
   /* Instrumentation: three searches, one record */
   .inst { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: center; }
@@ -123,13 +125,13 @@ const { kind, compact = false } = Astro.props;
     content: '';
     position: absolute;
     inset: -1px;
-    border: 1.5px solid var(--note);
+    border: 1.5px solid var(--ink);
     opacity: 0;
   }
-  .inst__log { display: grid; gap: 6px; color: var(--note); }
-  .inst__log li { padding: 5px 8px; border-left: 2px solid var(--note); background: var(--note-soft); }
+  .inst__log { display: grid; gap: 6px; color: var(--ink); }
+  .inst__log li { padding: 5px 8px; border: 1px solid var(--ink-3); background: var(--paper); }
   .inst__log span { color: var(--ink-3); margin-right: 8px; }
-  .inst__none { border-left-style: dashed !important; background: transparent !important; color: var(--ink-3); }
+  .inst__none { border-style: dashed !important; background: transparent !important; color: var(--ink-3); }
 
   /* AI evaluation: two traces, same answer */
   .trace { display: grid; gap: 14px; }
@@ -143,24 +145,25 @@ const { kind, compact = false } = Astro.props;
   }
   .trace__row li + li::before { content: '→'; position: absolute; left: -12px; color: var(--ink-3); top: 50%; translate: 0 -50%; font-size: 0.7rem; }
   .trace__row li + li { margin-left: 8px; }
-  .trace__waste { border-color: var(--note) !important; color: var(--note); background: var(--note-soft) !important; }
+  .trace__waste { border-style: dashed !important; color: var(--ink-2); background: transparent !important; }
   .trace__ok { border-color: var(--ink) !important; font-weight: 520; }
 
   /* Discord: a decision table */
   .deck__table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
   .deck__table th, .deck__table td { text-align: left; padding: 10px 12px 10px 0; border-top: 1px solid var(--rule); vertical-align: top; }
-  .deck__table thead th { font-family: var(--mono); font-size: 0.6875rem; font-weight: 400; color: var(--ink-3); border-top: 0; }
+  .deck__table thead th { font-size: var(--t-small); font-weight: 400; color: var(--ink-3); border-top: 0; }
   .deck__table tbody th { font-weight: 520; }
-  .deck__go, .deck__iter { font-family: var(--mono); font-size: 0.6875rem; white-space: nowrap; color: var(--note); }
-  .deck__iter { color: var(--ink); border-bottom: 1px dashed; }
+  .deck__go, .deck__iter { white-space: nowrap; font-weight: 520; }
+  .deck__iter { border-bottom: 1px dashed; }
 
   /* Mexico: a search that crosses languages */
   .xl { display: grid; gap: 10px; }
   .xl__query, .xl__result { margin: 0; display: flex; gap: 12px; align-items: center; background: var(--paper); border: 1px solid var(--ink-3); padding: 10px 12px; font-size: 0.9375rem; }
-  .xl__result { border-color: var(--note); }
-  .xl__lang { color: var(--note); border: 1px solid currentColor; padding: 1px 5px; font-size: 0.625rem; }
-  .xl__arrow { margin: 0 0 0 14px; color: var(--note); font-size: 0.6875rem; padding-left: 16px; border-left: 1.5px solid var(--note); }
-  .xl__typed { border-right: 1.5px solid var(--ink); padding-right: 2px; white-space: nowrap; overflow: hidden; }
+  .xl__result { border-color: var(--ink); }
+  .xl__lang { color: var(--ink-3); border: 1px solid currentColor; padding: 1px 5px; font-size: 0.625rem; flex: none; }
+  .xl__arrow { margin: 0; color: var(--ink-2); font-size: var(--t-small); padding-left: 12px; }
+  .xl__arrow :global(.arrow) { color: var(--ink-3); margin-right: 6px; }
+  .xl__typed { border-right: 1.5px solid var(--ink); padding-right: 2px; white-space: nowrap; overflow: hidden; min-width: 0; }
 
   /* watched.: real screens */
   .phones { display: flex; justify-content: center; align-items: flex-end; gap: 0; padding-bottom: 0; min-height: 280px; }
@@ -197,5 +200,8 @@ const { kind, compact = false } = Astro.props;
   }
   @media (max-width: 600px) {
     .inst { grid-template-columns: 1fr; }
+    /* Too narrow to type on one line: the question wraps and simply appears. */
+    .xl__typed { white-space: normal; border-right: 0; }
+    :global(.fig.is-in) .xl__typed { animation: none; }
   }
 </style>

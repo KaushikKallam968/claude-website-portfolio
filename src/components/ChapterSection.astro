@@ -1,30 +1,29 @@
 ---
-import type { Chapter } from '../data/journey';
+import { qualifierOf, type Chapter, type Role } from '../data/journey';
 import EntryRow from './EntryRow.astro';
 import TimeShift from './TimeShift.astro';
 
 interface Props {
   chapter: Chapter;
-  n: number;
-  total: number;
   previous?: Chapter;
 }
 
-const { chapter, n, total, previous } = Astro.props;
-const pad = (v: number) => String(v).padStart(2, '0');
+const { chapter, previous } = Astro.props;
+const qualifier = qualifierOf(chapter);
 const lat = `${Math.abs(chapter.place.lat).toFixed(2)}° ${chapter.place.lat >= 0 ? 'N' : 'S'}`;
 const lon = `${Math.abs(chapter.place.lon).toFixed(2)}° ${chapter.place.lon >= 0 ? 'E' : 'W'}`;
-let entryNo = 0;
-const nextNo = () => `${pad(n)}.${++entryNo}`;
+const groups: { text: string[]; roles: Role[]; heading?: string; entries: Chapter['entries'] }[] = [
+  { text: chapter.intro, roles: chapter.roles, entries: chapter.entries },
+  ...(chapter.subsections ?? []).map((s) => ({ heading: s.heading, text: s.text, roles: s.role ? [s.role] : [], entries: s.entries })),
+];
 ---
 
 {previous && <TimeShift from={previous} to={chapter} />}
 <section class="chapter" id={chapter.id} aria-labelledby={`chapter-${chapter.id}`} data-chapter-section={chapter.id} data-chapter-title={chapter.label}>
   <header class="chapter__head grid">
-    <p class="chapter__no mono num" aria-hidden="true">{pad(n)} / {pad(total)}</p>
     <h2 class="chapter__title" id={`chapter-${chapter.id}`} tabindex="-1">
-      <span class="chapter__word" data-split>{chapter.title}</span>
-      {chapter.label !== chapter.title && <span class="chapter__qual">{chapter.label.split(': ')[1]}</span>}
+      <span class="chapter__word">{chapter.title}</span>
+      {qualifier && <span class="chapter__qual">{qualifier}</span>}
     </h2>
     <dl class="chapter__meta mono num">
       <div><dt>Place</dt><dd>{chapter.place.name}</dd></div>
@@ -34,55 +33,36 @@ const nextNo = () => `${pad(n)}.${++entryNo}`;
     </dl>
   </header>
 
-  <div class="chapter__body grid">
-    <div class="chapter__text">
-      {chapter.lead && <p class="chapter__lead">{chapter.lead}</p>}
-      {chapter.intro.map((p) => <p>{p}</p>)}
-      {chapter.facts && (
-        <ul class="chapter__facts">
-          {chapter.facts.map((f) => <li>{f}</li>)}
-        </ul>
-      )}
-    </div>
-    {chapter.roles.length > 0 && (
-      <ul class="chapter__roles">
-        {chapter.roles.map((r) => (
-          <li>
-            <span class="role__title">{r.title}</span>
-            <span class="role__org">{r.org}</span>
-            <span class="role__when label">{r.period} · {r.where}</span>
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-
-  {chapter.entries.length > 0 && (
-    <ol class="entries grid" aria-label={`Work in ${chapter.label}`}>
-      {chapter.entries.map((e) => <EntryRow entry={e} chapter={chapter} index={nextNo()} />)}
-    </ol>
-  )}
-
-  {chapter.subsections?.map((s) => (
-    <div class="sub">
+  {groups.map((g, i) => (
+    <div class:list={['group', { 'group--sub': i > 0 }]}>
       <div class="chapter__body grid">
         <div class="chapter__text">
-          <h3 class="sub__title">{s.heading}</h3>
-          {s.text.map((p) => <p>{p}</p>)}
+          {g.heading && <h3 class="sub__title">{g.heading}</h3>}
+          {i === 0 && chapter.lead && <p class="chapter__lead">{chapter.lead}</p>}
+          {g.text.map((p) => <p>{p}</p>)}
+          {i === 0 && chapter.facts && (
+            <ul class="chapter__facts">
+              {chapter.facts.map((f) => <li>{f}</li>)}
+            </ul>
+          )}
         </div>
-        {s.role && (
+        {g.roles.length > 0 && (
           <ul class="chapter__roles">
-            <li>
-              <span class="role__title">{s.role.title}</span>
-              <span class="role__org">{s.role.org}</span>
-              <span class="role__when label">{s.role.period} · {s.role.where}</span>
-            </li>
+            {g.roles.map((r) => (
+              <li>
+                <span class="role__title">{r.title}</span>
+                <span class="role__org">{r.org}</span>
+                <span class="role__when label">{r.period} · {r.where}</span>
+              </li>
+            ))}
           </ul>
         )}
       </div>
-      <ol class="entries grid" aria-label={s.heading}>
-        {s.entries.map((e) => <EntryRow entry={e} chapter={chapter} index={nextNo()} />)}
-      </ol>
+      {g.entries.length > 0 && (
+        <ol class="entries grid" aria-label={g.heading ?? `Work in ${chapter.label}`}>
+          {g.entries.map((e) => <EntryRow entry={e} chapter={chapter} />)}
+        </ol>
+      )}
     </div>
   ))}
 </section>
@@ -91,12 +71,11 @@ const nextNo = () => `${pad(n)}.${++entryNo}`;
   .chapter { padding-top: clamp(56px, 8vw, 120px); scroll-margin-top: 64px; }
   .chapter:first-of-type { padding-top: clamp(96px, 14vw, 220px); }
   .chapter__head { align-items: end; row-gap: 18px; }
-  .chapter__no { grid-column: 1 / -1; color: var(--note); }
   .chapter__title {
     grid-column: 1 / span 9;
-    font-size: clamp(3.25rem, 12.5cqi, 12rem);
-    line-height: 0.82;
-    letter-spacing: -0.058em;
+    font-size: clamp(3.25rem, 12.5cqi, 10rem);
+    line-height: 0.84;
+    letter-spacing: -0.04em;
     font-weight: 520;
     display: flex;
     flex-wrap: wrap;
@@ -138,7 +117,7 @@ const nextNo = () => `${pad(n)}.${++entryNo}`;
   .chapter__roles li { display: grid; gap: 2px; border-top: 1px solid var(--ink); padding-top: 10px; }
   .role__title { font-weight: 520; }
   .entries { margin: clamp(40px, 6vw, 80px) var(--margin) 0; padding-inline: 0; border-bottom: 1px solid var(--rule); }
-  .sub { margin-top: clamp(56px, 8vw, 120px); }
+  .group--sub { margin-top: clamp(56px, 8vw, 120px); }
   .sub__title { font-size: var(--t-lede); font-weight: 520; letter-spacing: -0.02em; margin-bottom: 0.2em; }
   @media (max-width: 900px) {
     .chapter__title, .chapter__meta, .chapter__text, .chapter__roles { grid-column: 1 / -1; }

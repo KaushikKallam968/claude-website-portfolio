@@ -2,18 +2,22 @@
 /**
  * Between two Chapters: the local time rolls from one place to the next. Computed live in the browser,
  * so the offset is always true (including daylight saving). Without scripts it states the places plainly.
+ * The long jump across the Pacific is set larger: it is the one crossing of the date line on the Journey.
  */
 import type { Chapter } from '../data/journey';
+import Arrow from './Arrow.astro';
 
 interface Props {
   from: Chapter;
   to: Chapter;
 }
 const { from, to } = Astro.props;
+const short = (c: Chapter) => c.place.name.split(',')[0];
 const reel = Array.from({ length: 30 }, (_, i) => i % 10);
+const far = Math.abs(from.place.lon - to.place.lon) > 120;
 ---
 
-<div class="shift" data-shift data-from-tz={from.place.timeZone} data-to-tz={to.place.timeZone} data-from={from.place.name.split(',')[0]} data-to={to.place.name.split(',')[0]}>
+<div class:list={['shift', { 'shift--far': far }]} data-shift data-from-tz={from.place.timeZone} data-to-tz={to.place.timeZone} data-from={short(from)} data-to={short(to)}>
   <div class="shift__clock num" aria-hidden="true">
     {[0, 1].map((i) => (
       <span class="reel" data-reel={i}><span class="reel__strip">{reel.map((d) => <span>{d}</span>)}</span></span>
@@ -22,9 +26,12 @@ const reel = Array.from({ length: 30 }, (_, i) => i % 10);
     {[2, 3].map((i) => (
       <span class="reel" data-reel={i}><span class="reel__strip">{reel.map((d) => <span>{d}</span>)}</span></span>
     ))}
-    <span class="shift__day mono" data-shift-day></span>
+    <span class="shift__day" data-shift-day></span>
   </div>
-  <p class="shift__text" data-shift-text>From {from.place.name.split(',')[0]} to {to.place.name.split(',')[0]}.</p>
+  <div class="shift__words">
+    <p class="shift__text" data-shift-text>From {short(from)} to {short(to)}.</p>
+    <a class="shift__next link" href={`#${to.id}`}>Continue to {to.label} <Arrow to="down" /></a>
+  </div>
 </div>
 
 <style>
@@ -48,22 +55,25 @@ const reel = Array.from({ length: 30 }, (_, i) => i % 10);
     font-variant-numeric: tabular-nums;
     position: relative;
   }
+  .shift--far { grid-template-columns: 1fr; }
+  .shift--far .shift__clock { font-size: clamp(4.4rem, 22cqi, 19rem); }
   .reel { display: inline-block; height: 1em; overflow: hidden; width: 0.58em; text-align: center; }
   .reel__strip { display: flex; flex-direction: column; will-change: transform; }
   .reel__strip span { height: 1em; display: block; }
   .shift__colon { width: 0.3em; text-align: center; translate: 0 -0.06em; }
-  .shift__day { position: absolute; right: -0.2em; top: 0.35em; translate: 100% 0; font-size: 0.75rem; letter-spacing: 0.02em; white-space: nowrap; }
+  .shift__day { font-size: max(0.14em, 0.875rem); letter-spacing: 0; margin: 0.35em 0 0 0.2em; white-space: nowrap; font-weight: 520; }
+  .shift__words { display: grid; gap: 10px; padding-bottom: 0.4em; }
   .shift__text {
     font-size: var(--t-lede);
     line-height: 1.25;
     letter-spacing: -0.015em;
     color: var(--ink);
     max-width: 18ch;
-    padding-bottom: 0.4em;
   }
+  .shift--far .shift__text { max-width: 30ch; }
+  .shift__next { color: var(--ink-2); font-size: 0.9375rem; text-decoration: none; justify-self: start; display: inline-flex; gap: 6px; align-items: baseline; }
   @media (max-width: 700px) {
     .shift { grid-template-columns: 1fr; }
     .shift__clock { flex-wrap: wrap; }
-    .shift__day { position: static; translate: none; align-self: flex-end; margin-left: 10px; }
   }
 </style>

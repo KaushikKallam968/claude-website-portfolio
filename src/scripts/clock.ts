@@ -1,7 +1,8 @@
 import { daylightWord, sunAltitude } from '../lib/sun';
+import { livePaused } from './navigation';
 
 const formatters = new Map<string, Intl.DateTimeFormat>();
-const fmt = (tz: string) => {
+const clockFormat = (tz: string) => {
   let f = formatters.get(tz);
   if (!f) {
     f = new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit' });
@@ -13,7 +14,7 @@ const fmt = (tz: string) => {
 function tick() {
   const now = new Date();
   document.querySelectorAll<HTMLElement>('[data-clock]').forEach((el) => {
-    const t = fmt(el.dataset.clock!).format(now);
+    const t = clockFormat(el.dataset.clock!).format(now);
     if (el.textContent !== t) el.textContent = t;
   });
   document.querySelectorAll<HTMLElement>('[data-daylight]').forEach((el) => {
@@ -24,5 +25,7 @@ function tick() {
 
 export function startClocks() {
   tick();
-  setInterval(tick, 15000);
+  setInterval(() => {
+    if (!livePaused()) tick();
+  }, 15000);
 }

@@ -1,29 +1,27 @@
 ---
 title: watched.
 order: 4
-chapterId: singapore
-chapterTitle: Singapore
 context: Cofounder · Personal project
 question: How can people express what they really think of a film or show, without ranking it feeling like work?
-role: Cofounder. Research, product and interaction design, and front-end work.
+contribution: Cofounder. My contributions span research, product and interaction design, and front-end work.
 team: Two longtime friends as technical cofounders, responsible for substantial backend and recommendation-system work
 timeline: 2025 to 2026
 methods:
-  - Founder discovery with fellow film and TV fans
-  - Preference-capture design (buckets, then comparisons)
-  - Design of recommendation explanations
+  - Research
+  - Product and interaction design
+  - Front-end development
 outcome: A movie and TV tracking and discovery app that launched on the App Store. Its latest release describes a pause, with tracking and social features offline and users’ data preserved.
 outcomeType: Launched, now paused
 status: Launched project · currently paused
 shows:
   - 'How the product captures relative taste: a broad bucket first, then a choice between titles.'
-  - Why recommendations explain themselves.
-  - My part in a three-person founding team.
+  - Why the product explains its recommendations.
+  - The areas I contributed to in a three-person founding team.
 cannotShow:
   - That comparisons are free of bias, or that the recommendations are more accurate than others.
   - Traction or retention numbers.
   - Why the project paused, or when it might return.
-figure: watched
+  - Which of these product decisions were mine alone. The work was shared.
 related: chegg-mexico
 draft: true
 ---
@@ -34,7 +32,7 @@ My friends and I watched a lot of films and television, and choosing what to wat
 
 ## My part in the team
 
-My contributions span research, product and interaction design, and front-end work. My cofounders took substantial responsibility for backend engineering and the recommendation system. It was genuinely collaborative, so this case stays with the questions I worked on most: how preference is captured, and how a recommendation explains itself.
+My contributions span research, product and interaction design, and front-end work. My cofounders took substantial responsibility for backend engineering and the recommendation system. The product was genuinely collaborative, so this case describes two questions the team worked through together, without dividing credit for each decision: how preference is captured, and how a recommendation explains itself.
 
 ## Capturing relative taste
 

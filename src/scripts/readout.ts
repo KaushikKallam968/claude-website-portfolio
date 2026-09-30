@@ -1,12 +1,11 @@
 import { readout, elapsed } from './notes';
+import { livePaused } from './navigation';
+import { formatDuration } from '../lib/format';
 
-const fmt = (ms: number) => {
-  const s = Math.round(ms / 1000);
-  if (s < 60) return `${s} s`;
-  return `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, '0')} s`;
-};
-
-/** Fills the closing readout with what the page observed; refreshes while it is on screen. */
+/**
+ * The closing readout: what the page observed, in the same honest terms as the notes. Time outside the
+ * Chapters (the introduction, Cases, other pages) is shown as its own row so the rows add up to the total.
+ */
 export function startReadout() {
   const root = document.querySelector<HTMLElement>('[data-readout]');
   if (!root) return;
@@ -15,13 +14,16 @@ export function startReadout() {
 
   const paint = () => {
     const r = readout();
-    total.textContent = fmt(elapsed());
-    const max = Math.max(1, ...r.chapters.map((c) => c.ms));
+    const all = elapsed();
+    const inChapters = r.chapters.reduce((sum, c) => sum + c.ms, 0);
+    const rows = new Map(r.chapters.map((c) => [c.id, c.ms]));
+    rows.set('outside', Math.max(0, all - inChapters));
+    const longest = Math.max(1, ...rows.values());
+    total.textContent = formatDuration(all);
     root.querySelectorAll<HTMLElement>('[data-bar]').forEach((li) => {
-      const c = r.chapters.find((x) => x.id === li.dataset.bar);
-      const ms = c?.ms ?? 0;
-      li.style.setProperty('--share', String(ms / max));
-      li.querySelector('.readout__value')!.textContent = fmt(ms);
+      const ms = rows.get(li.dataset.bar!) ?? 0;
+      li.style.setProperty('--share', String(ms / longest));
+      li.querySelector('.readout__value')!.textContent = formatDuration(ms);
     });
     cases.textContent = r.casesOpened.length
       ? `You opened ${r.casesOpened.map((c) => c.title).join(', ')}.`
@@ -31,9 +33,10 @@ export function startReadout() {
   let timer = 0;
   new IntersectionObserver(([en]) => {
     clearInterval(timer);
-    if (en.isIntersecting) {
-      paint();
-      timer = window.setInterval(paint, 1000);
-    }
+    if (!en.isIntersecting) return;
+    paint();
+    timer = window.setInterval(() => {
+      if (!livePaused()) paint();
+    }, 1000);
   }).observe(root);
 }

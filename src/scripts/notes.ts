@@ -1,58 +1,38 @@
 import { createObservation, type Note, type RawEvent } from '../lib/observe';
+import { formatElapsed } from '../lib/format';
+import { KEYS, session } from '../lib/store';
 
 /**
- * Wires the observation layer to the page. Raw events are kept in sessionStorage only, and replayed on
- * each page so the notes and the closing readout survive a trip into a Case and back. Nothing is sent.
+ * Wires the observation layer to the page. Events are kept in sessionStorage only and replayed on each
+ * page, so the notes and the closing readout survive a trip into a Case and back. Nothing is sent.
  */
-const KEY = 'kk:events';
-const START = 'kk:start';
 const MAX_EVENTS = 400;
 const VISIBLE_NOTES = 7;
 
-const store = {
-  get<T>(k: string, fallback: T): T {
-    try {
-      const v = sessionStorage.getItem(k);
-      return v ? (JSON.parse(v) as T) : fallback;
-    } catch {
-      return fallback;
-    }
-  },
-  set(k: string, v: unknown) {
-    try {
-      sessionStorage.setItem(k, JSON.stringify(v));
-    } catch {
-      /* private mode: notes simply do not persist */
-    }
-  },
-};
+const sessionStart: number = session.get(KEYS.sessionStart, 0) || Date.now();
+session.set(KEYS.sessionStart, sessionStart);
 
-const start: number = store.get(START, 0) || Date.now();
-store.set(START, start);
-const now = () => Date.now() - start;
+/** Milliseconds since this visit began, on the notes' clock. */
+export const elapsed = () => Date.now() - sessionStart;
 
-const events: RawEvent[] = store.get(KEY, []);
-const obs = createObservation();
+const savedEvents: RawEvent[] = session.get(KEYS.events, []);
+const observation = createObservation();
 const notes: Note[] = [];
-for (const e of events) {
-  const n = obs.record(e);
+for (const e of savedEvents) {
+  const n = observation.record(e);
   if (n) notes.push(n);
 }
 
 let listEl: HTMLOListElement | null = null;
 let countEl: HTMLElement | null = null;
+let latestEl: HTMLElement | null = null;
 
-const clock = (ms: number) => {
-  const s = Math.floor(ms / 1000);
-  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}.${Math.floor((ms % 1000) / 100)}`;
-};
-
-function noteEl(n: Note) {
+function noteElement(n: Note) {
   const li = document.createElement('li');
   li.className = `note note--${n.quality}`;
   const t = document.createElement('span');
   t.className = 'note__t num';
-  t.textContent = clock(n.t);
+  t.textContent = formatElapsed(n.t);
   const shows = document.createElement('span');
   shows.className = 'note__shows';
   shows.textContent = n.shows;
@@ -63,29 +43,33 @@ function noteEl(n: Note) {
   return li;
 }
 
-let latestEl: HTMLElement | null = null;
-
 function render(fresh?: Note) {
   if (!listEl) return;
   if (countEl) countEl.textContent = String(notes.length);
   const last = fresh ?? notes[notes.length - 1];
   if (latestEl && last) latestEl.textContent = last.shows;
   if (fresh) {
-    const li = noteEl(fresh);
+    const li = noteElement(fresh);
     li.classList.add('note--fresh');
     listEl.prepend(li);
     requestAnimationFrame(() => requestAnimationFrame(() => li.classList.remove('note--fresh')));
     while (listEl.children.length > VISIBLE_NOTES) listEl.lastElementChild?.remove();
+    peek();
     return;
   }
-  listEl.replaceChildren(...notes.slice(-VISIBLE_NOTES).reverse().map(noteEl));
+  listEl.replaceChildren(...notes.slice(-VISIBLE_NOTES).reverse().map(noteElement));
 }
 
+/** State changes always persist; moment-to-moment signals persist only when they produced a note. */
+const persistsAlways = (e: RawEvent) => e.type === 'enter' || e.type === 'leave' || e.type === 'open';
+
 export function record(e: RawEvent) {
-  events.push(e);
-  if (events.length > MAX_EVENTS) events.splice(0, events.length - MAX_EVENTS);
-  store.set(KEY, events);
-  const n = obs.record(e);
+  const n = observation.record(e);
+  if (n || persistsAlways(e)) {
+    savedEvents.push(e);
+    if (savedEvents.length > MAX_EVENTS) savedEvents.splice(0, savedEvents.length - MAX_EVENTS);
+    session.set(KEYS.events, savedEvents);
+  }
   if (n) {
     notes.push(n);
     render(n);
@@ -93,41 +77,45 @@ export function record(e: RawEvent) {
   return n;
 }
 
-export const readout = () => obs.readout(now());
-export const elapsed = now;
+export const readout = () => observation.readout(elapsed());
 
 function wirePointing() {
-  const seen = new Map<string, number>();
+  const lastNoted = new Map<string, number>();
   document.addEventListener('pointerover', (ev) => {
     if ((ev as PointerEvent).pointerType === 'touch') return;
     const el = (ev.target as Element).closest<HTMLElement>('[data-observe]');
     if (!el) return;
     const tag = el.dataset.observe!;
-    const last = seen.get(tag) ?? -Infinity;
-    if (now() - last < 20000) return; // one note per element per 20 s keeps the column readable
-    seen.set(tag, now());
-    record({ type: 'point', t: now(), tag, label: el.dataset.observeLabel ?? el.textContent?.trim() ?? tag, cannotShow: el.dataset.observeCannot });
+    if (elapsed() - (lastNoted.get(tag) ?? -Infinity) < 20000) return; // one note per element per 20 s
+    lastNoted.set(tag, elapsed());
+    record({
+      type: 'point',
+      t: elapsed(),
+      tag,
+      label: el.dataset.observeLabel ?? el.textContent?.trim() ?? tag,
+      cannotShow: el.dataset.observeCannot,
+    });
   });
-  // A click that lands on nothing interactive is a coverage gap: the page recorded it but can't say what it was.
+  // A click that lands on nothing interactive is a coverage gap: recorded, but impossible to interpret.
   let lastGap = -Infinity;
   document.addEventListener('click', (ev) => {
-    const target = ev.target as Element;
-    if (target.closest('a, button, input, label, summary, [data-observe], [data-notes]')) return;
-    if (now() - lastGap < 4000) return;
-    lastGap = now();
-    record({ type: 'press', t: now(), tag: null });
+    if ((ev.target as Element).closest('a, button, input, label, summary, [data-observe], [data-notes]')) return;
+    if (elapsed() - lastGap < 4000) return;
+    lastGap = elapsed();
+    record({ type: 'press', t: elapsed(), tag: null });
   });
 }
 
 function wireDepth() {
-  let raf = 0;
+  let frame = 0;
+  const page = location.pathname;
   addEventListener(
     'scroll',
     () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
         const max = document.documentElement.scrollHeight - innerHeight;
-        if (max > 0) record({ type: 'depth', t: now(), fraction: scrollY / max });
+        if (max > 0) record({ type: 'depth', t: elapsed(), page, fraction: scrollY / max });
       });
     },
     { passive: true },
@@ -135,11 +123,10 @@ function wireDepth() {
 }
 
 function wireIdle() {
-  let lastActive = now();
+  let lastActive = elapsed();
   const wake = () => {
-    const idle = now() - lastActive;
-    if (idle > 5000) record({ type: 'idle', t: now(), ms: idle });
-    lastActive = now();
+    record({ type: 'idle', t: elapsed(), ms: elapsed() - lastActive }); // short pauses produce no note
+    lastActive = elapsed();
   };
   for (const type of ['pointermove', 'keydown', 'wheel', 'touchstart', 'scroll']) addEventListener(type, wake, { passive: true });
 }
@@ -153,23 +140,32 @@ function wireChapters() {
       for (const en of entries) {
         const el = en.target as HTMLElement;
         const id = el.dataset.chapterSection!;
-        if (en.isIntersecting && active !== id) {
-          if (active) record({ type: 'leave', t: now(), id: active });
-          active = id;
-          record({ type: 'enter', t: now(), id, title: el.dataset.chapterTitle ?? id });
-          document.querySelectorAll('.route__item').forEach((a) => a.setAttribute('aria-current', String(a.getAttribute('href') === `#${id}`)));
-        }
+        if (!en.isIntersecting || active === id) continue;
+        if (active) record({ type: 'leave', t: elapsed(), id: active });
+        active = id;
+        record({ type: 'enter', t: elapsed(), id, title: el.dataset.chapterTitle ?? id });
+        document.querySelectorAll('.route__item').forEach((a) => a.setAttribute('aria-current', String(a.getAttribute('href') === `#${id}`)));
       }
     },
     { rootMargin: '-45% 0px -54% 0px' },
   );
   sections.forEach((s) => io.observe(s));
   addEventListener('pagehide', () => {
-    if (active) record({ type: 'leave', t: now(), id: active });
+    if (active) record({ type: 'leave', t: elapsed(), id: active });
   });
 }
 
 const compact = () => matchMedia('(max-width: 1100px)').matches;
+
+/** On small screens the notes rest as a chip; a new note opens it just long enough to be read. */
+let peekTimer = 0;
+function peek() {
+  const root = document.documentElement;
+  if (!compact() || root.classList.contains('notes-open')) return;
+  root.classList.add('notes-peek');
+  clearTimeout(peekTimer);
+  peekTimer = window.setTimeout(() => root.classList.remove('notes-peek'), 4200);
+}
 
 function wireToggle() {
   const btn = document.querySelector<HTMLButtonElement>('[data-notes-toggle]');
@@ -183,15 +179,11 @@ function wireToggle() {
   sync();
   matchMedia('(max-width: 1100px)').addEventListener('change', sync);
   btn.addEventListener('click', () => {
-    if (compact()) {
-      root.classList.toggle('notes-open');
-    } else {
+    root.classList.remove('notes-peek');
+    if (compact()) root.classList.toggle('notes-open');
+    else {
       root.classList.toggle('notes-off');
-      try {
-        sessionStorage.setItem('kk:notes', root.classList.contains('notes-off') ? 'off' : 'on');
-      } catch {
-        /* ignore */
-      }
+      session.set(KEYS.notesHidden, root.classList.contains('notes-off'));
     }
     sync();
   });
@@ -201,17 +193,9 @@ export function startNotes() {
   listEl = document.querySelector('[data-notes-list]');
   countEl = document.querySelector('[data-notes-count]');
   latestEl = document.querySelector('[data-notes-latest]');
-  if (!events.some((e) => e.type === 'enter') && !notes.length) {
+  if (!notes.length) {
     // The first note: arriving is the only thing the page knows for certain.
-    const first: Note = {
-      t: 0,
-      event: 'point',
-      tag: 'page.arrive',
-      quality: 'tagged',
-      shows: 'You arrived.',
-      cannotShow: 'From where, or what you hoped to find.',
-    };
-    notes.push(first);
+    notes.push({ t: 0, event: 'point', tag: 'page.arrive', quality: 'tagged', shows: 'You arrived.', cannotShow: 'From where, or what you hoped to find.' });
   }
   render();
   wireToggle();

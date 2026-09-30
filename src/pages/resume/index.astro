@@ -1,62 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { closing } from '../../data/journey';
+import Arrow from '../../components/Arrow.astro';
+import { allRoles, closing } from '../../data/journey';
 
-/** Built from the owner's LinkedIn profile, résumé and accepted chapter copy. No metrics are added. */
-const roles = [
-  {
-    title: 'Senior Quantitative UX Researcher',
-    org: 'JPMorganChase',
-    where: 'New York',
-    when: 'June 2026 to present',
-    points: [
-      'Assess interaction-data coverage and quality across Payments products; created a cross-product HTML dashboard and a resumable assessment pipeline.',
-      'Developing an evaluation approach for bounded multi-agent workflows with my manager (concept development).',
-    ],
-    href: '/work/instrumentation/',
-  },
-  {
-    title: 'Experience Research Senior Associate',
-    org: 'JPMorganChase',
-    where: 'Plano, Texas',
-    when: 'November 2024 to June 2026',
-    points: [
-      'Unmoderated usability research on Chase mobile entry points, informing navigation and prioritization recommendations.',
-      'Moderated interviews on assisted account opening, informing design strategy.',
-    ],
-    href: '/#chase-entry-points',
-  },
-  {
-    title: 'UX Researcher II, contractor',
-    org: 'Chegg',
-    where: 'Remote from Texas',
-    when: 'August to November 2024',
-    points: ['Discovery research and three concept tests for AI-assisted academic support in Discord; one of two interns moved into a contractor role.'],
-    href: '/work/chegg-discord/',
-  },
-  {
-    title: 'UX Research intern',
-    org: 'Chegg',
-    where: 'Santa Clara County, California',
-    when: 'June to August 2024',
-    points: ['Mixed-methods localization research for Mexico: a 1,000-student comparative survey and 12 interviews, leading to a cross-language search recommendation.'],
-    href: '/work/chegg-mexico/',
-  },
-  {
-    title: 'Quantitative Consumer Insights intern',
-    org: 'Inspire Brands',
-    where: 'Atlanta, Georgia',
-    when: 'June to August 2023',
-    points: ['Survey data and advertising analysis, including response quality and regression analysis of advertising attributes.'],
-    href: '/#atlanta',
-  },
-];
+/** Built from the Journey's Roles (the owner's LinkedIn profile, résumé and accepted chapter copy). No metrics are added. */
+const roles = allRoles();
 ---
 
 <Base title="Résumé · Kaushik Kallam" current="resume" description="Résumé of Kaushik Kallam, Senior Quantitative UX Researcher at JPMorganChase in New York.">
   <main id="main" class="cv">
     <header class="cv__head">
-      <p class="mono cv__kicker">Résumé</p>
       <h1 class="cv__name">Kaushik Kallam</h1>
       <p class="cv__role">Senior Quantitative UX Researcher · New York</p>
       <ul class="cv__contact">
@@ -67,16 +20,16 @@ const roles = [
     </header>
 
     <section class="cv__block" aria-labelledby="exp">
-      <h2 id="exp" class="cv__h mono">Experience</h2>
+      <h2 id="exp" class="cv__h">Experience</h2>
       <ol class="cv__list">
         {roles.map((r) => (
           <li class="cv__item">
-            <p class="cv__when mono num">{r.when}</p>
+            <p class="cv__when num">{r.period}</p>
             <div>
               <h3 class="cv__title">{r.title}</h3>
               <p class="cv__org">{r.org} · {r.where}</p>
-              <ul class="cv__points">{r.points.map((p) => <li>{p}</li>)}</ul>
-              <a class="cv__more link" href={r.href}>Read more <span aria-hidden="true">→</span></a>
+              <ul class="cv__points">{r.highlights.map((p) => <li>{p}</li>)}</ul>
+              <a class="cv__more link" href={r.more}>Read more <Arrow /></a>
             </div>
           </li>
         ))}
@@ -84,36 +37,36 @@ const roles = [
     </section>
 
     <section class="cv__block" aria-labelledby="proj">
-      <h2 id="proj" class="cv__h mono">Project</h2>
+      <h2 id="proj" class="cv__h">Project</h2>
       <ol class="cv__list">
         <li class="cv__item">
-          <p class="cv__when mono num">2025 to 2026</p>
+          <p class="cv__when num">2025 to 2026</p>
           <div>
             <h3 class="cv__title">Cofounder, watched.</h3>
             <p class="cv__org">Movie and TV tracking and discovery app · launched, currently paused</p>
             <ul class="cv__points"><li>Research, product and interaction design, and front-end work, alongside two technical cofounders.</li></ul>
-            <a class="cv__more link" href="/work/watched/">Read more <span aria-hidden="true">→</span></a>
+            <a class="cv__more link" href="/work/watched/">Read more <Arrow /></a>
           </div>
         </li>
       </ol>
     </section>
 
     <section class="cv__block" aria-labelledby="edu">
-      <h2 id="edu" class="cv__h mono">Education</h2>
+      <h2 id="edu" class="cv__h">Education</h2>
       <ol class="cv__list">
         <li class="cv__item">
-          <p class="cv__when mono num">2022 to 2024</p>
+          <p class="cv__when num">2022 to 2024</p>
           <div><h3 class="cv__title">MS, Applied Cognition and Neuroscience</h3><p class="cv__org">University of Texas at Dallas · Human-Computer Interaction specialization</p></div>
         </li>
         <li class="cv__item">
-          <p class="cv__when mono num">2018 to 2022</p>
+          <p class="cv__when num">2018 to 2022</p>
           <div><h3 class="cv__title">BS, Neuroscience and Psychology</h3><p class="cv__org">University of Texas at Dallas</p></div>
         </li>
       </ol>
     </section>
 
     <section class="cv__block" aria-labelledby="skills">
-      <h2 id="skills" class="cv__h mono">Methods and tools</h2>
+      <h2 id="skills" class="cv__h">Methods and tools</h2>
       <div class="cv__skills">
         <p><strong>Methods.</strong> Research design, interviews, surveys, usability testing (moderated and unmoderated), concept testing, contextual inquiry, diary studies, mixed methods, instrumentation and behavioral data analysis, A/B testing, thematic analysis.</p>
         <p><strong>Tools.</strong> Python, R, SQL, SPSS, Tableau, Qualtrics, UserTesting, Dovetail, Figma.</p>
@@ -129,20 +82,19 @@ const roles = [
 <style>
   .cv { padding: 64px var(--margin) clamp(80px, 10vw, 160px); max-width: 1180px; }
   .cv__head { padding-top: clamp(40px, 7vw, 110px); }
-  .cv__kicker { color: var(--note); }
-  .cv__name { margin-top: 18px; font-size: clamp(3rem, 9vw, 8rem); line-height: 0.86; letter-spacing: -0.056em; font-weight: 530; }
+  .cv__name { margin-top: 18px; font-size: clamp(3rem, 9vw, 8rem); line-height: 0.86; letter-spacing: -0.04em; font-weight: 530; }
   .cv__role { margin-top: 18px; font-size: var(--t-lede); letter-spacing: -0.015em; }
   .cv__contact { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 26px; }
   .cv__block { margin-top: clamp(48px, 6vw, 88px); }
-  .cv__h { color: var(--ink-3); font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 10px; border-bottom: 1px solid var(--ink); }
+  .cv__h { font-size: var(--t-lede); font-weight: 520; letter-spacing: -0.02em; padding-bottom: 10px; border-bottom: 1px solid var(--ink); }
   .cv__list { display: grid; }
   .cv__item { display: grid; grid-template-columns: minmax(10em, 1fr) 3fr; gap: var(--gutter); padding: 22px 0; border-bottom: 1px solid var(--rule); }
-  .cv__when { color: var(--ink-3); padding-top: 0.45em; }
+  .cv__when { color: var(--ink-3); font-size: 0.9375rem; padding-top: 0.35em; }
   .cv__title { font-size: var(--t-h3); line-height: 1.08; letter-spacing: -0.028em; font-weight: 520; }
   .cv__org { color: var(--ink-2); margin-top: 4px; }
   .cv__points { margin-top: 10px; display: grid; gap: 6px; max-width: 66ch; }
   .cv__points li { padding-left: 1em; text-indent: -1em; }
-  .cv__points li::before { content: '· '; color: var(--note); }
+  .cv__points li::before { content: '· '; color: var(--ink-3); }
   .cv__more { display: inline-block; margin-top: 10px; font-size: 0.9375rem; text-decoration: none; }
   .cv__skills { display: grid; gap: 12px; padding-top: 18px; max-width: 72ch; }
   .cv__skills strong { font-weight: 560; }

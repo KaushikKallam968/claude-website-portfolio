@@ -15,17 +15,29 @@ export interface Role {
   org: string;
   period: string;
   where: string;
+  /** Résumé lines: what the work was, without metrics the sources don't support. */
+  highlights: string[];
+  /** Where the résumé's "Read more" goes. */
+  more: string;
 }
 
 /** An Entry either opens a Case (its own page) or expands in place as a Summary / Research in Development. */
+export type EntryKind = 'case' | 'summary' | 'research-in-development';
+export type FigureKind = 'instrumentation' | 'ai-evaluation' | 'discord' | 'mexico' | 'watched';
+
 export interface Entry {
   id: string;
   title: string;
-  kind: 'case' | 'summary' | 'research-in-development';
+  kind: EntryKind;
   context: string;
   preview: string[];
+  /** What Kaushik personally did (see GLOSSARY: Contribution). */
+  contribution: string;
   status: string;
   action: string;
+  figure?: FigureKind;
+  /** Copy awaiting the owner's confirmation. */
+  draft: boolean;
   /** Expanded text for entries that do not open a Case. */
   more?: string[];
 }
@@ -56,7 +68,19 @@ export const chapters: Chapter[] = [
     intro: [
       'At JPMorganChase, I study how we make sense of behavior in Payments products and bounded multi-agent workflows. My work includes assessing the quality of interaction data and developing an approach to AI-agent evaluation.',
     ],
-    roles: [{ title: 'Senior Quantitative UX Researcher', org: 'JPMorganChase', period: 'June 2026 to present', where: 'New York' }],
+    roles: [
+      {
+        title: 'Senior Quantitative UX Researcher',
+        org: 'JPMorganChase',
+        period: 'June 2026 to present',
+        where: 'New York',
+        highlights: [
+          'Assess interaction-data coverage and quality across Payments products; created a cross-product HTML dashboard and a resumable assessment pipeline.',
+          'Developing an evaluation approach for bounded multi-agent workflows with my manager (concept development).',
+        ],
+        more: '/work/instrumentation/',
+      },
+    ],
     entries: [
       {
         id: 'instrumentation',
@@ -67,8 +91,11 @@ export const chapters: Chapter[] = [
           'Some interaction data recorded activity without enough context to explain it. A tag called “search” on a page with several search bars couldn’t tell us which one someone used. Other interactions needed instrumentation altogether.',
           'I created a cross-product HTML dashboard to distinguish coverage gaps from unusable tags, with product-level analysis and a resumable pipeline designed for reuse.',
         ],
+        contribution: 'I created the dashboard and the assessment pipeline.',
         status: 'Dashboard and pipeline created · being publicized',
         action: 'Explore the assessment',
+        figure: 'instrumentation',
+        draft: true,
       },
       {
         id: 'ai-evaluation',
@@ -82,8 +109,11 @@ export const chapters: Chapter[] = [
           'With my manager, I’m developing an evaluation approach to help identify whether a breakdown comes from the user or the agent. I don’t design the agentic experience used to test it.',
           'One challenge is defining what a human concept such as frustration means when applied to agent behavior. Turning it into something observable in an agent doesn’t assume the agent feels anything.',
         ],
-        status: 'Concept development · working with my manager',
+        contribution: 'Developing the approach with my manager. I don’t design the agentic experience used to test it.',
+        status: 'Research in development · concept stage',
         action: 'Read the research overview',
+        figure: 'ai-evaluation',
+        draft: true,
       },
     ],
   },
@@ -97,7 +127,19 @@ export const chapters: Chapter[] = [
     intro: [
       'In Texas, my work at Chase focused on the moments when people needed to find their way through a banking experience. I used usability research and interviews to understand where they struggled and what teams could improve.',
     ],
-    roles: [{ title: 'Experience Research Senior Associate', org: 'JPMorganChase', period: 'November 2024 to June 2026', where: 'Plano, Texas' }],
+    roles: [
+      {
+        title: 'Experience Research Senior Associate',
+        org: 'JPMorganChase',
+        period: 'November 2024 to June 2026',
+        where: 'Plano, Texas',
+        highlights: [
+          'Unmoderated usability research on Chase mobile entry points, informing navigation and prioritization recommendations.',
+          'Moderated interviews on assisted account opening, informing design strategy.',
+        ],
+        more: '/#chase-entry-points',
+      },
+    ],
     entries: [
       {
         id: 'chase-entry-points',
@@ -111,8 +153,10 @@ export const chapters: Chapter[] = [
           'The research informed recommendations for design and prioritization, connecting the difficulties people encountered with the changes teams needed to consider.',
           'I also researched assisted account opening, using moderated interviews to understand username-related challenges and cross-selling friction. The findings informed design strategy for the experience.',
         ],
-        status: 'Research summary',
+        contribution: 'I ran the usability research and the interviews.',
+        status: 'Research completed · recommendations for design and prioritization',
         action: 'Read the research summary',
+        draft: true,
       },
     ],
     subsections: [
@@ -122,7 +166,14 @@ export const chapters: Chapter[] = [
           'Before joining Chase, I returned to Texas and continued working remotely with Chegg after my Silicon Valley internship. I was one of two interns who moved into a contractor role.',
           'That work included studying how AI-powered academic support could fit into students’ existing Discord routines.',
         ],
-        role: { title: 'UX Researcher II, contractor', org: 'Chegg', period: 'August to November 2024', where: 'Remote from Texas' },
+        role: {
+          title: 'UX Researcher II, contractor',
+          org: 'Chegg',
+          period: 'August to November 2024',
+          where: 'Remote from Texas',
+          highlights: ['Discovery research and three concept tests for AI-assisted academic support in Discord; one of two interns who moved into a contractor role.'],
+          more: '/work/chegg-discord/',
+        },
         entries: [
           {
             id: 'chegg-discord',
@@ -131,10 +182,13 @@ export const chapters: Chapter[] = [
             context: 'Chegg · Discovery and concept evaluation',
             preview: [
               'Students already used Discord to study together. We wanted to understand what academic support should look like within that environment.',
-              'Discovery research and concept tests gave homework help, math solving and quiz generation different next steps.',
+              'Through discovery research and concept testing, I explored homework help, math solving and quiz generation. The findings gave the concepts different next steps.',
             ],
+            contribution: 'I ran the discovery research and the concept tests.',
             status: 'Discovery and concept testing completed · recommendations for alpha and iteration',
             action: 'Explore the Discord case',
+            figure: 'discord',
+            draft: true,
           },
         ],
       },
@@ -144,12 +198,21 @@ export const chapters: Chapter[] = [
     id: 'silicon-valley',
     title: 'Silicon Valley',
     label: 'Silicon Valley',
-    place: { name: 'Santa Clara, California', lat: 37.3541, lon: -121.9552, timeZone: 'America/Los_Angeles' },
+    place: { name: 'Santa Clara County, California', lat: 37.3541, lon: -121.9552, timeZone: 'America/Los_Angeles' },
     period: 'Summer 2024',
     intro: [
       'The contract followed a summer at Chegg in Silicon Valley, where I worked on understanding students’ needs and evaluating learning experiences.',
     ],
-    roles: [{ title: 'UX Research intern', org: 'Chegg', period: 'June to August 2024', where: 'Santa Clara County, California' }],
+    roles: [
+      {
+        title: 'UX Research intern',
+        org: 'Chegg',
+        period: 'June to August 2024',
+        where: 'Santa Clara County, California',
+        highlights: ['Mixed-methods localization research for Mexico: a 1,000-student comparative survey and 12 interviews, leading to a cross-language search recommendation.'],
+        more: '/work/chegg-mexico/',
+      },
+    ],
     entries: [
       {
         id: 'chegg-mexico',
@@ -160,8 +223,11 @@ export const chapters: Chapter[] = [
           'Localizing a learning product meant understanding how students studied, the support they relied on, and how they moved between languages.',
           'Interviews revealed that students searched in both Spanish and English. I recommended that a Spanish search could retrieve a relevant answer from Chegg’s English database.',
         ],
+        contribution: 'I worked across the survey and interview phases and made the cross-language search recommendation.',
         status: 'Mixed-methods study completed · cross-language search implementation reported',
         action: 'Explore the Mexico case',
+        figure: 'mexico',
+        draft: true,
       },
     ],
   },
@@ -175,7 +241,16 @@ export const chapters: Chapter[] = [
       'During my master’s degree, I spent a summer in Atlanta with Inspire Brands. I worked with survey data and advertising analysis to understand consumer responses, bringing quantitative research into a different product context.',
       'The work included examining response quality and collaborating on regression analysis of advertising attributes.',
     ],
-    roles: [{ title: 'Quantitative Consumer Insights intern', org: 'Inspire Brands', period: 'June to August 2023', where: 'Atlanta, Georgia' }],
+    roles: [
+      {
+        title: 'Quantitative Consumer Insights intern',
+        org: 'Inspire Brands',
+        period: 'June to August 2023',
+        where: 'Atlanta, Georgia',
+        highlights: ['Survey data and advertising analysis, including response quality and regression analysis of advertising attributes.'],
+        more: '/#atlanta',
+      },
+    ],
     entries: [],
   },
   {
@@ -216,8 +291,11 @@ export const chapters: Chapter[] = [
           'Choosing what to watch was a problem my friends and I kept coming back to. Recommendations often felt generic or disconnected from our taste, so we co-founded watched., a movie and TV tracking and discovery app.',
           'It starts with Liked, Meh or Disliked, then asks you to compare titles within the same bucket.',
         ],
+        contribution: 'Cofounder: research, product and interaction design, and front-end work, with two technical cofounders.',
         status: 'Launched project · currently paused',
         action: 'Explore watched.',
+        figure: 'watched',
+        draft: true,
       },
     ],
   },
@@ -236,3 +314,24 @@ export function allEntries() {
     ...(c.subsections ?? []).flatMap((s) => s.entries.map((e) => ({ entry: e, chapter: c }))),
   ]);
 }
+
+/** The Entry and Chapter for a Case id; a Case always appears somewhere on the Journey. */
+export function entryFor(id: string) {
+  const found = allEntries().find((x) => x.entry.id === id);
+  if (!found) throw new Error(`No Entry on the Journey for Case "${id}"`);
+  return found;
+}
+
+/** Every Role, most recent first (the Journey's order is already reverse chronological). */
+export function allRoles() {
+  return chapters.flatMap((c) => [...c.roles, ...(c.subsections ?? []).flatMap((s) => (s.role ? [s.role] : []))]);
+}
+
+export const kindLabels: Record<EntryKind, string> = {
+  case: 'Case',
+  summary: 'Summary',
+  'research-in-development': 'Research in development',
+};
+
+/** The Chapter's short qualifier, e.g. "career" for "Texas: career". */
+export const qualifierOf = (c: Chapter) => (c.label === c.title ? null : c.label.slice(c.title.length).replace(/^:\s*/, ''));

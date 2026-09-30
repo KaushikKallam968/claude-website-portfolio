@@ -3,6 +3,8 @@ import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import CaseFigure from '../../components/CaseFigure.astro';
 import NotesPanel from '../../components/NotesPanel.astro';
+import Arrow from '../../components/Arrow.astro';
+import { entryFor } from '../../data/journey';
 
 export async function getStaticPaths() {
   const cases = await getCollection('cases');
@@ -13,34 +15,34 @@ const { entry, all } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 const ordered = [...all].sort((a, b) => a.data.order - b.data.order);
-const n = String(d.order).padStart(2, '0');
+const { entry: journeyEntry, chapter } = entryFor(entry.id);
 const related = d.related ? all.find((c) => c.id === d.related) : undefined;
 ---
 
 <Base title={`${d.title} · Kaushik Kallam`} description={d.question} current="work">
-  <main id="main" class="case" data-case={entry.id} data-chapter={d.chapterId} data-chapter-title={d.chapterTitle}>
+  <main id="main" class="case" data-case={entry.id} data-chapter={chapter.id} data-chapter-title={chapter.label}>
     <div class="case__layout">
       <article class="case__article" aria-labelledby="case-title">
         <header class="case__head">
-          <p class="case__crumbs mono">
-            <span>Case {n} / {String(ordered.length).padStart(2, '0')}</span>
-            <span>{d.context}</span>
-            {d.draft && <span class="draft-marker" title="Draft copy awaiting the owner's confirmation">DRAFT</span>}
-          </p>
           <h1 id="case-title" class="case__title" style={`view-transition-name: case-${entry.id}`}>{d.title}</h1>
+          <p class="case__crumbs">
+            <span>{d.context}</span>
+            <span>Case {d.order} of {ordered.length}</span>
+            {d.draft && <span class="draft-marker" title="Draft copy awaiting Kaushik’s confirmation">Draft</span>}
+          </p>
           <p class="case__question">{d.question}</p>
         </header>
 
         <dl class="tldr" aria-label="Summary">
-          <div><dt>Role</dt><dd>{d.role}</dd></div>
+          <div><dt>Contribution</dt><dd>{d.contribution}</dd></div>
           {d.team && <div><dt>Team</dt><dd>{d.team}</dd></div>}
           <div><dt>Timeline</dt><dd>{d.timeline}</dd></div>
           <div><dt>Methods</dt><dd><ul>{d.methods.map((m) => <li>{m}</li>)}</ul></dd></div>
-          <div class="tldr__outcome"><dt>Outcome <span class="tldr__type mono">{d.outcomeType}</span></dt><dd>{d.outcome}</dd></div>
+          <div class="tldr__outcome"><dt>Outcome <span class="tldr__type">{d.outcomeType}</span></dt><dd>{d.outcome}</dd></div>
         </dl>
 
         <div class="case__figure">
-          <CaseFigure kind={d.figure} />
+          {journeyEntry.figure && <CaseFigure kind={journeyEntry.figure} />}
         </div>
 
         <div class="prose">
@@ -51,11 +53,11 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
           <h2 id="limits-title" class="limits__title">What the evidence shows, and what it can’t</h2>
           <div class="limits__cols">
             <div>
-              <h3 class="limits__h mono">Shows</h3>
+              <h3 class="limits__h">Shows</h3>
               <ul>{d.shows.map((s) => <li>{s}</li>)}</ul>
             </div>
             <div class="limits__cannot">
-              <h3 class="limits__h mono">Can’t show</h3>
+              <h3 class="limits__h">Can’t show</h3>
               <ul>{d.cannotShow.map((s) => <li>{s}</li>)}</ul>
             </div>
           </div>
@@ -63,20 +65,20 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
         </section>
 
         <nav class="case__next" aria-label="Where next">
-          <a class="case__return" href={`/#${d.chapterId}`} data-return data-case-id={entry.id} data-chapter-id={d.chapterId} data-chapter-title={d.chapterTitle}>
-            <span class="mono">Return</span>
-            <span class="case__return-label" data-return-label>Explore {d.chapterTitle}</span>
+          <a class="case__return" href={`/#${chapter.id}`} data-return data-case-id={entry.id} data-chapter-id={chapter.id} data-chapter-title={chapter.label}>
+            <Arrow to="left" />
+            <span class="case__return-label" data-return-label>Explore {chapter.label}</span>
           </a>
           <ul class="case__more">
-            <li><a class="link link--under" href="/work/">All selected work <span aria-hidden="true">→</span></a></li>
+            <li><a class="link link--under" href="/work/">All selected work <Arrow /></a></li>
             {related && (
               <li>
                 <a class="link link--under" href={`/work/${related.id}/`} data-case-link={related.id} data-observe-label={related.data.title}>
-                  Related: {related.data.title} <span aria-hidden="true">→</span>
+                  Related: {related.data.title} <Arrow />
                 </a>
               </li>
             )}
-            <li><a class="link link--under" href="/#contact">Get in touch <span aria-hidden="true">→</span></a></li>
+            <li><a class="link link--under" href="/#contact">Get in touch <Arrow /></a></li>
           </ul>
         </nav>
       </article>
@@ -89,7 +91,8 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
 
 <script>
   import { returnTargetFor } from '../../lib/origin';
-  import { storedOrigin } from '../../scripts/navigation';
+  import { adoptOrigin } from '../../scripts/navigation';
+  import { KEYS, session } from '../../lib/store';
 
   // Return goes back to the reader's Origin. When the Origin is the page right behind us, use real history,
   // so the browser restores scroll and state exactly; otherwise navigate and restore on arrival.
@@ -97,29 +100,21 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
   if (a) {
     const caseRef = { id: a.dataset.caseId!, chapterId: a.dataset.chapterId!, chapterTitle: a.dataset.chapterTitle! };
     document.body.dataset.caseId = caseRef.id;
-    const origin = storedOrigin(caseRef.id);
+    const origin = adoptOrigin(caseRef.id);
     const target = returnTargetFor(caseRef, origin);
     a.href = target.href;
     a.querySelector('[data-return-label]')!.textContent = target.label;
     const ref = document.referrer ? new URL(document.referrer) : null;
     const cameFromOrigin =
-      !!origin && origin.kind !== 'case' && !!ref && ref.origin === location.origin && ref.pathname === new URL(target.href, location.href).pathname;
+      !!origin && !!ref && ref.origin === location.origin && ref.pathname === new URL(target.href, location.href).pathname;
     a.addEventListener('click', (ev) => {
       if (cameFromOrigin && history.length > 1) {
         ev.preventDefault();
-        try {
-          sessionStorage.setItem('kk:restore', JSON.stringify({ scrollY: null, focusId: target.focusId }));
-        } catch {
-          /* focus simply stays where the browser puts it */
-        }
+        session.set(KEYS.restore, { scrollY: null, focusId: target.focusId });
         history.back();
         return;
       }
-      try {
-        sessionStorage.setItem('kk:restore', JSON.stringify({ scrollY: target.scrollY, focusId: target.focusId }));
-      } catch {
-        /* the hash still lands on the right Entry or Chapter */
-      }
+      session.set(KEYS.restore, { scrollY: target.scrollY, focusId: target.focusId });
     });
   }
 </script>
@@ -130,15 +125,13 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
   .case__rail-sticky { position: sticky; top: 88px; margin-top: clamp(40px, 8vw, 120px); }
   .case__article { container-type: inline-size; padding-bottom: clamp(80px, 10vw, 160px); }
   .case__head { padding-top: clamp(40px, 7vw, 110px); max-width: 1100px; }
-  .case__crumbs { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--ink-3); align-items: center; }
-  .case__crumbs span:first-child { color: var(--note); }
+  .case__crumbs { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 4px 18px; color: var(--ink-3); align-items: center; font-size: 0.9375rem; }
   .case__title {
-    margin-top: 22px;
-    font-size: clamp(2.8rem, 9.6cqi, 9rem);
-    line-height: 0.88;
-    letter-spacing: -0.055em;
+    font-size: clamp(2.8rem, 8cqi, 6rem);
+    line-height: 0.92;
+    letter-spacing: -0.04em;
     font-weight: 530;
-    max-width: 12ch;
+    max-width: 14ch;
   }
   .case__question { margin-top: clamp(22px, 3vw, 40px); font-size: var(--t-lede); line-height: 1.32; letter-spacing: -0.015em; max-width: 34ch; }
 
@@ -151,12 +144,13 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
     max-width: 1100px;
   }
   .tldr div { padding: 14px 0 18px; border-bottom: 1px solid var(--rule); }
-  .tldr dt { font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-3); margin-bottom: 6px; }
+  .tldr dt { font-size: var(--t-small); color: var(--ink-3); margin-bottom: 4px; }
   .tldr dd { margin: 0; font-size: 0.9375rem; }
   .tldr ul { display: grid; gap: 4px; }
   .tldr__outcome { grid-column: 1 / -1; }
   .tldr__outcome dd { font-size: var(--t-body); max-width: 70ch; }
-  .tldr__type { color: var(--note); border: 1px solid currentColor; padding: 0 5px; margin-left: 8px; }
+  .tldr__type { color: var(--ink); font-weight: 520; margin-left: 6px; }
+  .tldr__type::before { content: '·'; color: var(--ink-3); margin-right: 6px; font-weight: 400; }
 
   .case__figure { margin-top: clamp(40px, 6vw, 80px); max-width: 900px; }
 
@@ -172,27 +166,28 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
   .prose :global(p) { margin-bottom: 1em; line-height: 1.62; }
   .prose :global(strong) { font-weight: 560; }
 
-  .limits { margin-top: clamp(56px, 8vw, 110px); max-width: 1100px; border-top: 1px solid var(--note); padding-top: 18px; }
+  .limits { margin-top: clamp(56px, 8vw, 110px); max-width: 1100px; border-top: 1px solid var(--ink); padding-top: 18px; }
   .limits__title { font-size: var(--t-h3); letter-spacing: -0.028em; line-height: 1.1; font-weight: 520; max-width: 22ch; }
   .limits__cols { margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: var(--gutter); }
-  .limits__h { font-weight: 400; color: var(--ink-3); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .limits__h { font-size: 0.9375rem; font-weight: 520; margin-bottom: 10px; }
   .limits ul { display: grid; gap: 10px; }
   .limits li { border-top: 1px dotted var(--rule); padding-top: 10px; }
-  .limits__cannot { color: var(--note); }
-  .limits__cannot .limits__h { color: var(--note); }
+  .limits__cannot li { color: var(--ink-2); }
   .limits__status { margin-top: 26px; font-size: 0.9375rem; }
 
   .case__next { margin-top: clamp(64px, 9vw, 130px); display: grid; gap: 28px; max-width: 1100px; }
   .case__return {
-    display: grid;
-    gap: 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 0.4em;
+    font-size: clamp(2rem, 6cqi, 5rem);
     text-decoration: none;
     border-top: 1px solid var(--ink);
     padding-top: 14px;
   }
-  .case__return .mono { color: var(--note); }
-  .case__return-label { font-size: clamp(2rem, 6cqi, 5rem); letter-spacing: -0.045em; line-height: 0.95; font-weight: 520; transition: translate 0.8s var(--ease-out); }
-  .case__return:hover .case__return-label { translate: 10px 0; }
+  .case__return :global(.arrow) { width: 0.5em; height: 0.5em; flex: none; transition: translate 0.8s var(--ease-out); }
+  .case__return-label { letter-spacing: -0.04em; line-height: 0.95; font-weight: 520; }
+  .case__return:hover :global(.arrow) { translate: -8px 0; }
   .case__more { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; }
 
   @media (max-width: 1100px) {

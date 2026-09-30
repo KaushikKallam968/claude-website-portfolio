@@ -2,14 +2,13 @@
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import NotesPanel from '../../components/NotesPanel.astro';
-import { chapters } from '../../data/journey';
+import Arrow from '../../components/Arrow.astro';
+import { allEntries, entryFor, kindLabels } from '../../data/journey';
 
-const cases = (await getCollection('cases')).sort((a, b) => a.data.order - b.data.order);
-const nyc = chapters.find((c) => c.id === 'nyc')!;
-const aiEval = nyc.entries.find((e) => e.id === 'ai-evaluation')!;
-const texas = chapters.find((c) => c.id === 'texas-career')!;
-const chase = texas.entries.find((e) => e.id === 'chase-entry-points')!;
-const pad = (n: number) => String(n).padStart(2, '0');
+const cases = (await getCollection('cases'))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map((c) => ({ ...c, journey: entryFor(c.id) }));
+const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
 ---
 
 <Base title="Selected work · Kaushik Kallam" current="work">
@@ -17,53 +16,53 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <div class="work__layout">
       <div class="work__main">
         <header class="work__head">
-          <p class="mono work__kicker">Selected work</p>
-          <h1 class="work__title">Four cases, one piece of research in development</h1>
+          <h1 class="work__title">Selected work</h1>
           <p class="work__intro">Each case starts with its question and my part in it, then explains the research decisions and ends with what the evidence can and can’t show.</p>
         </header>
 
-        <ol class="index" data-work-index>
+        <ol class="index" data-work-index aria-label="Cases">
           {cases.map((c) => (
             <li class="row" id={c.id}>
-              <a
-                class="row__link"
-                id={`work-${c.id}`}
-                href={`/work/${c.id}/`}
-                data-case-link={c.id}
-                data-observe={`work.${c.id}`}
-                data-observe-label={c.data.title}
-              >
-                <span class="row__no mono num">{pad(c.data.order)}</span>
-                <span class="row__title" style={`view-transition-name: case-${c.id}`}>{c.data.title}</span>
-                <span class="row__q">{c.data.question}</span>
-                <span class="row__meta mono">
-                  <span>{c.data.context}</span>
-                  <span class="row__type">{c.data.outcomeType}</span>
-                  <span>{c.data.timeline}</span>
-                </span>
-                <span class="row__arrow" aria-hidden="true">→</span>
-              </a>
+              <h2 class="row__title">
+                <a
+                  class="row__link"
+                  id={`work-${c.id}`}
+                  href={`/work/${c.id}/`}
+                  style={`view-transition-name: case-${c.id}`}
+                  data-case-link={c.id}
+                  data-observe={`work.${c.id}`}
+                  data-observe-label={c.data.title}
+                  data-observe-cannot="Whether it was the title or the question that caught your eye."
+                ><span class="row__text">{c.data.title}</span></a>
+              </h2>
+              <p class="row__q">{c.data.question}</p>
+              <p class="row__meta">
+                <span>{c.data.context}</span>
+                <span>{c.journey.chapter.label}</span>
+                <span>{c.data.timeline}</span>
+                {c.data.draft && <span class="draft-marker" title="Draft copy awaiting Kaushik’s confirmation">Draft</span>}
+              </p>
+              <dl class="row__facts">
+                <div><dt>Contribution</dt><dd>{c.journey.entry.contribution}</dd></div>
+                <div><dt>Status</dt><dd>{c.data.status}</dd></div>
+              </dl>
+              <span class="row__arrow" aria-hidden="true"><Arrow /></span>
             </li>
           ))}
         </ol>
 
         <section class="also" aria-labelledby="also-title">
-          <h2 id="also-title" class="mono also__title">Also in the journey</h2>
+          <h2 id="also-title" class="also__title">Also on the journey</h2>
           <ul class="also__list">
-            <li>
-              <a class="also__item" href="/#ai-evaluation" data-observe="work.ai-evaluation" data-observe-label={aiEval.title}>
-                <span class="also__kind mono">Research in development</span>
-                <span class="also__name">{aiEval.title}</span>
-                <span class="also__status">{aiEval.status}</span>
-              </a>
-            </li>
-            <li>
-              <a class="also__item" href="/#chase-entry-points" data-observe="work.chase" data-observe-label={chase.title}>
-                <span class="also__kind mono">Summary</span>
-                <span class="also__name">{chase.title}</span>
-                <span class="also__status">Usability research · JPMorganChase, Texas</span>
-              </a>
-            </li>
+            {others.map(({ entry, chapter }) => (
+              <li>
+                <a class="also__item" href={`/#${entry.id}`} data-observe={`work.${entry.id}`} data-observe-label={entry.title}>
+                  <span class="also__kind"><span>{kindLabels[entry.kind]} · {chapter.label}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
+                  <span class="also__name">{entry.title}</span>
+                  <span class="also__status">{entry.status}</span>
+                </a>
+              </li>
+            ))}
           </ul>
         </section>
       </div>
@@ -78,68 +77,69 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .work__main { container-type: inline-size; }
   .work__rail-sticky { position: sticky; top: 88px; margin-top: clamp(40px, 8vw, 120px); }
   .work__head { padding-top: clamp(40px, 7vw, 110px); max-width: 1000px; }
-  .work__kicker { color: var(--note); }
-  .work__title { margin-top: 18px; font-size: clamp(2.6rem, 7.4cqi, 7rem); line-height: 0.9; letter-spacing: -0.052em; font-weight: 530; max-width: 14ch; }
+  .work__title { font-size: clamp(2.8rem, 8cqi, 6rem); line-height: 0.92; letter-spacing: -0.04em; font-weight: 530; }
   .work__intro { margin-top: 24px; font-size: var(--t-lede); line-height: 1.32; letter-spacing: -0.015em; max-width: 38ch; color: var(--ink-2); }
 
   .index { margin-top: clamp(48px, 7vw, 100px); border-bottom: 1px solid var(--rule); }
-  .row { border-top: 1px solid var(--rule); scroll-margin-top: 96px; }
-  .row__link {
+  .row {
     display: grid;
-    grid-template-columns: 3.2em minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     column-gap: var(--gutter);
-    padding: clamp(18px, 2.4vw, 32px) 0;
-    text-decoration: none;
+    padding: clamp(22px, 2.8vw, 38px) 0;
+    border-top: 1px solid var(--rule);
+    scroll-margin-top: 96px;
     position: relative;
   }
-  .row__no { color: var(--note); padding-top: 0.9em; }
-  .row__title {
-    grid-column: 2;
-    font-size: clamp(2rem, 6.2cqi, 5.6rem);
-    line-height: 0.95;
-    letter-spacing: -0.048em;
-    font-weight: 520;
-    transition: translate 0.8s var(--ease-out);
-  }
-  .row__q {
-    grid-column: 2;
-    margin-top: 14px;
-    font-size: var(--t-body);
-    color: var(--ink-2);
-    max-width: 58ch;
-  }
-  .row__meta { grid-column: 2; margin-top: 14px; display: flex; flex-wrap: wrap; gap: 4px 18px; color: var(--ink-3); }
-  .row__type { color: var(--note); }
-  .row__arrow { grid-column: 3; grid-row: 1; font-size: clamp(1.5rem, 3cqi, 2.6rem); align-self: start; padding-top: 0.2em; transition: translate 0.8s var(--ease-out); }
-  .row__link:hover .row__title { translate: 12px 0; }
-  .row__link:hover .row__arrow { translate: 8px 0; }
-  .row__link::before {
+  .row > * { grid-column: 1; }
+  .row::before {
     content: '';
     position: absolute;
     left: 0; top: -1px;
-    width: 100%; height: 2px;
-    background: var(--note);
+    width: 100%; height: 1px;
+    background: var(--ink);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.9s var(--ease-out);
   }
-  .row__link:hover::before, .row__link:focus-visible::before { transform: scaleX(1); }
+  .row:hover::before, .row:focus-within::before { transform: scaleX(1); }
+  .row__title {
+    font-size: clamp(2rem, 6cqi, 5rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    font-weight: 520;
+  }
+  /* Only the words slide: a transformed ancestor would shrink the row-wide link target to itself. */
+  .row__text { display: inline-block; transition: translate 0.8s var(--ease-out); }
+  .row__link { text-decoration: none; }
+  .row__link::after { content: ''; position: absolute; inset: 0; }
+  .row__link:focus-visible { outline: none; }
+  .row:has(.row__link:focus-visible) { outline: 2px solid var(--note); outline-offset: -2px; }
+  .row__q { margin-top: 14px; font-size: var(--t-body); color: var(--ink-2); max-width: 58ch; }
+  .row__meta { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 2px 18px; align-items: center; color: var(--ink-3); font-size: 0.9375rem; }
+  .row__facts { margin: 18px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px var(--gutter); max-width: 70ch; }
+  .row__facts dt { font-size: var(--t-small); color: var(--ink-3); }
+  .row__facts dd { margin: 2px 0 0; font-size: 0.9375rem; }
+  .row__arrow { grid-column: 2; grid-row: 1; font-size: clamp(1.5rem, 3cqi, 2.6rem); align-self: start; padding-top: 0.2em; transition: translate 0.8s var(--ease-out); }
+  .row:hover .row__text { translate: 12px 0; }
+  .row:hover .row__arrow { translate: 8px 0; }
 
   .also { margin-top: clamp(56px, 8vw, 110px); }
-  .also__title { color: var(--ink-3); font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; }
-  .also__list { margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--gutter); }
+  .also__title { font-size: var(--t-lede); font-weight: 520; letter-spacing: -0.02em; }
+  .also__list { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--gutter); }
   .also__item { display: grid; gap: 6px; border-top: 1px solid var(--ink); padding-top: 12px; text-decoration: none; }
-  .also__kind { color: var(--note); }
+  .also__kind { color: var(--ink-3); font-size: 0.9375rem; }
   .also__name { font-size: var(--t-h3); line-height: 1.08; letter-spacing: -0.028em; font-weight: 520; }
+  .also__kind { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
   .also__status { color: var(--ink-2); font-size: 0.9375rem; }
-  .also__item:hover .also__name { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+  .also__item:hover .also__name { text-decoration: underline; text-decoration-thickness: 1px; }
 
   @media (max-width: 1100px) {
     .work__layout { grid-template-columns: minmax(0, 1fr); }
     .work__rail-sticky { position: static; margin-top: 48px; }
   }
   @media (max-width: 600px) {
-    .row__link { grid-template-columns: 2.4em minmax(0, 1fr); }
+    .row { grid-template-columns: minmax(0, 1fr); }
     .row__arrow { display: none; }
+    .row__facts { grid-template-columns: 1fr; }
   }
 </style>

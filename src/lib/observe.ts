@@ -5,7 +5,7 @@
 export type RawEvent =
   | { type: 'point'; t: number; tag: string; label: string; cannotShow?: string }
   | { type: 'press'; t: number; tag: string | null; label?: string }
-  | { type: 'depth'; t: number; fraction: number }
+  | { type: 'depth'; t: number; page: string; fraction: number }
   | { type: 'idle'; t: number; ms: number }
   | { type: 'enter'; t: number; id: string; title: string }
   | { type: 'leave'; t: number; id: string }
@@ -37,7 +37,7 @@ export interface Readout {
 const IDLE_WORTH_NOTING_MS = 5000;
 
 export function createObservation() {
-  let quartersSeen = 0;
+  const quartersSeen = new Map<string, number>();
   const chapters = new Map<string, { title: string; ms: number }>();
   let current: { id: string; since: number } | null = null;
   const opened = new Map<string, string>();
@@ -74,16 +74,18 @@ export function createObservation() {
           }
           return null;
         case 'depth': {
-          const next = QUARTERS[quartersSeen];
+          let seen = quartersSeen.get(e.page) ?? 0;
+          const next = QUARTERS[seen];
           if (!next || e.fraction < next.at) return null;
           // Jumps past several quarters at once report the deepest one reached.
-          while (quartersSeen < QUARTERS.length && e.fraction >= QUARTERS[quartersSeen].at) quartersSeen++;
+          while (seen < QUARTERS.length && e.fraction >= QUARTERS[seen].at) seen++;
+          quartersSeen.set(e.page, seen);
           return {
             t: e.t,
             event: 'depth',
             tag: null,
             quality: 'tagged',
-            shows: QUARTERS[quartersSeen - 1].shows,
+            shows: QUARTERS[seen - 1].shows,
             cannotShow: 'Whether you read it or skimmed it.',
           };
         }

@@ -5,6 +5,7 @@ import { CustomEase } from 'gsap/CustomEase';
 import Lenis from 'lenis';
 import { startTimeShifts } from './timeshift';
 import { record, elapsed } from './notes';
+import { livePaused } from './navigation';
 
 /**
  * One motion grammar for the whole site: position, opacity and clip only.
@@ -14,12 +15,12 @@ gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase);
 CustomEase.create('out', 'M0,0 C0.16,1 0.3,1 1,1');
 CustomEase.create('scene', 'M0,0 C0.86,0 0.07,1 1,1');
 
-export let lenis: Lenis | null = null;
+let lenis: Lenis | null = null;
 
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function reveal(root: ParentNode = document) {
-  root.querySelectorAll<HTMLElement>('[data-reveal], .hero__word, [data-split]').forEach((el) => {
+function reveal() {
+  document.querySelectorAll<HTMLElement>('[data-reveal], .hero__word, [data-split]').forEach((el) => {
     el.style.opacity = '1';
   });
   document.documentElement.classList.add('motion-done');
@@ -110,28 +111,9 @@ function chapters() {
         scrollTrigger: { trigger: head, start: 'top 82%', once: true },
       });
     }
-    gsap.from(ch.querySelectorAll('.chapter__no, .chapter__meta > div, .chapter__qual'), {
-      y: 16,
-      opacity: 0,
-      duration: 1,
-      stagger: 0.06,
-      ease: 'out',
-      scrollTrigger: { trigger: head, start: 'top 80%', once: true },
-    });
-    ch.querySelectorAll<HTMLElement>('.chapter__body').forEach((b) =>
-      gsap.from(b.querySelectorAll('.chapter__text > *, .chapter__roles > li'), {
-        y: 28,
-        opacity: 0,
-        duration: 1.1,
-        stagger: 0.07,
-        ease: 'out',
-        scrollTrigger: { trigger: b, start: 'top 85%', once: true },
-      }),
-    );
+    // Reading text never fades in: only the chapter word and the rules between entries move.
     ch.querySelectorAll<HTMLElement>('.entry').forEach((row) => {
-      const tl = gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 88%', once: true }, defaults: { ease: 'out' } });
-      tl.from(row, { '--line': 0, duration: 1.2, ease: 'scene' });
-      tl.from(row.querySelectorAll('.entry__rail, .entry__kind, .entry__title, .entry__preview, .entry__side'), { y: 30, opacity: 0, duration: 1.1, stagger: 0.06 }, 0.1);
+      gsap.from(row, { '--line': 0, duration: 1.2, ease: 'scene', scrollTrigger: { trigger: row, start: 'top 88%', once: true } });
     });
   });
 
@@ -165,11 +147,11 @@ function figures() {
 export function startMotion() {
   figures();
   if (reduced()) {
-    startTimeShifts(true);
+    startTimeShifts(true, livePaused);
     reveal();
     return;
   }
-  startTimeShifts(false);
+  startTimeShifts(false, livePaused);
   smoothScroll();
   document.fonts.ready.then(() => {
     intro();

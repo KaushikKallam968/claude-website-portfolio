@@ -33,10 +33,6 @@ describe('returning from a Case', () => {
     });
   });
 
-  it('treats a Case opened from a related Case like a shared link, leaving Back to the browser', () => {
-    const origin = { kind: 'case', caseId: 'chegg-mexico' } as const;
-    expect(returnTargetFor(discord, origin)).toEqual(returnTargetFor(discord, null));
-  });
 });
 
 describe('reading an Origin from history state', () => {
@@ -50,5 +46,6 @@ describe('reading an Origin from history state', () => {
     expect(originFromState({ origin: { kind: 'chapter', entryId: 42 } })).toBeNull();
     expect(originFromState({ somethingElse: true })).toBeNull();
     expect(originFromState('a string')).toBeNull();
+    expect(originFromState({ origin: { kind: 'case', caseId: 'watched' } })).toBeNull();
   });
 });

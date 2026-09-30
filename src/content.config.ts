@@ -8,11 +8,10 @@ const cases = defineCollection({
   schema: z.object({
     title: z.string(),
     order: z.number(),
-    chapterId: z.string(),
-    chapterTitle: z.string(),
     context: z.string(),
     question: z.string(),
-    role: z.string(),
+    /** What Kaushik personally did (GLOSSARY: Contribution). The Chapter and figure come from the Journey. */
+    contribution: z.string(),
     team: z.string().optional(),
     timeline: z.string(),
     methods: z.array(z.string()),
@@ -22,7 +21,6 @@ const cases = defineCollection({
     status: z.string(),
     shows: z.array(z.string()),
     cannotShow: z.array(z.string()),
-    figure: z.enum(['instrumentation', 'discord', 'mexico', 'watched']),
     related: z.string().optional(),
     draft: z.boolean().default(true),
   }),

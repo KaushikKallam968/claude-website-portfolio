@@ -1,0 +1,16 @@
+---
+/** One drawn arrow for every text action, at one stroke weight. Direction follows the action. */
+interface Props {
+  to?: 'right' | 'down' | 'up-right' | 'left';
+}
+const { to = 'right' } = Astro.props;
+const rotation = { right: 0, down: 90, 'up-right': -45, left: 180 }[to];
+---
+
+<svg class="arrow" viewBox="0 0 16 16" width="0.8em" height="0.8em" aria-hidden="true" focusable="false" style={`--r:${rotation}deg`}>
+  <path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" />
+</svg>
+
+<style>
+  .arrow { display: inline-block; vertical-align: -0.05em; rotate: var(--r); transition: translate 0.6s var(--ease-out); }
+</style>

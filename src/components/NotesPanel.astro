@@ -7,11 +7,12 @@
 
 <aside class="notes" aria-labelledby="notes-title" data-notes>
   <div class="notes__head">
-    <h2 id="notes-title" class="notes__title mono">Notes on this visit <span class="notes__count num" data-notes-count>0</span></h2>
+    <h2 id="notes-title" class="notes__title mono">Notes<span class="notes__long"> on this visit</span> <span class="notes__count num" data-notes-count>0</span></h2>
     <button class="notes__toggle mono" type="button" aria-expanded="true" aria-controls="notes-list" data-notes-toggle>Hide</button>
   </div>
   <p class="notes__latest" data-notes-latest aria-hidden="true"></p>
   <p class="notes__about">This page keeps notes on what you do here, and on what each note can’t explain. They stay in your browser.</p>
+  <p class="notes__live"><button class="notes__pause mono" type="button" aria-pressed="false" data-live-pause>Pause live</button> <span>Stops the clocks and the running totals.</span></p>
   <ol class="notes__list" id="notes-list" data-notes-list>
     <noscript><li class="notes__empty">With scripts off, there’s nothing to note. That’s an honest dataset too.</li></noscript>
   </ol>
@@ -34,7 +35,10 @@
   .notes__count { display: inline-block; min-width: 2ch; }
   .notes__toggle { text-transform: uppercase; letter-spacing: 0.06em; }
   .notes__toggle:hover { text-decoration: underline; text-underline-offset: 3px; }
-  .notes__about { margin: 10px 0 18px; color: var(--ink-2); max-width: 34ch; }
+  .notes__about { margin: 10px 0 0; color: var(--ink-2); max-width: 34ch; }
+  .notes__live { margin: 8px 0 18px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
+  .notes__pause { text-transform: uppercase; letter-spacing: 0.06em; color: var(--note); }
+  .notes__pause:hover { text-decoration: underline; text-underline-offset: 3px; }
   .notes__list { display: grid; gap: 14px; }
   :global(.note) {
     display: grid;
@@ -50,36 +54,51 @@
   :global(.note--untagged .note__t::after) { content: ' gap'; }
   .notes__empty { color: var(--ink-2); }
   :global(html.notes-off) .notes__list,
-  :global(html.notes-off) .notes__about { display: none; }
+  :global(html.notes-off) .notes__about,
+  :global(html.notes-off) .notes__live { display: none; }
   .notes__latest { display: none; }
 
-  /* Phones and tablets: the notes become a thin bar along the bottom edge that opens into a sheet. */
+  /* Phones and tablets: the notes rest as a small chip in the corner, briefly show each new note,
+     and open into a sheet along the bottom edge. */
   @media (max-width: 1100px) {
     .notes {
       position: fixed;
-      inset: auto 0 0 0;
+      right: var(--margin);
+      bottom: calc(12px + env(safe-area-inset-bottom));
       z-index: 30;
+      max-width: min(30rem, calc(100vw - 2 * var(--margin)));
       background: var(--paper);
-      padding: 0 var(--margin) calc(10px + env(safe-area-inset-bottom));
-      border-top: 1px solid var(--note);
-      max-height: 60svh;
-      overflow: auto;
+      border: 1px solid var(--note);
+      padding: 0 12px 8px;
       overscroll-behavior: contain;
     }
-    .notes__head { border-top: 0; padding-top: 10px; }
+    .notes__head { border-top: 0; padding-top: 8px; gap: 16px; }
+    :global(html:not(.notes-open)) .notes__long { display: none; }
     .notes__latest {
-      display: block;
       margin: 4px 0 0;
       color: var(--ink);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 34ch;
     }
+    :global(html.notes-peek) .notes__latest { display: block; animation: peek 0.6s var(--ease-out) both; }
+    @keyframes peek { from { opacity: 0; translate: 0 6px; } }
     :global(html:not(.notes-open)) .notes__list,
-    :global(html:not(.notes-open)) .notes__about { display: none; }
+    :global(html:not(.notes-open)) .notes__about,
+    :global(html:not(.notes-open)) .notes__live { display: none; }
+    :global(html.notes-open) .notes {
+      left: 0; right: 0; bottom: 0;
+      max-width: none;
+      max-height: 60svh;
+      overflow: auto;
+      border-width: 1px 0 0;
+      padding: 0 var(--margin) calc(10px + env(safe-area-inset-bottom));
+    }
+    :global(html.notes-open) .notes__head { padding-top: 12px; }
     :global(html.notes-open) .notes__latest { display: none; }
-    :global(html.notes-open) .notes__list,
-    :global(html.notes-open) .notes__about { display: grid; }
+    :global(html.notes-open) .notes__list { display: grid; }
     :global(html.notes-open) .notes__about { display: block; }
+    :global(html.notes-open) .notes__live { display: flex; }
   }
 </style>

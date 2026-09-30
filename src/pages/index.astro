@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ChapterSection from '../components/ChapterSection.astro';
 import NotesPanel from '../components/NotesPanel.astro';
+import Arrow from '../components/Arrow.astro';
 import { chapters, closing } from '../data/journey';
 
 const pad = (v: number) => String(v).padStart(2, '0');
@@ -24,9 +25,9 @@ const pad = (v: number) => String(v).padStart(2, '0');
         <div class="hero__more">
           <p class="hero__sub" data-reveal>I’ve lived across countries, worked across research disciplines, and co-founded watched. with two longtime friends. New York is my latest stop. This is the journey that brought me here.</p>
           <ul class="hero__actions" data-reveal>
-            <li><a class="link link--under" href="#journey" data-observe="cta.journey" data-observe-label="Explore the journey" data-observe-cannot="Whether you have time for the whole thing.">Explore the journey <span aria-hidden="true">↓</span></a></li>
-            <li><a class="link link--under" href="/work/" data-observe="cta.work" data-observe-label="Selected work" data-observe-cannot="Whether you would rather skip straight to the evidence.">Selected work <span aria-hidden="true">→</span></a></li>
-            <li><a class="link link--under" href="/resume/" data-observe="cta.resume" data-observe-label="Résumé" data-observe-cannot="Whether a recruiter is reading this.">Résumé <span aria-hidden="true">→</span></a></li>
+            <li><a class="link link--under" href="#journey" data-observe="cta.journey" data-observe-label="Explore the journey" data-observe-cannot="Whether you have time for the whole thing.">Explore the journey <Arrow to="down" /></a></li>
+            <li><a class="link link--under" href="/work/" data-observe="cta.work" data-observe-label="Selected work" data-observe-cannot="Whether you would rather skip straight to the evidence.">Selected work <Arrow /></a></li>
+            <li><a class="link link--under" href="/resume/" data-observe="cta.resume" data-observe-label="Résumé" data-observe-cannot="Whether a recruiter is reading this.">Résumé <Arrow /></a></li>
           </ul>
         </div>
       </div>
@@ -47,7 +48,7 @@ const pad = (v: number) => String(v).padStart(2, '0');
     </section>
 
     <div id="journey" class="journey">
-      {chapters.map((c, i) => <ChapterSection chapter={c} n={i + 1} total={chapters.length} previous={chapters[i - 1]} />)}
+      {chapters.map((c, i) => <ChapterSection chapter={c} previous={chapters[i - 1]} />)}
     </div>
     <div class="rail">
       <div class="rail__sticky"><NotesPanel /></div>
@@ -56,10 +57,9 @@ const pad = (v: number) => String(v).padStart(2, '0');
 
     <section class="close" id="contact" aria-labelledby="close-title" data-chapter-section="contact" data-chapter-title="Contact">
       <div class="grid">
-        <p class="close__no mono">End of the journey</p>
         <h2 id="close-title" class="close__title" tabindex="-1">Your visit, as this page saw it</h2>
         <div class="readout" data-readout>
-          <p class="readout__total mono num"><span data-readout-total>0 min 00 s</span> on this page</p>
+          <p class="readout__total"><span class="mono num" data-readout-total>0 s</span> so far on this site</p>
           <ol class="readout__bars" data-readout-bars aria-label="Time spent in each chapter">
             {chapters.map((c) => (
               <li data-bar={c.id}>
@@ -68,6 +68,11 @@ const pad = (v: number) => String(v).padStart(2, '0');
                 <span class="readout__value mono num">0 s</span>
               </li>
             ))}
+            <li data-bar="outside" class="readout__outside">
+              <span class="readout__label">Outside the chapters</span>
+              <span class="readout__track" aria-hidden="true"><span class="readout__fill"></span></span>
+              <span class="readout__value mono num">0 s</span>
+            </li>
           </ol>
           <p class="readout__cases" data-readout-cases>No cases opened yet.</p>
         </div>
@@ -76,9 +81,9 @@ const pad = (v: number) => String(v).padStart(2, '0');
           <p>{closing.text}</p>
           <p class="close__email"><a class="link link--under" href={`mailto:${closing.email}`} data-observe="contact.email" data-observe-label="my email address" data-observe-cannot="Whether you will write.">{closing.email}</a></p>
           <ul class="close__links">
-            <li><a class="link link--under" href={closing.linkedin} rel="me" data-observe="contact.linkedin" data-observe-label="LinkedIn" data-observe-cannot="Whether we are already connected.">LinkedIn <span aria-hidden="true">↗</span></a></li>
-            <li><a class="link link--under" href="/resume/">Résumé <span aria-hidden="true">→</span></a></li>
-            <li><a class="link link--under" href="/work/">Selected work <span aria-hidden="true">→</span></a></li>
+            <li><a class="link link--under" href={closing.linkedin} rel="me" data-observe="contact.linkedin" data-observe-label="LinkedIn" data-observe-cannot="Whether we are already connected.">LinkedIn <Arrow to="up-right" /></a></li>
+            <li><a class="link link--under" href="/resume/">Résumé <Arrow /></a></li>
+            <li><a class="link link--under" href="/work/">Selected work <Arrow /></a></li>
           </ul>
         </div>
       </div>
@@ -107,9 +112,9 @@ const pad = (v: number) => String(v).padStart(2, '0');
   .hero { padding-top: 64px; position: relative; }
   .hero__name {
     padding-inline: var(--margin);
-    font-size: clamp(4.2rem, 19.4vw, 24rem);
+    font-size: clamp(4.2rem, 18.6vw, 23rem);
     line-height: 0.76;
-    letter-spacing: -0.062em;
+    letter-spacing: -0.04em;
     font-weight: 530;
     margin: clamp(10px, 1.6vw, 28px) 0 0 -0.04em;
   }
@@ -161,7 +166,7 @@ const pad = (v: number) => String(v).padStart(2, '0');
     transition: transform 0.7s var(--ease-out);
   }
   .route__item:hover::before, .route__item:focus-visible::before, .route__item[aria-current='true']::before { transform: scaleX(1); }
-  .route__no { color: var(--note); }
+  .route__no { color: var(--ink-3); }
   .route__place { font-weight: 520; letter-spacing: -0.01em; line-height: 1.2; }
   .route__meta { color: var(--ink-3); display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.6875rem; }
 
@@ -178,22 +183,25 @@ const pad = (v: number) => String(v).padStart(2, '0');
 
   /* ---------- Close ---------- */
   .close { padding-top: clamp(120px, 16vw, 240px); scroll-margin-top: 64px; }
-  .close__no { grid-column: 1 / -1; color: var(--note); margin-bottom: 18px; }
   .close__title {
     grid-column: 1 / span 10;
     font-size: clamp(2.6rem, 7.2vw, 8.5rem);
     line-height: 0.9;
-    letter-spacing: -0.052em;
+    letter-spacing: -0.04em;
     font-weight: 520;
     outline: none;
   }
   .readout { grid-column: 1 / span 6; margin-top: clamp(40px, 5vw, 72px); color: var(--note); }
-  .readout__total { font-size: 0.8125rem; margin-bottom: 18px; }
+  .readout__total { font-size: 0.9375rem; color: var(--ink-2); margin-bottom: 18px; }
+  .readout__total .mono { font-size: 0.8125rem; color: var(--note); margin-right: 0.3em; }
   .readout__bars { display: grid; gap: 10px; }
   .readout__bars li { display: grid; grid-template-columns: 11em 1fr 5.5em; align-items: center; gap: 14px; }
   .readout__label { color: var(--ink); font-size: 0.9375rem; }
   .readout__track { height: 10px; background: var(--note-soft); position: relative; overflow: hidden; }
   .readout__fill { position: absolute; inset: 0; background: var(--note); transform: scaleX(var(--share, 0)); transform-origin: left; transition: transform 1.2s var(--ease-out); }
+  .readout__outside .readout__label { color: var(--ink-2); }
+  .readout__outside .readout__fill { background: var(--ink-3); }
+  @media (prefers-reduced-motion: reduce) { .readout__fill { transition: none; } }
   .readout__value { text-align: right; }
   .readout__cases { margin-top: 18px; color: var(--ink-2); font-size: 0.9375rem; }
   .close__text {

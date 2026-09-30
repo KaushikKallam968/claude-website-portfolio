@@ -1,11 +1,9 @@
 ---
 title: Chegg Mexico
 order: 3
-chapterId: silicon-valley
-chapterTitle: Silicon Valley
 context: Chegg · Mixed-methods localization research
 question: What did localizing a learning product for students in Mexico require beyond translation?
-role: UX Research intern, working across the quantitative and qualitative phases
+contribution: As a UX Research intern, I worked across the survey and interview phases and made the cross-language search recommendation.
 timeline: Six weeks, summer 2024
 methods:
   - Comparative survey of 1,000 students, 500 in the US and 500 in Mexico
@@ -14,14 +12,13 @@ outcome: A learner-context foundation for localization and a recommendation that
 outcomeType: Recommendation, implementation reported
 status: Mixed-methods study completed · cross-language search implementation reported
 shows:
-  - How students’ study habits, support and exam preparation differed across the two countries.
+  - What the comparative survey and the interviews revealed about study habits, academic support and exam preparation.
   - That students searched for help in both Spanish and English.
   - A concrete product change that followed from that finding.
 cannotShow:
   - Adoption, learning gains or business results after the change.
   - Findings for students who don’t speak English. The interview sample did.
   - An independent audit of the implementation, which is reported in my presentation notes.
-figure: mexico
 related: chegg-discord
 draft: true
 ---
@@ -46,4 +43,4 @@ I explained survey fatigue and cognitive overload and helped the team prioritize
 
 The research identified needs around major projects, standardized-test preparation and academic support, which pointed to relevant practice resources and support timed to students’ routines.
 
-The interviews also showed students moving between Spanish and English when they looked for help. Their search behavior crossed a language boundary, which mattered for a content database that was largely in English. I recommended that a question searched in Spanish should be able to retrieve a relevant answer from Chegg’s English database. My presentation notes record that the feature was implemented on chegg.mx.
+The interviews also showed students moving between Spanish and English when they looked for help. Their search behavior crossed a language boundary, which mattered for finding answers in Chegg’s English database. I recommended that a question searched in Spanish should be able to retrieve a relevant answer from Chegg’s English database. My presentation notes record that the feature was implemented on chegg.mx.

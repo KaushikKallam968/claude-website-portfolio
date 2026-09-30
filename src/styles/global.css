@@ -92,12 +92,13 @@ body {
   overflow-x: clip;
 }
 img { display: block; max-width: 100%; height: auto; }
-a { color: inherit; }
+a { color: inherit; text-underline-offset: 0.18em; }
 p { margin: 0; }
 h1, h2, h3, h4 { margin: 0; font-weight: 500; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 ::selection { background: var(--note); color: var(--paper); }
+html { scrollbar-color: var(--ink-3) var(--paper); caret-color: var(--note); accent-color: var(--ink); }
 
 :focus-visible { outline: 2px solid var(--note); outline-offset: 3px; border-radius: 1px; }
 
@@ -137,17 +138,16 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @keyframes relink { 0% { background-position: 100% 100%; background-size: 100% 1px; } 45% { background-position: 100% 100%; background-size: 0 1px; } 46% { background-position: 0 100%; } 100% { background-position: 0 100%; background-size: 100% 1px; } }
 
 .draft-marker {
-  display: inline-block; font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.08em;
-  color: var(--note); border: 1px solid currentColor; padding: 1px 6px; vertical-align: middle;
+  display: inline-block; font-family: var(--sans); font-size: 0.75rem; font-weight: 520; letter-spacing: 0.01em; line-height: 1.4;
+  color: var(--ink-2); border: 1px solid var(--rule); padding: 0 6px; vertical-align: middle;
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
 
-/* Entrance states exist only when scripts run; motion.ts reveals them (with a failsafe). */
-.js .hero__word, .js [data-reveal] { opacity: 0; }
-.js.motion-done .hero__word, .js.motion-done [data-reveal] { opacity: 1; }
+/* Entrance states exist only when scripts run and only until motion.ts (or the inline failsafe) is done. */
+.js:not(.motion-done) .hero__word, .js:not(.motion-done) [data-reveal] { opacity: 0; }
 .ch { will-change: transform; }
 @media (prefers-reduced-motion: reduce) {
   .js .hero__word, .js [data-reveal] { opacity: 1; }

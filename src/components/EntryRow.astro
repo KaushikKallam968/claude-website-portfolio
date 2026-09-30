@@ -1,25 +1,20 @@
 ---
 import type { Chapter, Entry } from '../data/journey';
 import CaseFigure from './CaseFigure.astro';
+import Arrow from './Arrow.astro';
 
 interface Props {
   entry: Entry;
   chapter: Chapter;
-  index: string;
 }
 
-const { entry, chapter, index } = Astro.props;
+const { entry, chapter } = Astro.props;
 const isCase = entry.kind === 'case';
 const href = `/work/${entry.id}/`;
-const figures = { instrumentation: 'instrumentation', 'ai-evaluation': 'ai-evaluation', 'chegg-discord': 'discord', 'chegg-mexico': 'mexico', watched: 'watched' } as const;
-const figure = figures[entry.id as keyof typeof figures];
-const kindLabel = entry.kind === 'research-in-development' ? 'Research in development' : entry.kind === 'summary' ? 'Summary' : 'Case';
 ---
 
 <li class="entry" id={entry.id} data-entry={entry.id} data-chapter={chapter.id}>
-  <div class="entry__rail mono num" aria-hidden="true">{index}</div>
   <div class="entry__main">
-    <p class="entry__kind mono">{kindLabel} <span class="entry__context">· {entry.context}</span></p>
     <h3 class="entry__title" id={`entry-${entry.id}-title`}>
       {isCase ? (
         <a
@@ -33,45 +28,51 @@ const kindLabel = entry.kind === 'research-in-development' ? 'Research in develo
           data-observe-label={entry.title}
           data-observe-cannot="Whether it was the title or the problem that caught your eye."
         >
-          {entry.title}
+          <span class="entry__text">{entry.title}</span>
         </a>
       ) : (
         <span id={`entry-${entry.id}`} tabindex="-1">{entry.title}</span>
       )}
     </h3>
+    <p class="entry__context">
+      <span>{entry.context}</span>
+      {entry.draft && <span class="draft-marker" title="Draft copy awaiting Kaushik’s confirmation">Draft</span>}
+    </p>
     <div class="entry__preview">
       {entry.preview.map((p) => <p>{p}</p>)}
     </div>
     {entry.more && (
-      <div class="entry__more" id={`more-${entry.id}`} hidden data-more>
+      <div class="entry__more" id={`more-${entry.id}`} data-more>
         {entry.more.map((p) => <p>{p}</p>)}
       </div>
     )}
-    <div class="entry__foot">
-    <p class="entry__status"><span class="label">Status</span><br />{entry.status}</p>
-      {isCase ? (
-        <a class="entry__action link link--under" href={href} tabindex="-1" aria-hidden="true" data-case-link={entry.id} data-origin-chapter={chapter.id}>
-          {entry.action} <span class="arrow" aria-hidden="true">→</span>
-        </a>
-      ) : (
-        <button
-          class="entry__action link link--under"
-          type="button"
-          aria-expanded="false"
-          aria-controls={`more-${entry.id}`}
-          data-more-toggle
-          data-observe={`more.${entry.id}`}
-          data-observe-label={entry.action}
-          data-observe-cannot="Whether the summary will be enough."
-        >
-          {entry.action} <span class="arrow" aria-hidden="true">↓</span>
-        </button>
-      )}
-    </div>
+    <dl class="entry__facts">
+      <div><dt>Contribution</dt><dd>{entry.contribution}</dd></div>
+      <div><dt>Status</dt><dd>{entry.status}</dd></div>
+    </dl>
+    {isCase ? (
+      <a class="entry__action link link--under" href={href} tabindex="-1" aria-hidden="true" data-case-link={entry.id} data-origin-chapter={chapter.id}>
+        {entry.action} <Arrow />
+      </a>
+    ) : entry.more ? (
+      <button
+        class="entry__action link link--under"
+        type="button"
+        hidden
+        aria-expanded="true"
+        aria-controls={`more-${entry.id}`}
+        data-more-toggle
+        data-observe={`more.${entry.id}`}
+        data-observe-label={entry.action}
+        data-observe-cannot="Whether the summary will be enough."
+      >
+        {entry.action} <Arrow to="down" />
+      </button>
+    ) : null}
   </div>
-  {figure && (
+  {entry.figure && (
     <div class="entry__side">
-      <CaseFigure kind={figure} compact />
+      <CaseFigure kind={entry.figure} compact />
     </div>
   )}
 </li>
@@ -81,7 +82,7 @@ const kindLabel = entry.kind === 'research-in-development' ? 'Research in develo
     display: grid;
     grid-template-columns: subgrid;
     grid-column: 1 / -1;
-    padding-block: clamp(22px, 3vw, 40px);
+    padding-block: clamp(26px, 3.4vw, 44px);
     position: relative;
     --line: 1;
   }
@@ -94,48 +95,41 @@ const kindLabel = entry.kind === 'research-in-development' ? 'Research in develo
     transform: scaleX(var(--line));
     transform-origin: left;
   }
-  .entry__rail { grid-column: 1 / span 1; color: var(--note); padding-top: 0.5em; }
-  .entry__main { grid-column: 2 / span 6; }
+  .entry__main { grid-column: 1 / span 7; }
   .entry__side { grid-column: 8 / -1; align-self: start; }
-  .entry__foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px 28px; margin-top: 26px; }
-  .entry__kind { color: var(--ink-3); margin-bottom: 12px; }
-  .entry__context { color: var(--ink-3); }
   .entry__title {
     font-size: var(--t-h3);
     line-height: 1.08;
     letter-spacing: -0.028em;
     font-weight: 520;
-    margin-bottom: 16px;
     max-width: 22ch;
   }
+  /* Only the words slide: a transformed ancestor would shrink the row-wide link target to itself. */
+  .entry__text { display: inline-block; transition: translate 0.8s var(--ease-out); }
   .entry__link { text-decoration: none; }
   .entry__link::after { content: ''; position: absolute; inset: 0; }
   .entry__link:focus-visible { outline: none; }
   .entry:has(.entry__link:focus-visible) { outline: 2px solid var(--note); outline-offset: -2px; }
-  .entry__preview, .entry__more { display: grid; gap: 0.8em; max-width: 60ch; color: var(--ink-2); }
+  .entry__context { margin-top: 8px; font-size: 0.9375rem; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+  .entry__preview, .entry__more { display: grid; gap: 0.8em; max-width: 60ch; color: var(--ink-2); margin-top: 18px; }
   .entry__more { margin-top: 0.8em; color: var(--ink); }
   .entry__more[hidden] { display: none; }
-  .entry__status { font-size: 0.9375rem; color: var(--ink); max-width: 30ch; }
-  .entry__action {
-    align-self: flex-start;
-    position: relative;
-    z-index: 2;
-    font-weight: 520;
-    text-align: left;
-  }
-  .arrow { display: inline-block; transition: translate 0.6s var(--ease-out), rotate 0.6s var(--ease-out); }
-  .entry:hover .arrow { translate: 6px 0; }
-  button.entry__action:hover .arrow { translate: 0 3px; }
-  button[aria-expanded='true'] .arrow { rotate: 180deg; translate: 0; }
-
-  /* Case rows lift on hover: the title slides, the rail number turns ink. */
+  .entry__facts { margin: 24px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px var(--gutter); max-width: 60ch; }
+  .entry__facts dt { font-size: var(--t-small); color: var(--ink-3); }
+  .entry__facts dd { margin: 2px 0 0; font-size: 0.9375rem; }
+  .entry__action { display: inline-flex; gap: 8px; align-items: baseline; position: relative; z-index: 2; margin-top: 22px; font-weight: 520; text-align: left; }
+  .entry__action[hidden] { display: none; }
+  .entry:hover :global(.arrow) { translate: 6px 0; }
+  button.entry__action:hover :global(.arrow) { translate: 0 3px; }
+  button[aria-expanded='true'] :global(.arrow) { rotate: -90deg; }
   .entry:has(.entry__link) { cursor: pointer; }
-  .entry:has(.entry__link):hover .entry__title { translate: 8px 0; }
-  .entry__title { transition: translate 0.8s var(--ease-out); }
+  .entry:has(.entry__link):hover .entry__text { translate: 8px 0; }
 
   @media (max-width: 900px) {
-    .entry__rail { grid-column: 1 / -1; padding: 0 0 10px; }
-    .entry__main { grid-column: 1 / -1; }
-    .entry__side { grid-column: 1 / -1; margin-top: 20px; }
+    .entry__main, .entry__side { grid-column: 1 / -1; }
+    .entry__side { margin-top: 26px; }
+  }
+  @media (max-width: 520px) {
+    .entry__facts { grid-template-columns: 1fr; }
   }
 </style>
