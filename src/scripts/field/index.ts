@@ -187,7 +187,6 @@ export async function startField(): Promise<FieldHandle | null> {
   let windows: Window[] = [];
   let worldCam: Camera = { x: 0, y: 0, z: 1 };
   let cityZoom = 4;
-  let nameCount = 0;
   let dotTotal = 0;
   let visitOrder: number[] = [];
   let mapXY = new Float32Array(0);
@@ -213,7 +212,6 @@ export async function startField(): Promise<FieldHandle | null> {
     const size = parseFloat(cs.fontSize);
     const spacing = Math.min(5.2, Math.max(2.3, size / 52));
     const name = sampleName(heading!, spacing);
-    nameCount = name.count;
     renderer.sizes.name = spacing * (narrow ? 1.08 : 0.94);
     renderer.sizes.map = narrow ? 2.3 : 2.1;
 

@@ -89,6 +89,8 @@ export function wireDisclosures() {
 export function wireTopBar() {
   const root = document.documentElement;
   let last = scrollY;
+  // A keyboard user tabbing into the bar brings it back, so focus never lands on something off screen.
+  document.querySelector('.top')?.addEventListener('focusin', () => root.classList.remove('nav-hidden'));
   addEventListener(
     'scroll',
     () => {
