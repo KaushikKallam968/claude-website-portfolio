@@ -142,7 +142,7 @@ uniform vec3 uCam;
 uniform float uScale;
 uniform float uRoute;
 uniform float uVis;
-uniform float uTime;
+uniform float uPulse;   // where the ring of the place being read is in its breath, 0 to 1
 uniform vec3 uLeg;      // from t, to t, progress
 uniform vec2 uTraveller;
 uniform float uActive;  // t of the place being read, or -1
@@ -185,10 +185,13 @@ void main() {
     size = 7.0;
     col = abs(aInfo.x - uActive) < 0.0001 ? uNote : uInk;
   } else if (kind < 2.5) {
-    float phase = fract(uTime * 0.45 + aInfo.z * 0.19);
+    // Only the place being read breathes. The others keep a still, faint ring, about the size and strength
+    // the breathing ones averaged, so the page stays quiet and nothing has to be redrawn for them.
+    bool current = abs(aInfo.x - uActive) < 0.0001;
+    float phase = current ? uPulse : 0.45;
     vRing = phase;
     size = 64.0;
-    a *= (1.0 - phase) * (abs(aInfo.x - uActive) < 0.0001 ? 0.9 : 0.25);
+    a *= (1.0 - phase) * (current ? 0.9 : 0.25);
   } else {
     size = 16.0;
     a = uVis * step(0.001, uLeg.z) * (1.0 - step(0.999, uLeg.z));
@@ -251,6 +254,8 @@ export interface FieldFrame {
   trail: Float32Array;
   sun: [number, number];
   time: number;
+  /** Where the ring of the place being read is in its breath (0 to 1); the other places' rings stand still. */
+  pulse: number;
   /** The band the map may draw in, as [top, bottom] in CSS px; the portrait ignores it. */
   clip: [number, number];
   quiet: Float32Array;
@@ -380,7 +385,7 @@ export class FieldRenderer {
       gl.uniform1f(r.u('uScale'), this.scale);
       gl.uniform1f(r.u('uRoute'), f.route);
       gl.uniform1f(r.u('uVis'), f.routeVis);
-      gl.uniform1f(r.u('uTime'), f.time);
+      gl.uniform1f(r.u('uPulse'), f.pulse);
       gl.uniform3f(r.u('uLeg'), ...f.leg);
       gl.uniform2f(r.u('uTraveller'), ...f.traveller);
       gl.uniform1f(r.u('uActive'), f.active);

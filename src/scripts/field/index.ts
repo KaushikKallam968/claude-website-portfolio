@@ -41,6 +41,12 @@ interface Window {
 }
 
 const TRAIL = 20;
+/** The ring of the place being read breathes 0.45 times a second, and rests 0.3 of the way through a breath. */
+const PULSE_HZ = 0.45;
+const PULSE_REST = 0.3;
+/** With only the ring moving, a frame every 50ms is enough; with no scrolling or pointer for 6s it rests. */
+const PULSE_FRAME_MS = 50;
+const PULSE_STILL_MS = 6000;
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const smooth = (a: number, b: number, v: number) => {
@@ -496,7 +502,7 @@ export async function startField(): Promise<FieldHandle | null> {
   const frame: FieldFrame = {
     stage: 0, mapIn: 1, mapVis: 0, nameVis: 1, visitVis: 0,
     cam: { ...worldCam }, route: 1, routeVis: 0, leg: [0, 0, 0], traveller: [0, 0], active: -1,
-    nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, clip: [-1e5, 1e5], quiet: new Float32Array(24),
+    nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, pulse: PULSE_REST, clip: [-1e5, 1e5], quiet: new Float32Array(24),
   };
   let idle = false;
 
@@ -698,15 +704,28 @@ export async function startField(): Promise<FieldHandle | null> {
   };
 
   // Only draw when something changed: scroll, the arrival, the pointer's warmth, dots in flight, or the
-  // pulsing places of a scene (which rest while live motion is paused).
+  // breathing ring of the place being read (which rests while live motion is paused). The ring alone is drawn
+  // every 50ms, and comes to rest after a still spell until the reader scrolls or moves the pointer again.
   let clock = 0;
+  let cycles = PULSE_REST;
   let lastTick = performance.now();
+  let lastDraw = 0;
+  let lastFull = 0;
+  let lastInput = lastTick;
+  let rested = false;
   let lastKey = '';
+  const wake = () => {
+    lastInput = performance.now();
+    rested = false;
+  };
+  addEventListener('scroll', wake, { passive: true });
+  addEventListener('pointermove', wake, { passive: true });
   gsap.ticker.add(() => {
     if (document.hidden || lost) return;
     const now = performance.now();
     const paused = livePaused();
-    if (!paused) clock += (now - lastTick) / 1000;
+    const dt = (now - lastTick) / 1000;
+    if (!paused) clock += dt;
     lastTick = now;
     compute();
     const inHero = scrollY < heroBottom || frame.stage < 0.999;
@@ -727,16 +746,35 @@ export async function startField(): Promise<FieldHandle | null> {
     let warm = 0;
     for (let i = 0; i < TRAIL; i++) warm += trail[i * 3 + 2];
     const inFlight = (frame.stage > 0.001 && frame.stage < 0.999) || (frame.stage > 1.001 && frame.stage < 1.999);
-    const pulsing = frame.routeVis > 0.001 && !paused;
+    const pulsing = frame.routeVis > 0.001 && !paused && !rested;
+    if (pulsing) {
+      const before = cycles;
+      cycles += dt * PULSE_HZ;
+      // After a still spell the ring finishes its breath, rests there and draws that last frame.
+      if (now - lastInput > PULSE_STILL_MS && Math.floor(cycles - PULSE_REST) > Math.floor(before - PULSE_REST)) {
+        cycles = Math.floor(cycles - PULSE_REST) + PULSE_REST;
+        rested = true;
+        force = true;
+      }
+    }
     const key = `${scrollY}|${frame.stage.toFixed(4)}|${frame.mapIn}|${frame.route}|${frame.mapVis.toFixed(3)}|${vw}x${vh}`;
-    if (!force && !intro.running && warm < 0.002 && !(inFlight && !paused) && !pulsing && key === lastKey) return;
+    const moving = force || intro.running || warm >= 0.002 || (inFlight && !paused) || key !== lastKey;
+    if (!moving && !(pulsing && now - lastDraw >= PULSE_FRAME_MS)) return;
     lastKey = key;
+    lastDraw = now;
     force = false;
     frame.time = clock;
+    frame.pulse = cycles - Math.floor(cycles);
     frame.sun = sun;
-    fillQuiet();
+    // A frame that only breathes the ring changes nothing the quiet zones or the labels depend on, so they are
+    // looked at again once a second, to catch the page changing under a reader who stands still.
+    const full = moving || now - lastFull > 1000;
+    if (full) {
+      lastFull = now;
+      fillQuiet();
+    }
     renderer.draw(frame);
-    placeLabels();
+    if (full) placeLabels();
   });
 
   // The portrait is drawn from the readout's snapshot of the visit, taken as the close comes near, so it holds
