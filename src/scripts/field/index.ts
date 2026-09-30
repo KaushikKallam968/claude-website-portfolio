@@ -369,6 +369,9 @@ export async function startField(): Promise<FieldHandle | null> {
     }
     let k = 0;
     const rows = visitRows.length;
+    // "Everywhere else" steps back next to the chapters' rows; standing alone (a visit straight to Contact) it is
+    // the whole chart and is drawn at full strength.
+    const outsideAlpha = rows > 1 ? 0.45 : 1;
     visitRows.forEach((row, ri) => {
       const n = counts[ri];
       for (let j = 0; j < n && k < visitOrder.length; j++) {
@@ -376,7 +379,7 @@ export async function startField(): Promise<FieldHandle | null> {
         const col = Math.floor(j / cells[ri].lines);
         const line = j % cells[ri].lines;
         const order = (ri + j / Math.max(1, n)) / rows; // row by row, left to right
-        visit.set([row.x + (col + 0.5) * visitSpacing, row.y + (line + 0.5) * visitSpacing * 0.9, row.id === 'outside' ? 0.45 : 1, order], idx * 4);
+        visit.set([row.x + (col + 0.5) * visitSpacing, row.y + (line + 0.5) * visitSpacing * 0.9, row.id === 'outside' ? outsideAlpha : 1, order], idx * 4);
       }
     });
     renderer.setVisit(visit);
