@@ -107,6 +107,11 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
     a.addEventListener('click', (ev) => {
       if (cameFromOrigin && history.length > 1) {
         ev.preventDefault();
+        try {
+          sessionStorage.setItem('kk:restore', JSON.stringify({ scrollY: null, focusId: target.focusId }));
+        } catch {
+          /* focus simply stays where the browser puts it */
+        }
         history.back();
         return;
       }

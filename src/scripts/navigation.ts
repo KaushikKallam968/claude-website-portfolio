@@ -45,7 +45,17 @@ export function restoreIfPending() {
   if (!pending) return;
   if (pending.scrollY !== null) scrollTo({ top: pending.scrollY, behavior: 'instant' as ScrollBehavior });
   const el = document.getElementById(pending.focusId);
-  el?.focus({ preventScroll: pending.scrollY !== null });
+  if (!el) return;
+  el.focus({ preventScroll: true });
+  const r = el.getBoundingClientRect();
+  if (r.bottom < 0 || r.top > innerHeight) el.scrollIntoView({ block: 'center' });
+}
+
+/** A page restored from the back-forward cache runs no scripts again; restore focus when it is shown. */
+export function restoreOnPageShow() {
+  addEventListener('pageshow', (e) => {
+    if ((e as PageTransitionEvent).persisted) restoreIfPending();
+  });
 }
 
 /** "Read the summary" style entries expand in place. */
