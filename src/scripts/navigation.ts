@@ -1,7 +1,8 @@
+import type Lenis from 'lenis';
 import { clockFormat } from './clock';
 import { originFromState, type Origin } from '../lib/origin';
 import { KEYS, session } from '../lib/store';
-import { record, elapsed } from './notes';
+import { record, elapsed, READING_LINE } from './notes';
 
 /**
  * Before leaving for a Case, hand its Origin to the Case page. The Case page moves it into its own
@@ -112,29 +113,41 @@ export function restoreOnPageShow() {
 
 /**
  * Summaries and Research in Development expand in place. The text is in the HTML for readers without
- * scripts; scripts collapse it behind its button.
+ * scripts; scripts collapse it behind its button. A link to one of them (from the résumé, or Selected work)
+ * opens it, so the address lands on the words, not on a title with its text folded away.
  */
 export function wireDisclosures() {
-  document.querySelectorAll<HTMLButtonElement>('[data-more-toggle]').forEach((btn) => {
+  const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const all = [...document.querySelectorAll<HTMLButtonElement>('[data-more-toggle]')].flatMap((btn) => {
     const panel = document.getElementById(btn.getAttribute('aria-controls')!);
-    if (!panel) return;
-    panel.hidden = true;
-    btn.hidden = false;
-    btn.setAttribute('aria-expanded', 'false');
-    btn.addEventListener('click', () => {
-      const open = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', String(!open));
-      panel.hidden = open;
-      if (open || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      panel.animate(
-        [
-          { opacity: 0, clipPath: 'inset(0 0 100% 0)' },
-          { opacity: 1, clipPath: 'inset(0 0 0% 0)' },
-        ],
-        { duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
-      );
-    });
+    return panel ? [{ btn, panel }] : [];
   });
+  const set = ({ btn, panel }: (typeof all)[number], open: boolean, animate: boolean) => {
+    btn.setAttribute('aria-expanded', String(open));
+    panel.hidden = !open;
+    if (!open || !animate || reduced()) return;
+    panel.animate(
+      [
+        { opacity: 0, clipPath: 'inset(0 0 100% 0)' },
+        { opacity: 1, clipPath: 'inset(0 0 0% 0)' },
+      ],
+      { duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+    );
+  };
+  all.forEach((d) => {
+    d.panel.hidden = true;
+    d.btn.hidden = false;
+    d.btn.setAttribute('aria-expanded', 'false');
+    d.btn.addEventListener('click', () => set(d, d.btn.getAttribute('aria-expanded') !== 'true', true));
+  });
+  // An arriving page is not a reader choosing to open something, so it opens without the reveal.
+  const openAtHash = () => {
+    const id = decodeURIComponent(location.hash.slice(1));
+    const d = id && all.find(({ btn }) => btn.closest('.entry')?.id === id);
+    if (d) set(d, true, false);
+  };
+  openAtHash();
+  addEventListener('hashchange', openAtHash);
 }
 
 /**
@@ -171,12 +184,51 @@ export function wireAnchorFocus(restored: boolean) {
   if (location.hash.length > 1 && !restored && nav?.type !== 'back_forward') focusAt(decodeURIComponent(location.hash.slice(1)));
 }
 
+/** The smooth scroller, once motion has started one: whatever else moves the page by itself goes through it. */
+let smooth: Lenis | null = null;
+export const setScroller = (lenis: Lenis) => (smooth = lenis);
+
+/**
+ * How far down the screen the fixed chrome reaches once it has settled: the top bar, and on small screens the
+ * notes ticker (or the open sheet) under it. Read from the layout, not from where the bar is mid-slide.
+ */
+function chromeBottom() {
+  const root = document.documentElement;
+  const away = root.classList.contains('nav-hidden');
+  const bar = document.querySelector<HTMLElement>('.top');
+  const notes = document.querySelector<HTMLElement>('.notes');
+  let bottom = bar && !away ? bar.offsetHeight : 0;
+  if (notes && getComputedStyle(notes).position === 'fixed' && (!away || root.classList.contains('notes-open'))) {
+    bottom = Math.max(bottom, parseFloat(getComputedStyle(notes).top) + notes.offsetHeight);
+  }
+  return bottom;
+}
+
 /** The top bar steps aside while reading down and returns when scrolling up. */
 export function wireTopBar() {
   const root = document.documentElement;
   let last = scrollY;
-  // A keyboard user tabbing into the bar brings it back, so focus never lands on something off screen.
-  document.querySelector('.top')?.addEventListener('focusin', () => root.classList.remove('nav-hidden'));
+  // A keyboard user tabbing into the bar or the notes brings them back, so focus never lands on something off screen.
+  document.addEventListener('focusin', (ev) => {
+    const el = ev.target as HTMLElement;
+    if (el.closest('.top, .notes')) {
+      root.classList.remove('nav-hidden');
+      return;
+    }
+    // The browser brings a focused control into view without knowing about the fixed chrome, so one it leaves under
+    // the bar or the ticker is moved clear of it, at once. Only controls the keyboard can reach: the heading a jump
+    // lands on, and a jump still under way, keep the landing the page gave them.
+    if (el.tabIndex < 0 || el.closest('.skip') || !el.matches(':focus-visible')) return;
+    requestAnimationFrame(() => {
+      if (smooth?.isScrolling === 'smooth') return;
+      const { top, bottom } = el.getBoundingClientRect();
+      const under = chromeBottom();
+      if (bottom <= 0 || top >= under) return;
+      const by = top - under - 12;
+      if (smooth) smooth.scrollTo(smooth.scroll + by, { immediate: true, force: true });
+      else scrollBy({ top: by, behavior: 'instant' as ScrollBehavior });
+    });
+  });
   addEventListener(
     'scroll',
     () => {
@@ -248,14 +300,14 @@ export function wireTopWhere() {
       if (current) show(current.dataset.place!, current.dataset.tz!);
       else show(home.name, home.tz);
     },
-    { rootMargin: '-45% 0px -54% 0px' },
+    { rootMargin: READING_LINE },
   );
   sections.forEach((s) => io.observe(s));
   // At the close, the top bar marks Contact as where you are rather than the Journey.
   const contact = document.getElementById('contact');
   if (contact) {
     new IntersectionObserver(([en]) => document.documentElement.classList.toggle('at-contact', en.isIntersecting), {
-      rootMargin: '-45% 0px -54% 0px',
+      rootMargin: READING_LINE,
     }).observe(contact);
   }
 }
