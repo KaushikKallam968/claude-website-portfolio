@@ -43,7 +43,7 @@ The exact, evidence-bounded statement of how far a piece of work went, such as "
 _Avoid:_ impact, results (unless the evidence supports them).
 
 ## Origin
-Where the Visitor was when they opened a Case: a specific Entry in a Chapter, in Selected Work, or nowhere (a shared link). Returning from a Case restores the Origin, with its reading position and focus.
+Where the Visitor was when they opened a Case: a specific Entry in a Chapter, or in Selected Work. A Case opened from a shared link or from another Case has no Origin. Return takes the Visitor back to the Origin, with its reading position and focus; without one, Return offers the Case's Chapter.
 _Avoid:_ previous page, back state.
 
 ## Contribution

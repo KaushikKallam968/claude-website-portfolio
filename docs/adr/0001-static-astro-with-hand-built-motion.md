@@ -1,6 +1,6 @@
 # 0001: Static Astro site with hand-built motion (GSAP, Lenis, WebGL only where it earns it)
 
-Date: 2026-09-30 · Status: accepted (stack delegated to Claude by the owner)
+Date: 2026-09-30 · Status: accepted (stack delegated to Claude by the owner) · Amended 2026-09-30 after the build (see "As built")
 
 ## Context
 
@@ -12,6 +12,13 @@ The portfolio must be award-level in motion while every Case stays a shareable, 
 - **GSAP (with ScrollTrigger, SplitText, Flip)** for authored timelines, and **Lenis** for inertial scrolling that stays in sync with ScrollTrigger. Motion is written by hand with named easings and durations, not delegated to a library's defaults.
 - **WebGL only where the chosen direction needs it** (a single canvas, lazily started, hidden from assistive technology, with a static fallback). No framework on the client; interactive pieces are small TypeScript modules.
 - **Case transitions** use a single page-transition controller (View Transitions API where supported, a GSAP overlay otherwise) that records the Origin in `history.state` and restores position and focus on return.
+
+## As built
+
+- **GSAP plugins:** ScrollTrigger, SplitText and CustomEase. Flip was not needed.
+- **WebGL:** none. The chosen direction (paper, ink, one annotation blue) earned its motion from type, time and the notes margin, so no canvas ships.
+- **Case transitions:** cross-document View Transitions (`@view-transition { navigation: auto }`) move the Entry title into the Case title. Browsers without them get a plain navigation, with no overlay to fall back to. Reduced motion turns the transition off.
+- **Origin:** the page that opens a Case hands its Origin over in `sessionStorage` for that one hop. The Case page moves it into its own `history.state`, so a reload keeps it and a later visit from a shared link does not. Return uses `history.back()` when the Origin is the page directly behind, so the browser restores everything. Otherwise it navigates to the Origin and restores scroll and focus on arrival, including pages restored from the back-forward cache. Browser Back is never intercepted.
 
 ## Alternatives considered
 
