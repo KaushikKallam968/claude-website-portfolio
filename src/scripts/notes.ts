@@ -153,18 +153,33 @@ function wireDepth() {
   );
 }
 
-/** A marked part of the page is reached when its top crosses the middle of the screen. */
+/**
+ * A marked part of the page is reached when its top has crossed the middle of the screen and stays there for a
+ * second, the readout's own floor. A jump that flies past parts on its way elsewhere reaches none of them.
+ */
 function wireReach() {
   const parts = document.querySelectorAll<HTMLElement>('[data-observe-reach]');
   if (!parts.length) return;
   const page = location.pathname;
+  const pending = new Map<Element, number>();
   const io = new IntersectionObserver(
     (entries) =>
       entries.forEach((en) => {
-        if (!en.isIntersecting) return;
         const el = en.target as HTMLElement;
-        io.unobserve(el);
-        record({ type: 'reach', t: elapsed(), page, id: el.dataset.observeReach!, shows: el.dataset.observeShows!, cannotShow: el.dataset.observeCannot! });
+        if (!en.isIntersecting) {
+          clearTimeout(pending.get(el));
+          pending.delete(el);
+          return;
+        }
+        if (pending.has(el)) return;
+        pending.set(
+          el,
+          window.setTimeout(() => {
+            pending.delete(el);
+            io.unobserve(el);
+            record({ type: 'reach', t: elapsed(), page, id: el.dataset.observeReach!, shows: el.dataset.observeShows!, cannotShow: el.dataset.observeCannot! });
+          }, 1000),
+        );
       }),
     { rootMargin: '0px 0px -50% 0px' },
   );

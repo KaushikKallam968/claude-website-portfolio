@@ -93,7 +93,7 @@ const { kind, compact = false, scene = false } = Astro.props;
       {!compact && <Image src={search} alt="watched. search with trending films and shows." widths={[360, 540, 720]} sizes="(max-width: 900px) 40vw, 18vw" class="phone phone--c" loading="lazy" />}
     </div>
     <figcaption class="fig__cap">
-      <span>Screens from the App Store listing, before the pause.</span>
+      <span class="fig__note">Screens from the App Store listing, before the pause.</span>
     </figcaption>
   )}
 </figure>
@@ -256,7 +256,7 @@ const { kind, compact = false, scene = false } = Astro.props;
   :global(html.scenes) .fig--scene .phone--a { --at: 0.02; translate: calc(12% + (1 - var(--k)) * 30%) calc(8% + (1 - var(--k)) * 20%); rotate: calc(-4deg * var(--k)); }
   :global(html.scenes) .fig--scene .phone--b { --at: 0.34; translate: 0 calc((1 - var(--k)) * 24%); }
   :global(html.scenes) .fig--scene .phone--c { --at: 0.64; translate: calc(-12% - (1 - var(--k)) * 30%) calc(8% + (1 - var(--k)) * 20%); rotate: calc(4deg * var(--k)); }
-  :global(html.scenes) .fig--scene .fig__cap > span:first-child { display: none; }
+  :global(html.scenes) .fig--scene .fig__cap > span:not(.fig__note) { display: none; }
 
   @media (max-width: 600px) {
     .inst { grid-template-columns: 1fr; }

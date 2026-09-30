@@ -23,4 +23,9 @@ describe('hover intent', () => {
     hover.moved(362, 540);
     expect(hover.counts(362, 540)).toBe(true);
   });
+
+  it('ignores a hover reported before the pointer has moved on this page, as when a page loads under a resting pointer', () => {
+    const hover = createHoverIntent();
+    expect(hover.counts(360, 520)).toBe(false);
+  });
 });
