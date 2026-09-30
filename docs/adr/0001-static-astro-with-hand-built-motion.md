@@ -16,8 +16,8 @@ The portfolio must be award-level in motion while every Case stays a shareable, 
 ## As built
 
 - **GSAP plugins:** ScrollTrigger, SplitText and CustomEase. Flip was not needed.
-- **WebGL:** none. The chosen direction (paper, ink, one annotation blue) earned its motion from type, time and the notes margin, so no canvas ships.
-- **Case transitions:** cross-document View Transitions (`@view-transition { navigation: auto }`) move the Entry title into the Case title. Browsers without them get a plain navigation, with no overlay to fall back to. Reduced motion turns the transition off.
+- **WebGL:** one canvas on the home page, the Field (see 0002). It is a raw WebGL2 dot field that draws the world, the name, the flights between places and the portrait of the visit.
+- **Case transitions:** cross-document View Transitions (`@view-transition { navigation: auto }`) move the Entry title into the Case title. When a Case opens from its row, the new page grows out of that row's outline: the rect is handed over in `sessionStorage`, then applied in a `pagereveal` listener registered before first render. Browsers without View Transitions get a plain navigation. Reduced motion turns the transition off.
 - **Origin:** the page that opens a Case hands its Origin over in `sessionStorage` for that one hop. The Case page moves it into its own `history.state`, so a reload keeps it and a later visit from a shared link does not. Return uses `history.back()` when the Origin is the page directly behind, so the browser restores everything. Otherwise it navigates to the Origin and restores scroll and focus on arrival, including pages restored from the back-forward cache. Browser Back is never intercepted.
 
 ## Alternatives considered
