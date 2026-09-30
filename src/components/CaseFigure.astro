@@ -10,12 +10,26 @@ import rec from '../assets/watched/ai-recommendation.png';
 import search from '../assets/watched/search.png';
 
 interface Props {
-  kind: 'instrumentation' | 'ai-evaluation' | 'discord' | 'mexico' | 'watched';
+  kind: 'instrumentation' | 'ai-evaluation' | 'discord' | 'mexico' | 'inspire' | 'watched';
   compact?: boolean;
   /** Inside a FigureScene: parts are driven by scroll progress (--p) instead of playing once. */
   scene?: boolean;
 }
 const { kind, compact = false, scene = false } = Astro.props;
+
+// Inspire: a fictional spot, coded into a table. Everything here is invented to show the method; no real ad,
+// brand, score or result is in it.
+const glyphs = [
+  'M6 25h28M20 7a6.5 6.5 0 1 0 0 13a6.5 6.5 0 1 0 0-13',
+  'M9 20v-6M14.5 23V9M20 25V6M25.5 22V11M31 19v-5',
+  'M20 5v20M8 10h8v10H8zM24 10h8v10h-8z',
+  'M8 15h17M28 11h5v8h-5z',
+];
+// One row per ad, one yes-or-no code per attribute (1 is yes). The first row is the spot. The second attribute
+// is one few ads use, so only two of its rows are filled.
+const codes = ['1010', '0011', '1001', '1110', '0011', '1000', '1011', '0001', '1110', '0010', '1001', '0011'];
+const attributes = [0, 1, 2, 3];
+const scores = [1, 2, 3, 4, 5, 6, 7, 8];
 ---
 
 <figure class:list={['fig', `fig--${kind}`, { 'fig--compact': compact, 'fig--scene': scene }]} data-fig={kind}>
@@ -86,6 +100,69 @@ const { kind, compact = false, scene = false } = Astro.props;
     </figcaption>
   )}
 
+  {kind === 'inspire' && (
+    <div class="fig__stage ad" aria-hidden="true">
+      <div class="ad__panel ad__spot">
+        <p class="ad__label mono">Fictional spot</p>
+        <ol class="ad__frames">
+          {glyphs.map((d, i) => (
+            <li class="ad__frame" style={`--i:${i}`}>
+              <svg viewBox="0 0 40 30" focusable="false"><path d={d} fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" /></svg>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="ad__panel ad__book">
+        <p class="ad__label mono">Codebook</p>
+        <ul class="ad__rows">
+          <li class="ad__row" style="--i:0"><span class="ad__q">Something shown?</span><span class="ad__chip ad__chip--yes">Yes</span></li>
+          <li class="ad__row" style="--i:1"><span class="ad__q">Something heard?</span><span class="ad__chip">No</span></li>
+          <li class="ad__row" style="--i:2">
+            <span class="ad__q">An editing choice, counted against a rule?
+              <span class="ad__rule"><span class="ad__tally"><i></i><i></i><i></i></span><svg viewBox="0 0 12 12" width="10" height="10" focusable="false"><path d="M2 6.5 5 9.5 10 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" /></svg></span>
+            </span>
+            <span class="ad__chip ad__chip--yes">Yes</span>
+          </li>
+          <li class="ad__row" style="--i:3"><span class="ad__q">How it ends?</span><span class="ad__chip">No</span></li>
+        </ul>
+      </div>
+
+      <div class="ad__panel ad__table" style={`--rows:${codes.length}`}>
+        <p class="ad__label mono">Table</p>
+        <div class="ad__grid">
+          <div class="ad__group">
+            <div class="ad__col ad__col--brand">
+              <p class="ad__th">Brand</p>
+              <p class="ad__hide"><span>hidden</span></p>
+            </div>
+          </div>
+          <div class="ad__group">
+            {attributes.map((a) => (
+              <div class:list={['ad__col', { 'ad__col--thin': a === 1 }]} style={`--ci:${a}`}>
+                <span class="ad__th"></span>
+                {codes.map((row, r) => <span class:list={['ad__cell', { 'is-on': row[a] === '1', 'is-spot': r === 0 }]} style={`--r:${r}`}></span>)}
+                {a === 1 && <span class="ad__note">few ads, less to go on</span>}
+              </div>
+            ))}
+          </div>
+          <div class="ad__group">
+            {scores.map((n) => (
+              <div class="ad__col ad__col--score" style={`--ci:${n - 1}`}>
+                <p class="ad__th">Score {n}</p>
+                {codes.map((_, r) => <span class="ad__cell" style={`--r:${r}`}></span>)}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+    <figcaption class="fig__cap">
+      <span>Creative choices become yes-or-no codes, and each score is modeled against them.</span>
+      <span class="fig__note">Illustration of the method, not the readout.</span>
+    </figcaption>
+  )}
+
   {kind === 'watched' && (
     <div class="fig__stage phones">
       <Image src={track} alt="The watched. welcome screen: Track. Log every movie and show you’ve seen and remember how you felt about it, not just that it happened." widths={[360, 540, 720]} sizes="(max-width: 900px) 40vw, 18vw" class="phone phone--a" loading="lazy" />
@@ -99,7 +176,13 @@ const { kind, compact = false, scene = false } = Astro.props;
 </figure>
 
 <style>
-  .fig { margin: 0; display: grid; gap: 14px; }
+  .fig {
+    margin: 0;
+    display: grid;
+    gap: 14px;
+    /* The Arrow component's path, as a mask, so connectors match every other arrow on the site. */
+    --arrow-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8h11M8.5 3.5 13 8l-4.5 4.5' fill='none' stroke='black' stroke-width='1.8'/%3E%3C/svg%3E");
+  }
   .fig__stage {
     background: var(--paper-2);
     padding: clamp(18px, 2.4vw, 32px);
@@ -154,8 +237,7 @@ const { kind, compact = false, scene = false } = Astro.props;
     height: 8px;
     translate: 0 -50%;
     background: var(--ink-3);
-    /* The Arrow component's path, as a mask, so connectors match every other arrow on the site. */
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8h11M8.5 3.5 13 8l-4.5 4.5' fill='none' stroke='black' stroke-width='1.8'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: var(--arrow-mask) center / contain no-repeat;
   }
   .trace__row li + li { margin-left: 8px; }
   .trace__waste { border-style: dashed !important; color: var(--ink-2); background: transparent !important; }
@@ -187,9 +269,73 @@ const { kind, compact = false, scene = false } = Astro.props;
   .phone--c { translate: -12% 8%; rotate: 4deg; }
   .fig--compact .phone { width: 42%; }
 
+  /* Inspire: a fictional spot, the codebook it is read against, and the table the codes become */
+  /* Stacked by default, for a phone or a narrow column; the container queries at the end give it more panels across as it gets room. */
+  .ad { --ad-gap: 20px; --row: 11px; --rgap: 3px; --cgap: 4px; --head: 46px; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ad-gap); align-items: start; }
+  .fig--inspire { container-type: inline-size; }
+  /* Beside an Entry's text the figure is smaller: finer rows, so it never stands taller than the words. */
+  .fig--compact .ad { --row: 9px; --rgap: 2px; --cgap: 3px; --head: 44px; }
+  .fig--compact .ad__row { padding: 5px 8px; }
+  .fig--compact .ad__label { margin-bottom: 8px; }
+  .ad__panel { position: relative; min-width: 0; }
+  .ad__book::before, .ad__table::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: calc(var(--ad-gap) / -2 - 4px);
+    width: 8px;
+    height: 8px;
+    background: var(--ink-3);
+    mask: var(--arrow-mask) center / contain no-repeat;
+    rotate: 90deg;
+  }
+  .ad__label { margin-bottom: 10px; color: var(--ink-3); font-size: var(--t-micro); letter-spacing: 0.06em; line-height: 1.2; text-transform: uppercase; }
+
+  .ad__frames { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .ad__frame { aspect-ratio: 16 / 9; border: 1px solid currentColor; background: var(--paper); padding: 3px; }
+  .ad__frame svg { display: block; width: 100%; height: 100%; }
+
+  .ad__rows { display: grid; gap: 6px; }
+  .ad__row { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 7px 9px; border: 1px solid var(--ink-3); background: var(--paper); font-size: var(--t-small); line-height: 1.3; }
+  .ad__chip { flex: none; min-width: 32px; padding: 1px 6px; border: 1px solid var(--now); color: var(--now); font-family: var(--mono); font-size: var(--t-data-s); line-height: 1.5; text-align: center; }
+  .ad__chip--yes { background: var(--now); color: var(--paper); }
+  .ad__rule { display: flex; gap: 6px; align-items: center; margin-top: 4px; color: var(--ink-3); }
+  .ad__tally { display: flex; gap: 2px; }
+  .ad__tally i { width: 1px; height: 9px; background: currentColor; }
+
+  .ad__grid { display: flex; gap: 8px; align-items: flex-start; }
+  .ad__group { display: flex; gap: var(--cgap); }
+  .ad__group:nth-child(1) { flex: 1.5 1 0; }
+  .ad__group:nth-child(2) { flex: 4 1 0; }
+  .ad__group:nth-child(3) { flex: 6.4 1 0; }
+  .ad__col { position: relative; display: grid; flex: 1 1 0; gap: var(--rgap); align-content: start; min-width: 0; }
+  .ad__th { display: flex; align-items: center; height: var(--head); margin: 0; font-family: var(--mono); font-size: var(--t-micro); line-height: 1; white-space: nowrap; writing-mode: vertical-rl; rotate: 180deg; }
+  /* Every part has a colour of its own (--c) and a faintness (--o); a scene eases each from rest to these. */
+  .ad__frame, .ad__row, .ad__th, .ad__cell, .ad__hide, .ad__note { --now: var(--c, var(--ink)); color: var(--now); opacity: var(--o, 1); }
+  .ad__cell { display: block; height: var(--row); border: 1px solid currentColor; }
+  .ad__cell.is-on { background: currentColor; }
+  /* The first row is the spot above, read against the codebook; the rest are faint, ads the method would also code. */
+  .ad__cell:not(.is-spot) { --c: var(--ink-3); --o: 0.5; }
+  .ad__th { --c: var(--ink-2); }
+  /* Brand is set aside: a hatched column, like the lens's untracked controls. */
+  .ad__hide { display: grid; place-items: center; height: calc(var(--rows) * var(--row) + (var(--rows) - 1) * var(--rgap)); margin: 0; border: 1px solid var(--ink-3); background: repeating-linear-gradient(-45deg, transparent 0 5px, var(--rule) 5px 6px); }
+  .ad__hide span { padding: 5px 1px; background: var(--paper-2); color: var(--ink-2); font-family: var(--mono); font-size: var(--t-micro); line-height: 1; letter-spacing: 0.06em; writing-mode: vertical-rl; rotate: 180deg; }
+  /* Dashed means thin: few ads use this attribute, so there is less to go on. */
+  .ad__col--thin::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--head) + var(--rgap) - 3px) -2px -3px;
+    border: 1px dashed var(--ink);
+    pointer-events: none;
+  }
+  .ad__note { --c: var(--ink-2); position: absolute; top: calc(100% + 8px); left: -2px; font-size: var(--t-small); line-height: 1.3; white-space: nowrap; }
+  .ad__table { padding-bottom: 28px; }
+
   /* Motion: each figure plays once when it enters (motion.ts adds .is-in). */
   :global(html.js) .inst__log li, :global(html.js) .trace__row li, :global(html.js) .deck__table tbody tr > * { opacity: 0; translate: 0 8px; }
   :global(html.js) .xl__result, :global(html.js) .xl__arrow { opacity: 0; translate: 0 8px; }
+  :global(html.js) .ad__frame, :global(html.js) .ad__row, :global(html.js) .ad__th, :global(html.js) .ad__cell, :global(html.js) .ad__hide, :global(html.js) .ad__note { opacity: 0; translate: 0 8px; }
+  :global(html.js) .ad__col--thin::after { opacity: 0; }
   :global(.fig.is-in) .inst__log li,
   :global(.fig.is-in) .trace__row li,
   :global(.fig.is-in) .deck__table tbody tr > * {
@@ -207,10 +353,27 @@ const { kind, compact = false, scene = false } = Astro.props;
   @keyframes type { from { max-width: 0; } to { max-width: 38ch; } }
   @keyframes caret { 50% { border-color: transparent; } }
   :global(.fig.is-in) .trace__row--long li { transition-delay: calc(var(--i) * 0.2s + 0.9s); }
+  /* Inspire plays in the order of its argument: the spot, the codebook's rows, the table's columns, then the thin attribute. */
+  :global(.fig.is-in) :is(.ad__frame, .ad__row, .ad__th, .ad__cell, .ad__hide, .ad__note) {
+    opacity: var(--o, 1); translate: 0 0;
+    transition: opacity 0.7s var(--ease-out), translate 0.9s var(--ease-out);
+    transition-delay: var(--d, 0s);
+  }
+  :global(.fig.is-in) .ad__col--thin::after { opacity: 1; transition: opacity 0.7s var(--ease-out) 3.2s; }
+  .ad__frame { --d: calc(var(--i) * 0.12s + 0.2s); }
+  .ad__row { --d: calc(var(--i) * 0.15s + 0.8s); }
+  .ad__hide, .ad__col--brand .ad__th { --d: 1.5s; }
+  .ad__cell.is-spot { --d: calc(var(--ci) * 0.05s + 1.6s); }
+  .ad__cell { --d: calc(var(--r) * 0.04s + 1.9s); }
+  .ad__col--score .ad__th { --d: calc(var(--ci) * 0.04s + 2.4s); }
+  .ad__col--score .ad__cell { --d: calc(var(--r) * 0.02s + var(--ci) * 0.02s + 2.6s); }
+  .ad__note { --d: 3.4s; }
 
   @media (prefers-reduced-motion: reduce) {
     :global(html.js) .inst__log li, :global(html.js) .trace__row li, :global(html.js) .deck__table tbody tr > *,
     :global(html.js) .xl__result, :global(html.js) .xl__arrow { opacity: 1; translate: 0 0; }
+    :global(html.js) :is(.ad__frame, .ad__row, .ad__th, .ad__cell, .ad__hide, .ad__note) { opacity: var(--o, 1); translate: 0 0; }
+    :global(html.js) .ad__col--thin::after { opacity: 1; }
   }
   /* ---------- Scroll-driven parts (FigureScene sets --p from 0 to 1) ----------
      Each part has a moment (--at) and eases in over a short stretch of scroll after it. */
@@ -256,6 +419,27 @@ const { kind, compact = false, scene = false } = Astro.props;
   :global(html.scenes) .fig--scene .phone--a { --at: 0.02; translate: calc(12% + (1 - var(--k)) * 30%) calc(8% + (1 - var(--k)) * 20%); rotate: calc(-4deg * var(--k)); }
   :global(html.scenes) .fig--scene .phone--b { --at: 0.34; translate: 0 calc((1 - var(--k)) * 24%); }
   :global(html.scenes) .fig--scene .phone--c { --at: 0.64; translate: calc(-12% - (1 - var(--k)) * 30%) calc(8% + (1 - var(--k)) * 20%); rotate: calc(4deg * var(--k)); }
+  /* Inspire: each part arrives at its own step's mark (FigureScene: 0, 0.28, 0.52, 0.76), a stretch of 0.11
+     before the next. The faint rows of the table start fainter still, so they join the grid rather than appear. */
+  :global(html.scenes) .fig--scene :is(.ad__frame, .ad__row, .ad__th, .ad__cell, .ad__hide, .ad__note) {
+    --k: clamp(0, calc((var(--p, 0) - var(--at)) * 9), 1);
+    --now: color-mix(in oklab, var(--c, var(--ink)) calc(var(--k) * 100%), var(--ink-3));
+    opacity: calc(var(--o, 1) * (var(--rest, 1) + (1 - var(--rest, 1)) * var(--k)));
+    translate: 0 calc((1 - var(--k)) * 12px);
+    transition: none;
+  }
+  :global(html.scenes) .fig--scene .ad__cell:not(.is-spot) { --rest: 0.35; }
+  /* The note is the last thing said, so it is not there until its step. */
+  :global(html.scenes) .fig--scene .ad__note { --rest: 0; }
+  :global(html.scenes) .fig--scene .ad__frame { --at: calc(var(--i) * 0.05); }
+  :global(html.scenes) .fig--scene .ad__row { --at: calc(0.28 + var(--i) * 0.035); }
+  :global(html.scenes) .fig--scene .ad__hide, :global(html.scenes) .fig--scene .ad__col--brand .ad__th { --at: 0.52; }
+  :global(html.scenes) .fig--scene .ad__cell.is-spot { --at: calc(0.54 + var(--ci) * 0.02); }
+  :global(html.scenes) .fig--scene .ad__cell { --at: calc(0.58 + var(--r) * 0.005); }
+  :global(html.scenes) .fig--scene .ad__col--score .ad__th { --at: calc(0.76 + var(--ci) * 0.012); }
+  :global(html.scenes) .fig--scene .ad__col--score .ad__cell { --at: calc(0.78 + var(--r) * 0.004 + var(--ci) * 0.008); }
+  :global(html.scenes) .fig--scene .ad__note { --at: 0.88; }
+  :global(html.scenes) .fig--scene .ad__col--thin::after { opacity: clamp(0, calc((var(--p, 0) - 0.84) * 9), 1); transition: none; }
   :global(html.scenes) .fig--scene .fig__cap > span:not(.fig__note) { display: none; }
 
   @media (max-width: 600px) {
@@ -263,5 +447,24 @@ const { kind, compact = false, scene = false } = Astro.props;
     /* Too narrow to type on one line: the question wraps and simply appears. */
     .xl__typed { white-space: normal; border-right: 0; }
     :global(.fig.is-in) .xl__typed { animation: none; }
+  }
+  /* Inspire takes the room it is given. With a little (the Journey's column beside an Entry's text) a strip of
+     the spot's frames runs above the codebook and the table; with plenty the three panels go across. A phone
+     keeps the stack, whatever its figure's width. */
+  @media (min-width: 601px) {
+    @container (min-width: 400px) {
+      .ad { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); }
+      .ad__spot { grid-column: 1 / -1; }
+      .ad__table::before { left: calc(var(--ad-gap) / -2 - 4px); top: 34px; rotate: none; }
+      .fig--compact .ad { padding: 22px 18px; }
+    }
+  }
+  @container (min-width: 640px) {
+    .ad { --ad-gap: clamp(22px, 3vw, 34px); grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.3fr) minmax(0, 1.3fr); }
+    .ad__spot { grid-column: auto; }
+    .ad__book::before { left: calc(var(--ad-gap) / -2 - 4px); top: 34px; rotate: none; }
+    .ad__table::before { left: calc(var(--ad-gap) / -2 - 4px); }
+    .ad__frames { grid-template-columns: 1fr 1fr; }
+    .ad__frame { aspect-ratio: 4 / 3; }
   }
 </style>

@@ -23,7 +23,7 @@ export interface Role {
 
 /** An Entry either opens a Case (its own page) or expands in place as a Summary / Research in Development. */
 export type EntryKind = 'case' | 'summary' | 'research-in-development';
-export type FigureKind = 'instrumentation' | 'ai-evaluation' | 'discord' | 'mexico' | 'watched';
+export type FigureKind = 'instrumentation' | 'ai-evaluation' | 'discord' | 'mexico' | 'inspire' | 'watched';
 
 export interface Entry {
   id: string;
