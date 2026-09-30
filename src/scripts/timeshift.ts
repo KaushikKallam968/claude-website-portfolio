@@ -75,12 +75,25 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
       // a real time, and the day marker appears at the moment the count passes midnight.
       let last = 0;
       const hourOf = (d: number[]) => d[0] * 10 + d[1];
+      // A pinned scene counts through most of its pin. A domestic band is scrubbed across its whole passage
+      // (top entering at 90% of the screen to bottom leaving at 10%), and counts while its clock, at the foot
+      // of the band, is on screen.
+      const near = el.classList.contains('shift--near');
+      let count0 = 0.12;
+      let countSpan = 0.66;
+      const fit = () => {
+        if (!near) return;
+        const h = el.offsetHeight / innerHeight;
+        count0 = (h - 0.1) / (h + 0.8) + 0.02;
+        countSpan = 0.3;
+      };
+      fit();
       const scrub = (p: number) => {
         last = p;
         const from = hourOf(state.from);
         const steps = Math.abs(state.off);
         const dir = state.off >= 0 ? 1 : -1;
-        const k = Math.min(1, Math.max(0, (p - 0.12) / 0.66));
+        const k = Math.min(1, Math.max(0, (p - count0) / countSpan));
         const count = k * steps;
         const whole = Math.min(steps, Math.floor(count));
         const f = whole === steps ? 0 : count - whole;
@@ -103,7 +116,16 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
         day.style.opacity = dayShift !== 0 ? '1' : '0';
         line?.style.setProperty('--p', p.toFixed(3));
       };
-      ScrollTrigger.create({ trigger: el, start: 'top top', end: 'bottom bottom', onUpdate: (self) => scrub(self.progress), onRefresh: (self) => scrub(self.progress) });
+      ScrollTrigger.create({
+        trigger: el,
+        start: near ? 'top 90%' : 'top top',
+        end: near ? 'bottom 10%' : 'bottom bottom',
+        onUpdate: (self) => scrub(self.progress),
+        onRefresh: (self) => {
+          fit();
+          scrub(self.progress);
+        },
+      });
       scrub(0);
       setInterval(() => {
         if (paused() || !ScrollTrigger.isInViewport(el)) return;

@@ -1,3 +1,4 @@
+import { clockFormat } from './clock';
 import { originFromState, type Origin } from '../lib/origin';
 import { KEYS, session } from '../lib/store';
 import { record, elapsed } from './notes';
@@ -121,6 +122,11 @@ export function wireLivePause() {
   };
   if (session.get(KEYS.livePaused, false)) root.classList.add('live-paused');
   sync();
+  // Without scripts nothing moves, so the switch only appears once there is something to pause.
+  buttons.forEach((btn) => {
+    const p = btn.closest('p');
+    if (p) p.hidden = false;
+  });
   buttons.forEach((btn) =>
     btn.addEventListener('click', () => {
       root.classList.toggle('live-paused');
@@ -131,3 +137,33 @@ export function wireLivePause() {
 }
 
 export const livePaused = () => document.documentElement.classList.contains('live-paused');
+
+/**
+ * The top bar's place and clock follow the Chapter being read, so scrolling back up always shows where in
+ * the journey you are. Outside the Chapters it is New York, where Kaushik is now.
+ */
+export function wireTopWhere() {
+  const where = document.querySelector<HTMLElement>('[data-top-where]');
+  const sections = document.querySelectorAll<HTMLElement>('[data-chapter-section][data-tz]');
+  if (!where || !sections.length) return;
+  const place = where.querySelector<HTMLElement>('[data-top-place]')!;
+  const clock = where.querySelector<HTMLElement>('[data-clock]')!;
+  const home = { name: place.textContent ?? '', tz: clock.dataset.clock! };
+  const inView = new Set<HTMLElement>();
+  const show = (name: string, tz: string) => {
+    if (clock.dataset.clock === tz && place.textContent === name) return;
+    place.textContent = name;
+    clock.dataset.clock = tz;
+    clock.textContent = clockFormat(tz).format(new Date());
+  };
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((en) => (en.isIntersecting ? inView.add(en.target as HTMLElement) : inView.delete(en.target as HTMLElement)));
+      const current = [...inView][0];
+      if (current) show(current.dataset.place!, current.dataset.tz!);
+      else show(home.name, home.tz);
+    },
+    { rootMargin: '-45% 0px -54% 0px' },
+  );
+  sections.forEach((s) => io.observe(s));
+}

@@ -14,3 +14,6 @@ export function formatElapsed(ms: number): string {
   const s = Math.floor(ms / 1000);
   return `${pad2(Math.floor(s / 60))}:${pad2(s % 60)}.${Math.floor((ms % 1000) / 100)}`;
 }
+
+/** Glue each " · " separator to the words before it, so a wrapped line never starts with a dot. */
+export const keepDots = (s: string) => s.replace(/ · /g, ' · ');

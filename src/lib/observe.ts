@@ -21,10 +21,10 @@ export interface Note {
 }
 
 const QUARTERS = [
-  { at: 0.25, shows: 'You scrolled past a quarter of this page.' },
-  { at: 0.5, shows: 'You scrolled past half of this page.' },
-  { at: 0.75, shows: 'You scrolled past three quarters of this page.' },
-  { at: 0.98, shows: 'You reached the end of this page.' },
+  { at: 0.25, shows: 'You scrolled past a quarter of this page.', cannotShow: 'Whether you read it or skimmed it.' },
+  { at: 0.5, shows: 'You scrolled past half of this page.', cannotShow: 'Whether you were looking for something in particular.' },
+  { at: 0.75, shows: 'You scrolled past three quarters of this page.', cannotShow: 'Whether you are reading closely or heading for the end.' },
+  { at: 0.98, shows: 'You reached the end of this page.', cannotShow: 'Whether you read everything on the way down.' },
 ];
 
 export interface Readout {
@@ -86,7 +86,7 @@ export function createObservation() {
             tag: null,
             quality: 'tagged',
             shows: QUARTERS[seen - 1].shows,
-            cannotShow: 'Whether you read it or skimmed it.',
+            cannotShow: QUARTERS[seen - 1].cannotShow,
           };
         }
         case 'idle':

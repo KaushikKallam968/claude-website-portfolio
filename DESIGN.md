@@ -151,6 +151,7 @@ spacing:
   prologue-runway: "160vh"
   shift-runway: "150vh"
   shift-runway-phone: "140vh"
+  shift-band: "60vh to 80vh by distance"
   readout-row: "clamp(34px, 3.6vw, 52px)"
 components:
   text-link:
@@ -178,7 +179,7 @@ components:
   time-shift:
     textColor: "{colors.note}"
     typography: "{typography.clock}"
-    height: "150vh"
+    height: "150vh (ocean crossing); 60vh to 80vh by distance (domestic band)"
   readout-row:
     textColor: "{colors.ink}"
     height: "clamp(34px, 3.6vw, 52px)"
@@ -209,6 +210,11 @@ components:
     textColor: "{colors.paper}"
     typography: "{typography.data}"
     padding: "6px 10px"
+  lens-exit:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.note}"
+    typography: "{typography.data}"
+    padding: "6px 12px"
   draft-marker:
     textColor: "{colors.ink-2}"
     padding: "0 6px"
@@ -299,11 +305,11 @@ Weights sit in a narrow band: 400 for reading, 440 for clocks and qualifiers, 52
 
 A twelve-column grid (`.grid`: 12 equal columns, `gutter` column gap, `margin` inline padding) organises every page. Content hangs flush left; nothing is centred except the watched. phone group inside its figure.
 
-- **Top bar:** fixed, 64px (56px at 720px and below), paper background, name in columns 1 to 3, New York clock in 4 to 6, navigation right-aligned from column 7. A `rule` hairline appears once scrolled past 8px. It slides up while reading down past 400px and returns on scroll up, unless focus is inside it or the notes sheet is open.
+- **Top bar:** fixed, 64px (56px at 720px and below), paper background, name in columns 1 to 3, a place and its live clock in 4 to 6 (New York, or on the home page the place of the Chapter being read), navigation right-aligned from column 7. A `rule` hairline appears once scrolled past 8px. It slides up while reading down past 400px and returns on scroll up, unless focus is inside it or the notes sheet is open.
 - **Rail:** the Notes panel lives in a right-hand rail (`rail` width), sticky at 88px. On the Journey it starts below the hero and fades out (0.6s) while a Field scene fills the screen, above 1100px; on Case and Work pages it is a second grid column.
 - **Journey:** the hero name spans the full width; the identity block sits in the negative space beside the second line; the route index is a six-column list on an ink hairline. Chapters: title in columns 1 to 9, mono meta in 10 to 12, text in 4 to 9 (max 34ch), roles in 10 to 12. Entries subgrid across 12: main 1 to 7, figure 8 to 12.
-- **Scenes (Field on):** the Prologue is a 160vh runway and each Time Shift a 150vh runway (140vh at 700px and below), each with a 100svh sticky stage. Words and clock sit bottom left; the map frames the place up and to the right of them (14% of the width and 12% of the height off centre; 16% of the height on phones, centred horizontally). The Time Shift route row sits at the top, under the bar. Without the Field these collapse to a short static band with a blue top rule.
-- **Close:** title across columns 1 to 10; the readout in 1 to 8 and the hand-off text in 9 to 12 share the final screen. Readout rows are one grid (label max-content, track 1fr, value 5.5em) with each row on a subgrid, so every track starts on the same line and lengths compare. With the Field each track is a `readout-row` tall box with a `rule` baseline; without it, a 14px bar.
+- **Scenes (Field on):** the Prologue is a 160vh runway and an ocean-crossing Time Shift a 150vh runway (140vh at 700px and below), each with a 100svh sticky stage. A domestic Time Shift is a band 60 to 80vh tall, by distance flown (60vh at 1,000 km or less, 80vh at 3,500 km or more), with no pin: the map draws only inside the band and rides with the page, the flight framed on the band wherever it is on screen. Words and clock sit bottom left; the map frames the place up and to the right of them (14% of the width and 12% of the height off centre; 16% of the height on phones, centred horizontally). The Time Shift route row sits at the top, under the bar. Without the Field these collapse to a short static band with a blue top rule.
+- **Close:** title across columns 1 to 10; the hand-off (thanks, email, links) in 9 to 12 beside the readout in 1 to 8, with the blue "can't tell" sentence under the hand-off. In the source and on narrow screens the hand-off comes first, so Contact lands on the email. Readout rows are one grid (label max-content, track 1fr, value 5.5em) with each row on a subgrid, so every track starts on the same line and lengths compare. With the Field each track is a `readout-row` tall box with a `rule` baseline; without it, a 14px bar.
 - **Case:** single article column (title max 14ch, prose 66ch, blocks max 1100px) beside the rail.
 - **Rhythm:** large fluid gaps between reading moments (chapter tops `clamp(56px, 8vw, 120px)`, first chapter up to 220px, close up to 240px), tight gaps within them (6 to 18px).
 
@@ -343,7 +349,7 @@ Plain words, never buttons.
 - **Arrow:** every action ends with the drawn `Arrow` (16px viewBox, 1.6 stroke, square caps) pointing in the direction of travel: right, down, up-right (external), left (Return). It nudges 6px on row hover.
 
 ### Navigation
-- **Top bar:** see Layout. Links are text links with `aria-current="page"`.
+- **Top bar:** see Layout. Links are text links with `aria-current="page"`. Journey goes to the chapter list at the foot of the hero, the one place every Chapter can be reached from.
 - **Route index:** six numbered places with period and live local time in mono. Hover, focus or current raises a 3px blue bar along the top rule, scaling in from the left.
 - **Case Return:** a large text link (up to 5rem) with a left arrow on an ink rule, labelled with the reader's real origin.
 
@@ -373,12 +379,12 @@ One WebGL2 canvas, fixed full-screen and `aria-hidden`, with one crowd of about 
 ### Time Shift (signature)
 Between two chapters, the local time moves from the previous place to the next.
 - **Style:** blue digits in the Clock role, a "+1 day" or "−1 day" tag, an ink sentence stating the real offset (daylight saving included), and a continue link. With the Field, a mono route row at the top ("FROM", a 1px `note-soft` line filling in `note`, "TO").
-- **With the Field:** a sticky scene; the clock counts real hours one at a time like an odometer as the reader scrolls, every frame a real time, and the day tag appears at the moment the count passes midnight.
+- **With the Field:** an ocean crossing is a sticky scene; a domestic hop is a band scrubbed across its whole passage, counting while its clock is on screen. Either way the clock counts real hours one at a time like an odometer as the reader scrolls, every frame a real time, and the day tag appears at the moment the count passes midnight.
 - **Without the Field:** a static band on a blue top rule; each changed digit reel spins one full turn on `scene` (1.6s, 0.1s stagger) as it enters, up for forward in time, down for back.
 - **No script or reduced motion:** the reels land on the destination time.
 
 ### Visit readout (signature)
-The close: the visitor's own time per chapter, plus "Everywhere else", so rows add up to the total.
+The close: the visitor's own time per chapter, plus "Everywhere else", so rows add up to the total. Chapters with less than a second of reading are left out; when that is all of them, an ink-2 line says "You haven't spent a second in any chapter yet." Rows settle a screen before the readout is seen, so nothing shifts in view.
 - **With the Field:** a display-scale dot chart in the annotation blue (it is observed data; "Everywhere else" at lower strength). The count pauses with Pause live. Dot pitch adapts (6 to 13px, 4.2 to 9px on phones) so the longest row fills about 85% of its track, and holds while the row stays at least half full. The unit is the finest that fits and is always stated in blue beneath: "Each dot is half a second of your visit."
 - **Without it:** a 14px blue fill on a `note-soft` track, scaling from the left over 1.2s; "Everywhere else" uses ink-3.
 - **Always:** mono values right-aligned in blue; a total above in blue mono with ink-2 words.
@@ -395,14 +401,15 @@ Authored diagrams of each case's idea on a `paper-2` stage with 1px `ink-3` or `
 ### Notes panel
 The observation layer.
 - **Style:** all text in note blue at label size; header rule in currentColor; title and controls in uppercase mono at 0.06em; each note a two-column grid (timestamp, then what was seen in ink and a mono "can't tell" line) above a dotted blue hairline.
-- **Controls:** Hide (persisted for the session), Pause live (`aria-pressed`), Show tracking (the lens).
+- **Controls:** Hide (persisted for the session), Pause live (`aria-pressed`; shown only with scripts, since nothing moves without them), Show tracking (the lens). On the home page the panel comes before the journey in the source, so Pause live is reached early by keyboard.
+- **Phone sheet:** Show opens the list under the bar; scrolling on, tapping outside it or Escape closes it, returning focus to the toggle.
 - **Motion:** new notes arrive from 10px above with an opacity fade; on the ticker the latest note peeks up 6px.
 - **Not a live region:** screen readers read it on demand.
 
 ### Instrumentation lens
 The site's own tagging, made visible.
 - **Cursor tag:** on fine pointers a small paper chip with a blue 1px border follows the pointer (0.45s on `out`) naming the `data-observe` tag of what it is over; over an untagged control it turns ink-2 with a dashed ink-3 border.
-- **Show tracking:** a blue scan line passes down the screen (0.9s, `scene`); dashed blue outlines on `note-soft` appear as it reaches each tagged control; untagged controls get ink-2 outlines with a hatched `rule` fill; a blue tally at bottom left counts "tracked · not tracked". On fine pointers outlines carry no labels (the cursor tag names them); on touch the label sits inside the outline's top edge. Escape closes it.
+- **Show tracking:** a blue scan line passes down the screen (0.9s, `scene`); dashed blue outlines on `note-soft` appear as it reaches each tagged control; untagged controls get ink-2 outlines with a hatched `rule` fill; a blue tally at bottom left counts "tracked · not tracked", with a "Hide tracking" button beside it within thumb reach. On fine pointers outlines carry no labels (the cursor tag names them); on touch each label sits just outside its outline (below it near the top of the screen), slid onto the screen and stepped clear of other labels and controls. Controls under the top bar or the open notes sheet are not outlined. Escape or the button closes it.
 
 ### Draft marker
 A small 1px `rule`-bordered tag reading Draft, for copy awaiting the owner's confirmation.
@@ -413,7 +420,7 @@ Two curves, registered in GSAP as CustomEase and mirrored in CSS: `out` (`--ease
 
 - **Arrival with the Field:** map in 1.1s on `out`, route draws 1.7s on `scene` from 0.3s, dots gather into the name 1.55s from 1.85s. The identity text is first paint and never waits; the route index, its rule and the notes follow the name.
 - **Arrival without the Field:** SplitText characters of the name rise from 108% (1.35s, 0.034s stagger); identity lines rise 26px and fade; route items follow; the notes clip open on `scene`. On scroll the two name lines drift apart. The attention trace warms letters toward blue under a fine pointer and cools over about a second.
-- **Scenes:** Prologue and Time Shifts are scroll-scrubbed; the map fades out before each Chapter's text.
+- **Scenes:** Prologue and Time Shifts are scroll-scrubbed; the map is gone before the next Chapter's top is three quarters of the way up the screen, so no heading or fact ever sits on it.
 - **Chapter word:** characters rise from 110% under a mask once, at 82% viewport. The close title rises line by line.
 - **Entry rules:** draw in from the left on `scene` (1.2s).
 - **Case transition:** the clicked row grows into the Case: on `pagereveal` the new page opens from the row's outline by clip-path (1s, `scene`), the old page fades and steps back to 0.975 in 0.38s, and the Entry title morphs into the Case title through its `view-transition-name`. Other navigations cross-fade (old 0.5s; new rises 24px over 0.9s from 0.15s).

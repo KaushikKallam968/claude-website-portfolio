@@ -3,8 +3,12 @@
  * Between two Chapters: a scene the reader scrolls through. The map (the Field) flies from one place to
  * the next while the local time rolls from one clock to the other, computed live so the offset is always
  * true, daylight saving included. Without scripts, or with reduced motion, it is a short static band.
+ *
+ * Scenes are sized by the distance flown. An ocean crossing is a full pinned scene; a domestic hop is a
+ * shorter window onto the map that scrolls with the page (60 to 80vh, longer for longer flights).
  */
 import type { Chapter } from '../data/journey';
+import { distanceKm } from '../lib/geo';
 import Arrow from './Arrow.astro';
 
 interface Props {
@@ -14,11 +18,14 @@ interface Props {
 const { from, to } = Astro.props;
 const short = (c: Chapter) => c.place.name.split(',')[0];
 const reel = Array.from({ length: 30 }, (_, i) => i % 10);
-const far = Math.abs(from.place.lon - to.place.lon) > 120;
+const km = distanceKm([from.place.lon, from.place.lat], [to.place.lon, to.place.lat]);
+const far = km > 6000;
+const run = 60 + 20 * Math.min(1, Math.max(0, (km - 1000) / 2500));
 ---
 
 <div
-  class:list={['shift', { 'shift--far': far }]}
+  class:list={['shift', far ? 'shift--far' : 'shift--near']}
+  style={far ? undefined : `--run: ${run.toFixed(1)}vh`}
   data-shift
   data-from-id={from.id}
   data-to-id={to.id}
@@ -111,11 +118,14 @@ const far = Math.abs(from.place.lon - to.place.lon) > 120;
   :global(html.field) .shift__line { position: relative; flex: 1; max-width: 22rem; height: 1px; background: var(--note-soft); }
   :global(html.field) .shift__line span { position: absolute; inset: 0; background: var(--note); transform-origin: left; transform: scaleX(var(--p, 0)); }
   :global(html.field) .shift__stage { grid-template-rows: 1fr auto; }
-  
+  /* A domestic hop: no pin. The scene is a band as tall as its runway, and the map shows only inside it. */
+  :global(html.field) .shift--near { height: var(--run); margin-top: clamp(40px, 6vw, 96px); }
+  :global(html.field) .shift--near .shift__stage { position: relative; height: 100%; padding-bottom: clamp(20px, 4vh, 44px); }
+  :global(html.field) .shift--near .shift__route { margin-top: clamp(16px, 3vh, 28px); }
 
   @media (max-width: 700px) {
     .shift__stage { grid-template-columns: 1fr; }
     .shift__clock { flex-wrap: wrap; }
-    :global(html.field) .shift { height: 140vh; }
+    :global(html.field) .shift--far { height: 140vh; }
   }
 </style>

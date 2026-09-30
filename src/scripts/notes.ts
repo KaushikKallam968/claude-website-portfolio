@@ -180,14 +180,33 @@ function wireToggle() {
   };
   sync();
   matchMedia('(max-width: 1100px)').addEventListener('change', sync);
+  let openedAt = 0;
   btn.addEventListener('click', () => {
     root.classList.remove('notes-peek');
-    if (compact()) root.classList.toggle('notes-open');
-    else {
+    if (compact()) {
+      root.classList.toggle('notes-open');
+      openedAt = scrollY;
+    } else {
       root.classList.toggle('notes-off');
       session.set(KEYS.notesHidden, root.classList.contains('notes-off'));
     }
     sync();
+  });
+  // On small screens the open sheet covers the page, so it gets out of the way: reading on (scrolling),
+  // tapping outside it, or Escape closes it. Focus inside it returns to the toggle.
+  const isOpen = () => compact() && root.classList.contains('notes-open');
+  const close = () => {
+    const notes = btn.closest('.notes');
+    if (notes?.contains(document.activeElement) && document.activeElement !== btn) btn.focus({ preventScroll: true });
+    root.classList.remove('notes-open');
+    sync();
+  };
+  addEventListener('scroll', () => isOpen() && Math.abs(scrollY - openedAt) > 48 && close(), { passive: true });
+  document.addEventListener('pointerdown', (e) => {
+    if (isOpen() && !(e.target as Element).closest('.notes, .lens-bar')) close();
+  });
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen() && !root.classList.contains('lens-on')) close();
   });
 }
 

@@ -4,6 +4,7 @@ import Base from '../../layouts/Base.astro';
 import NotesPanel from '../../components/NotesPanel.astro';
 import Arrow from '../../components/Arrow.astro';
 import { allEntries, entryFor, kindLabels } from '../../data/journey';
+import { keepDots } from '../../lib/format';
 
 const cases = (await getCollection('cases'))
   .sort((a, b) => a.data.order - b.data.order)
@@ -37,14 +38,14 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
               </h2>
               <p class="row__q">{c.data.question}</p>
               <p class="row__meta">
-                <span>{c.data.context}</span>
+                <span>{keepDots(c.data.context)}</span>
                 <span>{c.journey.chapter.label}</span>
                 <span>{c.data.timeline}</span>
                 {c.data.draft && <span class="draft-marker" title="Draft copy awaiting Kaushik’s confirmation">Draft</span>}
               </p>
               <dl class="row__facts">
                 <div><dt>Contribution</dt><dd>{c.journey.entry.contribution}</dd></div>
-                <div><dt>Status</dt><dd>{c.data.status}</dd></div>
+                <div><dt>Status</dt><dd>{keepDots(c.data.status)}</dd></div>
               </dl>
               <span class="row__arrow" aria-hidden="true"><Arrow /></span>
             </li>
@@ -57,14 +58,22 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
             {others.map(({ entry, chapter }) => (
               <li>
                 <a class="also__item" href={`/#${entry.id}`} data-observe={`work.${entry.id}`} data-observe-label={entry.title}>
-                  <span class="also__name">{entry.title}</span>
+                  <span class="also__name">{entry.title} <Arrow /></span>
                   <span class="also__kind"><span>{kindLabels[entry.kind]} · {chapter.label}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
-                  <span class="also__status">{entry.status}</span>
+                  <span class="also__status">{keepDots(entry.status)}</span>
                 </a>
               </li>
             ))}
           </ul>
         </section>
+
+        <nav class="work__next" aria-label="Where next">
+          <ul class="work__more">
+            <li><a class="link link--under" href="/#contact" data-observe="work.contact" data-observe-label="Get in touch" data-observe-cannot="Whether you will write.">Get in touch <Arrow /></a></li>
+            <li><a class="link link--under" href="/resume/" data-observe="work.resume" data-observe-label="Résumé" data-observe-cannot="Whether it is for you or to pass along.">Résumé <Arrow /></a></li>
+            <li><a class="link link--under" href="/#journey" data-observe="work.journey" data-observe-label="The journey" data-observe-cannot="Whether you want the story behind the work.">The journey <Arrow /></a></li>
+          </ul>
+        </nav>
       </div>
       <aside class="work__rail" aria-label="Notes"><div class="work__rail-sticky"><NotesPanel /></div></aside>
     </div>
@@ -132,6 +141,11 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
   .also__kind { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
   .also__status { color: var(--ink-2); font-size: var(--t-meta); }
   .also__item:hover .also__name { text-decoration: underline; text-decoration-thickness: 1px; }
+  .also__item:hover .also__name :global(.arrow) { translate: 6px 0; }
+
+  .work__next { margin-top: clamp(64px, 9vw, 130px); border-top: 1px solid var(--rule); padding-top: 22px; }
+  .work__more { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; }
+  @media (pointer: coarse) { .work__more { row-gap: 22px; } }
 
   @media (max-width: 1100px) {
     .work__layout { grid-template-columns: minmax(0, 1fr); }

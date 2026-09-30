@@ -34,7 +34,7 @@ const fieldPlaces = chapters.map((c) => ({
       </div>
       <div class="hero__grid grid">
         <div class="hero__more" data-quiet>
-          <p class="hero__sub" data-reveal>I’ve lived across countries, worked across research disciplines, and co-founded watched. with two longtime friends. New York is my latest stop. This is the journey that brought me here.</p>
+          <p class="hero__sub" data-reveal>I’ve lived across countries, worked across research disciplines, and co-founded watched., a movie and TV discovery app, with two longtime friends. New York is my latest stop. This is the journey that brought me here.</p>
           <ul class="hero__actions" data-reveal>
             <li><a class="link link--under" href="#journey" data-observe="cta.journey" data-observe-label="Explore the journey" data-observe-cannot="Whether you have time for the whole thing.">Explore the journey <Arrow to="down" /></a></li>
             <li><a class="link link--under" href="/work/" data-observe="cta.work" data-observe-label="Selected work" data-observe-cannot="Whether you would rather skip straight to the evidence.">Selected work <Arrow /></a></li>
@@ -48,9 +48,9 @@ const fieldPlaces = chapters.map((c) => ({
           {chapters.map((c, i) => (
             <li>
               <a href={`#${c.id}`} class="route__item" data-observe={`route.${c.id}`} data-observe-label={c.label} data-observe-cannot="Whether you will jump there or keep scrolling.">
-                <span class="route__no mono num">{pad(i + 1)}</span>
+                <span class="route__no mono num" aria-hidden="true">{pad(i + 1)}</span>
                 <span class="route__place">{c.label}</span>
-                <span class="route__meta mono num"><span>{c.period}</span> <span data-clock={c.place.timeZone}>--:--</span></span>
+                <span class="route__meta mono num"><span>{c.period}</span> <span data-clock={c.place.timeZone} aria-hidden="true">--:--</span></span>
               </a>
             </li>
           ))}
@@ -58,20 +58,32 @@ const fieldPlaces = chapters.map((c) => ({
       </nav>
     </section>
 
+    <!-- The notes come before the journey in the source, so Pause live is reached early by keyboard; the
+         margin is positioned beside the journey either way. -->
+    <div class="rail">
+      <div class="rail__sticky"><NotesPanel /></div>
+    </div>
     <div id="journey" class="journey">
       <Prologue first={chapters[0]} last={chapters[chapters.length - 1]} />
       {chapters.map((c, i) => <ChapterSection chapter={c} previous={chapters[i - 1]} />)}
-    </div>
-    <div class="rail">
-      <div class="rail__sticky"><NotesPanel /></div>
     </div>
     </div>
 
     <section class="close" id="contact" aria-labelledby="close-title" data-chapter-section="contact" data-chapter-title="Contact">
       <div class="grid">
         <h2 id="close-title" class="close__title" tabindex="-1" data-quiet>Your visit, as this site saw it</h2>
+        <div class="close__text" data-quiet>
+          <p>{closing.text}</p>
+          <p class="close__email"><a class="link link--under" href={`mailto:${closing.email}`} data-observe="contact.email" data-observe-label="my email address" data-observe-cannot="Whether you will write.">{closing.email}</a></p>
+          <ul class="close__links">
+            <li><a class="link link--under" href={closing.linkedin} rel="me" data-observe="contact.linkedin" data-observe-label="LinkedIn" data-observe-cannot="Whether we are already connected.">LinkedIn <Arrow to="up-right" /></a></li>
+            <li><a class="link link--under" href="/resume/" data-observe="contact.resume" data-observe-label="Résumé" data-observe-cannot="Whether it is for you or to pass along.">Résumé <Arrow /></a></li>
+            <li><a class="link link--under" href="/work/" data-observe="contact.work" data-observe-label="Selected work" data-observe-cannot="Whether you want to see the evidence again.">Selected work <Arrow /></a></li>
+          </ul>
+        </div>
         <div class="readout" data-readout>
           <p class="readout__total" data-quiet><span class="mono num" data-readout-total>0 s</span> so far on this site</p>
+          <p class="readout__empty" data-readout-empty hidden>You haven’t spent a second in any chapter yet.</p>
           <ol class="readout__bars" data-readout-bars aria-label="Time spent in each chapter">
             {chapters.map((c) => (
               <li data-bar={c.id}>
@@ -89,16 +101,7 @@ const fieldPlaces = chapters.map((c) => ({
           <p class="readout__unit" data-visit-unit hidden data-quiet></p>
           <p class="readout__cases" data-readout-cases>No cases opened yet.</p>
         </div>
-        <div class="close__text" data-quiet>
-          <p class="close__honest">That’s everything this site could observe. It can’t tell me what you were looking for, so I’d rather ask.</p>
-          <p>{closing.text}</p>
-          <p class="close__email"><a class="link link--under" href={`mailto:${closing.email}`} data-observe="contact.email" data-observe-label="my email address" data-observe-cannot="Whether you will write.">{closing.email}</a></p>
-          <ul class="close__links">
-            <li><a class="link link--under" href={closing.linkedin} rel="me" data-observe="contact.linkedin" data-observe-label="LinkedIn" data-observe-cannot="Whether we are already connected.">LinkedIn <Arrow to="up-right" /></a></li>
-            <li><a class="link link--under" href="/resume/" data-observe="contact.resume" data-observe-label="Résumé" data-observe-cannot="Whether it is for you or to pass along.">Résumé <Arrow /></a></li>
-            <li><a class="link link--under" href="/work/" data-observe="contact.work" data-observe-label="Selected work" data-observe-cannot="Whether you want to see the evidence again.">Selected work <Arrow /></a></li>
-          </ul>
-        </div>
+        <p class="close__honest" data-quiet>That’s everything this site could observe. It can’t tell me what you were looking for, so I’d rather ask.</p>
       </div>
       <footer class="foot grid">
         <p class="label">© 2026 Kaushik Kallam</p>
@@ -111,8 +114,10 @@ const fieldPlaces = chapters.map((c) => ({
 <style>
   /* ---------- Layout: the story in the main column, notes in the margin ---------- */
   .layout { position: relative; --rail: clamp(250px, 22vw, 340px); }
+  /* The rail comes before the journey in the source; its own layer keeps it above the journey's links. */
   .rail {
     position: absolute;
+    z-index: 2;
     right: var(--margin);
     width: var(--rail);
     top: calc(64px + 36vw);
@@ -196,7 +201,9 @@ const fieldPlaces = chapters.map((c) => ({
   .route__meta { color: var(--ink-3); display: flex; gap: 8px; flex-wrap: wrap; font-size: var(--t-data-s); }
 
   @media (max-width: 1100px) {
+    /* The notes become a fixed ticker here; without a sticky wrapper they layer above the page as they should. */
     .rail { position: static; width: auto; }
+    .rail__sticky { position: static; }
     .journey, .hero__grid, .route { padding-right: var(--margin); }
     .journey { padding-right: 0; }
   }
@@ -221,12 +228,15 @@ const fieldPlaces = chapters.map((c) => ({
   }
   /* The visit is the last image: a chart at display scale, drawn (with the Field) in the dots that drew the
      name and the world. */
-  .readout { grid-column: 1 / span 8; margin-top: clamp(40px, 5vw, 72px); color: var(--note); }
+  .readout { grid-column: 1 / span 8; grid-row: 2 / span 2; margin-top: clamp(40px, 5vw, 72px); color: var(--note); }
   .readout__total { font-size: var(--t-meta); color: var(--ink-2); margin-bottom: 18px; }
   .readout__total .mono { font-size: var(--t-small); color: var(--note); margin-right: 0.3em; }
   /* One grid for all rows, so every track starts on the same line and lengths compare. */
   .readout__bars { display: grid; grid-template-columns: max-content 1fr 5.5em; gap: clamp(10px, 1.4vw, 20px) clamp(14px, 2vw, 32px); }
   .readout__bars li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: end; }
+  /* Chapters without a second of reading are left out; the empty line says so when that is all of them. */
+  .readout__bars li[hidden] { display: none; }
+  .readout__empty { color: var(--ink-2); font-size: var(--t-meta); margin-bottom: 18px; }
   .readout__label { color: var(--ink); font-size: var(--t-readout); line-height: 1; letter-spacing: -0.028em; font-weight: 520; white-space: nowrap; }
   .readout__track { height: 14px; background: var(--note-soft); position: relative; overflow: hidden; }
   .readout__fill { position: absolute; inset: 0; background: var(--note); transform: scaleX(var(--share, 0)); transform-origin: left; transition: transform 1.2s var(--ease-out); }
@@ -239,7 +249,7 @@ const fieldPlaces = chapters.map((c) => ({
   @media (prefers-reduced-motion: reduce) { .readout__fill { transition: none; } }
   .readout__value { text-align: right; font-size: var(--t-fine); }
   .readout__cases { margin-top: 18px; color: var(--ink-2); font-size: var(--t-meta); }
-  /* The hand-off shares the final screen with the portrait. */
+  /* The hand-off leads: it shares the final screen with the portrait, and comes first on narrow screens. */
   .close__text {
     grid-column: 9 / -1;
     grid-row: 2;
@@ -252,7 +262,7 @@ const fieldPlaces = chapters.map((c) => ({
     line-height: 1.35;
     letter-spacing: -0.012em;
   }
-  .close__honest { color: var(--note); }
+  .close__honest { grid-column: 9 / -1; grid-row: 3; align-self: start; margin-top: 1.6em; color: var(--note); font-size: var(--t-lede); line-height: 1.35; letter-spacing: -0.012em; }
   .close__email { font-size: var(--t-email); letter-spacing: -0.03em; font-weight: 520; margin-top: 0.4em; overflow-wrap: anywhere; }
   .close__links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: var(--t-body); }
   @media (pointer: coarse) { .close__links { row-gap: 22px; } }
@@ -261,7 +271,7 @@ const fieldPlaces = chapters.map((c) => ({
   .foot p:last-child { grid-column: 7 / -1; text-align: right; }
 
   @media (max-width: 900px) {
-    .readout, .close__text, .close__title { grid-column: 1 / -1; grid-row: auto; }
+    .readout, .close__text, .close__title, .close__honest { grid-column: 1 / -1; grid-row: auto; }
     .readout__bars { grid-template-columns: 1fr; }
     .readout__bars li { grid-template-columns: 1fr auto; grid-template-areas: 'label value' 'track track'; }
     .readout__label { grid-area: label; }

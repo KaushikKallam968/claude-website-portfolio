@@ -118,13 +118,13 @@ function chapters() {
     const head = ch.querySelector('.chapter__head');
     if (word) {
       const s = SplitText.create(word, { type: 'words,chars', charsClass: 'ch', wordsClass: 'wd', mask: 'chars', aria: 'none' });
-      gsap.from(s.chars, {
-        yPercent: 110,
-        duration: 1.3,
-        stagger: 0.03,
-        ease: 'out',
-        scrollTrigger: { trigger: head, start: 'top 82%', once: true },
-      });
+      const qual = ch.querySelector<HTMLElement>('.chapter__qual');
+      const tl = gsap.timeline({ scrollTrigger: { trigger: head, start: 'top 82%', once: true } });
+      tl.from(s.chars, { yPercent: 110, duration: 1.3, stagger: 0.03, ease: 'out' });
+      // The qualifier follows its word in, never ahead of it.
+      if (qual) tl.from(qual, { opacity: 0, x: -14, duration: 0.8, ease: 'out' }, 0.45);
+      // Keyboard focus arriving in the chapter finishes the reveal, so a heading is never read half-masked.
+      ch.addEventListener('focusin', () => tl.progress(1), { once: true });
     }
     // Reading text never fades in: only the chapter word and the rules between entries move.
     ch.querySelectorAll<HTMLElement>('.entry').forEach((row) => {
@@ -160,7 +160,13 @@ function figureScenes() {
     // Each step plays from its own mark to the next, so the parts it introduces arrive while it is shown.
     const show = (i: number, duration = 1.4) => {
       step = i;
-      items.forEach((li, k) => li.classList.toggle('is-on', k === i));
+      items.forEach((li, k) => {
+        li.classList.toggle('is-on', k === i);
+        // The current step is announced, not only coloured.
+        const b = li.querySelector('button');
+        if (k === i) b?.setAttribute('aria-current', 'step');
+        else b?.removeAttribute('aria-current');
+      });
       const end = i + 1 < marks.length ? marks[i + 1] - 0.001 : 1;
       gsap.to(state, { p: end, duration, ease: 'scene', onUpdate: paint, overwrite: true });
     };

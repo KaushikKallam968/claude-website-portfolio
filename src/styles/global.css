@@ -191,10 +191,12 @@ html { scrollbar-color: var(--ink-3) var(--paper); caret-color: var(--note); acc
 @keyframes vt-in { from { opacity: 0; transform: translateY(24px); } }
 /* Opening a Case: the clicked row grows into the page while the old page steps back. */
 html.vt-expand::view-transition-old(root) { animation: 0.38s cubic-bezier(0.16, 1, 0.3, 1) both vt-step-back; }
-html.vt-expand::view-transition-new(root) { animation: 1s cubic-bezier(0.86, 0, 0.07, 1) both vt-expand; }
+/* The page's content fades in behind the travelling title, so the two never collide in the growing row. */
+html.vt-expand::view-transition-new(root) { animation: 1s cubic-bezier(0.86, 0, 0.07, 1) both vt-expand, 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both vt-fade; }
 html.vt-expand::view-transition-group(*) { animation-duration: 1s; }
 @keyframes vt-step-back { to { opacity: 0; transform: scale(0.975); } }
 @keyframes vt-expand { from { clip-path: var(--vt-from, inset(50% 0 50% 0)); } to { clip-path: inset(0 0 0 0); } }
+@keyframes vt-fade { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
 }
@@ -252,16 +254,27 @@ html.lens-on .lens-layer { display: block; }
   position: absolute; left: -1px; bottom: 100%; padding: 3px 5px; white-space: nowrap;
   font-family: var(--mono); font-size: var(--t-micro); line-height: 1; background: var(--note); color: var(--paper);
 }
-/* With a fine pointer the cursor tag names what it is over, so outlines carry no labels over the text;
-   on touch the label sits inside the outline's top edge. */
+/* With a fine pointer the cursor tag names what it is over, so outlines carry no labels over the text.
+   On touch each label sits just outside its outline (above it, or below it near the top of the screen),
+   so it never covers the control it names. */
 @media (pointer: fine) { .lens-box span { display: none; } }
-@media (pointer: coarse) { .lens-box span { bottom: auto; top: 0; } }
-.lens-box.is-top span { bottom: auto; top: 0; }
-.lens-box.is-right span { left: auto; right: -1px; }
+.lens-box.is-top span { bottom: auto; top: 100%; }
 .lens-box.is-gap { border-color: var(--ink-2); background: repeating-linear-gradient(-45deg, transparent 0 5px, var(--rule) 5px 6px); }
 .lens-box.is-gap span { background: var(--ink); }
 .lens-scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--note); opacity: 0; }
+.lens-bar {
+  position: fixed; left: var(--margin); bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 56;
+  display: none; flex-wrap: wrap; gap: 8px; align-items: stretch; max-width: calc(100vw - 2 * var(--margin));
+}
+html.lens-on .lens-bar { display: flex; }
 .lens-tally {
-  position: absolute; left: var(--margin); bottom: calc(16px + env(safe-area-inset-bottom)); margin: 0;
+  margin: 0; display: flex; align-items: center;
   font-family: var(--mono); font-size: var(--t-data); background: var(--note); color: var(--paper); padding: 6px 10px;
 }
+.lens-exit {
+  font-family: var(--mono); font-size: var(--t-data); letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--note); background: var(--paper); border: 1px solid var(--note); padding: 6px 12px; cursor: pointer;
+  transition: background-color 0.2s linear;
+}
+.lens-exit:hover { background: var(--note-soft); }
+@media (pointer: coarse) { .lens-exit { min-height: 44px; } }

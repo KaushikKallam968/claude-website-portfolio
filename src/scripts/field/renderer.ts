@@ -31,7 +31,7 @@ uniform float uVisitDot;
 uniform vec3 uTrail[20];
 uniform vec3 uInk;
 uniform vec3 uNote;
-uniform float uClip;
+uniform vec2 uClip; // visible band: top and bottom edges in CSS px
 uniform vec4 uQuiet[6];
 out vec4 vColor;
 out float vSize;
@@ -99,8 +99,9 @@ void main() {
   vec3 col = mix(uInk, uNote, max(heat, dusk * t1 * (1.0 - t2) * 0.85));
   // Dots that become the visit are observed data, so they arrive in the annotation blue.
   col = mix(col, uNote, t2 * step(0.001, aVisit.z));
-  // Above uClip only the portrait may show: the closing section is a window onto the world.
-  a *= mix(smoothstep(uClip, uClip + 60.0, p.y), 1.0, aVisit.z * t2);
+  // Outside the band only the portrait may show: the closing section and the domestic flights are windows
+  // onto the world.
+  a *= mix(smoothstep(uClip.x, uClip.x + 60.0, p.y) * (1.0 - smoothstep(uClip.y - 48.0, uClip.y, p.y)), 1.0, aVisit.z * t2);
   // Map dots and dots in flight thin out behind reading text; the name and the settled portrait never do.
   float moving = t1 * (1.0 - t2) + sin(3.14159 * t2);
   a *= 1.0 - quietAt(p) * 0.88 * clamp(moving, 0.0, 1.0);
@@ -140,7 +141,7 @@ uniform vec2 uTraveller;
 uniform float uActive;  // t of the place being read, or -1
 uniform vec3 uNote;
 uniform vec3 uInk;
-uniform float uClip;
+uniform vec2 uClip; // visible band: top and bottom edges in CSS px
 uniform vec4 uQuiet[6];
 out vec4 vColor;
 out float vSize;
@@ -185,7 +186,7 @@ void main() {
     size = 16.0;
     a = uVis * step(0.001, uLeg.z) * (1.0 - step(0.999, uLeg.z));
   }
-  a *= smoothstep(uClip, uClip + 60.0, p.y);
+  a *= smoothstep(uClip.x, uClip.x + 60.0, p.y) * (1.0 - smoothstep(uClip.y - 48.0, uClip.y, p.y));
   a *= 1.0 - quietAt(p) * 0.9;
   vColor = vec4(col, a);
   vKind = kind;
@@ -243,7 +244,8 @@ export interface FieldFrame {
   trail: Float32Array;
   sun: [number, number];
   time: number;
-  clip: number;
+  /** The band the map may draw in, as [top, bottom] in CSS px; the portrait ignores it. */
+  clip: [number, number];
   quiet: Float32Array;
 }
 
@@ -353,7 +355,7 @@ export class FieldRenderer {
     gl.uniform3fv(d.u('uTrail'), f.trail);
     gl.uniform3f(d.u('uInk'), ...ink);
     gl.uniform3f(d.u('uNote'), ...note);
-    gl.uniform1f(d.u('uClip'), f.clip);
+    gl.uniform2f(d.u('uClip'), ...f.clip);
     gl.uniform4fv(d.u('uQuiet'), f.quiet);
     gl.bindVertexArray(this.dotsVao);
     gl.drawArrays(gl.POINTS, 0, this.dotCount);
@@ -373,7 +375,7 @@ export class FieldRenderer {
       gl.uniform1f(r.u('uActive'), f.active);
       gl.uniform3f(r.u('uNote'), ...note);
       gl.uniform3f(r.u('uInk'), ...ink);
-      gl.uniform1f(r.u('uClip'), f.clip);
+      gl.uniform2f(r.u('uClip'), ...f.clip);
       gl.uniform4fv(r.u('uQuiet'), f.quiet);
       gl.bindVertexArray(this.routeVao);
       gl.drawArrays(gl.POINTS, 0, this.routeCount);

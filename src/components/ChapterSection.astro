@@ -19,7 +19,7 @@ const groups: { text: string[]; roles: Role[]; heading?: string; entries: Chapte
 ---
 
 {previous && <TimeShift from={previous} to={chapter} />}
-<section class="chapter" id={chapter.id} aria-labelledby={`chapter-${chapter.id}`} data-chapter-section={chapter.id} data-chapter-title={chapter.label}>
+<section class="chapter" id={chapter.id} aria-labelledby={`chapter-${chapter.id}`} data-chapter-section={chapter.id} data-chapter-title={chapter.label} data-place={chapter.place.name.split(',')[0]} data-tz={chapter.place.timeZone}>
   <header class="chapter__head grid">
     <h2 class="chapter__title" id={`chapter-${chapter.id}`} tabindex="-1">
       <span class="visually-hidden">{chapter.label}</span>

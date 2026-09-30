@@ -45,7 +45,13 @@ describe('observation notes', () => {
       'You scrolled past three quarters of this page.',
       'You reached the end of this page.',
     ]);
-    expect(depths[1]?.cannotShow).toBe('Whether you read it or skimmed it.');
+    // Each depth says something different it can't tell, so the margin does not repeat itself.
+    expect(depths.filter(Boolean).map((n) => n!.cannotShow)).toEqual([
+      'Whether you read it or skimmed it.',
+      'Whether you were looking for something in particular.',
+      'Whether you are reading closely or heading for the end.',
+      'Whether you read everything on the way down.',
+    ]);
   });
 
   it('notes depth separately for each page', () => {

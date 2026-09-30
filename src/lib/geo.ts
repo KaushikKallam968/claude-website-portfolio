@@ -27,6 +27,15 @@ export function equalEarth(lon: number, lat: number): [number, number] {
 
 const toVec = ([lon, lat]: LonLat) => [Math.cos(lat * rad) * Math.cos(lon * rad), Math.cos(lat * rad) * Math.sin(lon * rad), Math.sin(lat * rad)];
 
+/** Great-circle distance in kilometres between two places (spherical Earth, mean radius 6371 km). */
+export function distanceKm(a: LonLat, b: LonLat): number {
+  const va = toVec(a);
+  const vb = toVec(b);
+  const cross = [va[1] * vb[2] - va[2] * vb[1], va[2] * vb[0] - va[0] * vb[2], va[0] * vb[1] - va[1] * vb[0]];
+  // atan2 of |a×b| and a·b stays accurate for very short and near-antipodal distances alike.
+  return 6371 * Math.atan2(Math.hypot(cross[0], cross[1], cross[2]), va[0] * vb[0] + va[1] * vb[1] + va[2] * vb[2]);
+}
+
 /** `n` points along the shortest path over the sphere from `a` to `b`, endpoints included. */
 export function greatCircle(a: LonLat, b: LonLat, n: number): LonLat[] {
   const va = toVec(a);

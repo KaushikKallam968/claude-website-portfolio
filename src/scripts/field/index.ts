@@ -32,9 +32,12 @@ interface Window {
   kind: 'intro' | 'shift' | 'visit';
   start: number;
   end: number;
-  nextBody: number;
+  /** Where the next Chapter begins: the map is gone before its heading reaches the reader. */
+  nextTop: number;
   from: number; // index into places (page order)
   to: number;
+  /** A domestic flight: the scene is a band of the page, [top, bottom], and the map draws only inside it. */
+  band?: [number, number];
 }
 
 const TRAIL = 20;
@@ -273,24 +276,27 @@ export async function startField(): Promise<FieldHandle | null> {
       z: wz,
     };
 
-    const bodyTop = (id: string) => {
-      const section = document.getElementById(id);
-      const body = section?.querySelector('.chapter__body');
-      return (body ?? section)!.getBoundingClientRect().top + sy;
-    };
+    const sectionTop = (id: string) => document.getElementById(id)!.getBoundingClientRect().top + sy;
     const pro = document.querySelector<HTMLElement>('[data-prologue]');
     const pr = pro?.getBoundingClientRect();
     const proStart = pr ? pr.top + sy : heroBottom;
     const proEnd = pr ? pr.top + sy + pr.height - vh : heroBottom;
     // The name finishes dissolving as the introduction leaves the screen, so it never sits under other text.
     stageEnd = Math.max(vh * 0.5, heroBottom - vh * 0.2);
-    windows = [{ kind: 'intro', start: proStart, end: Math.max(proEnd, proStart + 1), nextBody: bodyTop(places[0].id), from: 0, to: 0 }];
+    windows = [{ kind: 'intro', start: proStart, end: Math.max(proEnd, proStart + 1), nextTop: sectionTop(places[0].id), from: 0, to: 0 }];
     document.querySelectorAll<HTMLElement>('[data-shift]').forEach((el) => {
       const r = el.getBoundingClientRect();
       const from = places.findIndex((p) => p.id === el.dataset.fromId);
       const to = places.findIndex((p) => p.id === el.dataset.toId);
       if (from < 0 || to < 0) return;
-      windows.push({ kind: 'shift', start: r.top + sy, end: r.top + sy + r.height - vh, nextBody: bodyTop(places[to].id), from, to });
+      const top = r.top + sy;
+      const bottom = top + r.height;
+      if (el.classList.contains('shift--near')) {
+        // Scrubbed across the band's whole passage: top entering at 90% of the screen to bottom leaving at 10%.
+        windows.push({ kind: 'shift', start: top - vh * 0.9, end: bottom - vh * 0.1, nextTop: sectionTop(places[to].id), from, to, band: [top, bottom] });
+      } else {
+        windows.push({ kind: 'shift', start: top, end: bottom - vh, nextTop: sectionTop(places[to].id), from, to });
+      }
     });
 
     // The close: the world evaporates into the rows of the visit readout.
@@ -299,7 +305,7 @@ export async function startField(): Promise<FieldHandle | null> {
       const br = bars.getBoundingClientRect();
       visitDoc = { x: br.left, y: br.top + sy };
       visitSpacing = 0; // chosen per update so the longest row fills its track
-      visitRows = [...bars.querySelectorAll<HTMLElement>('[data-bar]')].map((li) => {
+      visitRows = [...bars.querySelectorAll<HTMLElement>('[data-bar]:not([hidden])')].map((li) => {
         const tr = li.querySelector('.readout__track')!.getBoundingClientRect();
         return {
           id: li.dataset.bar!,
@@ -313,7 +319,7 @@ export async function startField(): Promise<FieldHandle | null> {
       const close = bars.closest('section');
       closeDocTop = close ? close.getBoundingClientRect().top + sy : visitDoc.y - vh * 0.5;
       const last = places.length - 1;
-      windows.push({ kind: 'visit', start: Math.min(closeDocTop - vh * 0.5, visitEndY - 200), end: visitEndY, nextBody: Infinity, from: last, to: last });
+      windows.push({ kind: 'visit', start: Math.min(closeDocTop - vh * 0.5, visitEndY - 200), end: visitEndY, nextTop: Infinity, from: last, to: last });
     }
   }
 
@@ -432,12 +438,15 @@ export async function startField(): Promise<FieldHandle | null> {
   const intro = { stage: 1, mapIn: 0, route: 0, routeVis: 1, push: 0.92, running: true };
   const skip = Boolean(session.get(KEYS.introSeen, false)) || scrollY > 40 || Boolean(location.hash);
   session.set(KEYS.introSeen, true);
+  // On a phone the name sits above the identity text rather than beside it, so the world gives way to it
+  // sooner: the empty space where the name will be never waits long.
+  const q = narrow ? 0.65 : 1;
   const tl = gsap.timeline({ paused: true, onComplete: () => (intro.running = false) });
-  tl.to(intro, { mapIn: 1, duration: 1.1, ease: 'out' }, 0)
-    .to(intro, { push: 1, duration: 3.4, ease: 'out' }, 0)
-    .to(intro, { route: 1, duration: 1.7, ease: 'scene' }, 0.3)
-    .to(intro, { routeVis: 0, duration: 0.7, ease: 'out' }, 2.05)
-    .to(intro, { stage: 0, duration: 1.55, ease: 'none' }, 1.85);
+  tl.to(intro, { mapIn: 1, duration: 1.1 * q, ease: 'out' }, 0)
+    .to(intro, { push: 1, duration: 3.4 * q, ease: 'out' }, 0)
+    .to(intro, { route: 1, duration: 1.7 * q, ease: 'scene' }, 0.3 * q)
+    .to(intro, { routeVis: 0, duration: 0.7 * q, ease: 'out' }, 2.05 * q)
+    .to(intro, { stage: 0, duration: 1.55 * q, ease: 'none' }, 1.85 * q);
   if (skip) tl.progress(1);
   else {
     tl.play();
@@ -454,7 +463,7 @@ export async function startField(): Promise<FieldHandle | null> {
   const frame: FieldFrame = {
     stage: 0, mapIn: 1, mapVis: 0, nameVis: 1, visitVis: 0,
     cam: { ...worldCam }, route: 1, routeVis: 0, leg: [0, 0, 0], traveller: [0, 0], active: -1,
-    nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, clip: -1e5, quiet: new Float32Array(24),
+    nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, clip: [-1e5, 1e5], quiet: new Float32Array(24),
   };
   let idle = false;
 
@@ -484,11 +493,20 @@ export async function startField(): Promise<FieldHandle | null> {
     let mapVis = 0;
     let active: Window = windows[0];
     for (const w of windows) {
-      const fadeIn =
-        w.kind === 'intro' ? 1 : w.kind === 'visit' ? smooth(closeDocTop - vh, closeDocTop - vh * 0.55, y) : smooth(vh * 0.5, vh * 0.05, w.start - y);
-      const fadeOut = smooth(vh * 0.5, vh * 0.95, w.nextBody - y);
-      mapVis = Math.max(mapVis, fadeIn * fadeOut);
-      if (w.kind === 'intro' || (w.kind === 'visit' ? y >= closeDocTop - vh : w.start <= y + vh * 0.6)) active = w;
+      let vis: number;
+      if (w.band) {
+        // A band shows the map while it is on screen; the clip keeps the dots inside it.
+        vis = smooth(vh, vh * 0.8, w.band[0] - y) * smooth(0, vh * 0.2, w.band[1] - y);
+      } else {
+        const fadeIn =
+          w.kind === 'intro' ? 1 : w.kind === 'visit' ? smooth(closeDocTop - vh, closeDocTop - vh * 0.55, y) : smooth(vh * 0.5, vh * 0.05, w.start - y);
+        // Gone by the time the next Chapter's top is three quarters of the way up the screen, so its heading
+        // and facts never sit on the map.
+        vis = fadeIn * smooth(vh * 0.75, vh * 1.05, w.nextTop - y);
+      }
+      mapVis = Math.max(mapVis, vis);
+      const entered = w.kind === 'visit' ? y >= closeDocTop - vh : w.band ? w.band[0] <= y + vh : w.start <= y + vh * 0.6;
+      if (w.kind === 'intro' || entered) active = w;
     }
 
     frame.stage = Math.max(intro.stage, pStage);
@@ -500,7 +518,7 @@ export async function startField(): Promise<FieldHandle | null> {
 
     frame.visitAt = [visitDoc.x, visitDoc.y - y];
     frame.visitVis = 1;
-    frame.clip = active.kind === 'visit' ? closeDocTop - y : -1e5;
+    frame.clip = active.kind === 'visit' ? [closeDocTop - y, 1e5] : active.band ? [active.band[0] - y, active.band[1] - y] : [-1e5, 1e5];
     if (active.kind === 'visit') {
       const p = clamp01((y - active.start) / Math.max(1, active.end - active.start));
       const k = ease(clamp01(p * 1.4));
@@ -526,21 +544,30 @@ export async function startField(): Promise<FieldHandle | null> {
       frame.routeVis = mapVis * Math.max(intro.running ? intro.routeVis : 0, smooth(0.55, 1, pStage));
       frame.active = k > 0.6 ? tOf(0) : -1;
     } else {
-      const p = clamp01((y - active.start) / Math.max(1, active.end - active.start));
+      const raw = clamp01((y - active.start) / Math.max(1, active.end - active.start));
+      // A band flies in the middle of its passage, while it is most on screen.
+      const p = active.band ? clamp01((raw - 0.2) / 0.6) : raw;
       const e = ease(p);
       const ta = tOf(active.from);
       const tb = tOf(active.to);
       const [tx, ty] = pointAt(lerp(ta, tb, e));
       const [ax, ay] = placeXY(active.from);
       const [bx, by] = placeXY(active.to);
-      const zFit = fitZoom([ax, bx], [ay, by], narrow ? 0.7 : 0.55, 0.5);
+      const bandH = active.band ? active.band[1] - active.band[0] : vh;
+      const zFit = fitZoom([ax, bx], [ay, by], narrow ? 0.7 : 0.55, (0.5 * bandH) / vh);
       const bump = Math.sin(Math.PI * e);
       const z = Math.min(cityZoom, Math.exp(lerp(Math.log(cityZoom), Math.log(Math.min(zFit, cityZoom)), bump)));
       frame.cam = { x: lerp(tx, (ax + bx) / 2, bump * 0.6), y: lerp(ty, (ay + by) / 2, bump * 0.6), z };
-      // Keep the places up and to the right of the clock and the words, which sit bottom left.
+      // Keep the places up and to the right of the clock and the words, which sit bottom left. In a band the
+      // map rides with the page: the flight is framed on the band, wherever it is on screen.
       const s = renderer.scale * z;
       frame.cam.x -= (narrow ? 0 : vw * 0.14) / s;
-      frame.cam.y -= (vh * (narrow ? 0.16 : 0.12)) / s;
+      if (active.band) {
+        const mid = (active.band[0] + active.band[1]) / 2 - y;
+        frame.cam.y += (mid - bandH * (narrow ? 0.16 : 0.1) - vh / 2) / s;
+      } else {
+        frame.cam.y -= (vh * (narrow ? 0.16 : 0.12)) / s;
+      }
       frame.routeVis = mapVis;
       frame.leg = [ta, tb, p];
       frame.traveller = [tx, ty];
@@ -584,7 +611,7 @@ export async function startField(): Promise<FieldHandle | null> {
       const clear = (b: Box) =>
         !placed.some((p) => overlaps(b, p)) && !text.some((t) => overlaps(b, t)) && !markers.some((m) => m.x0 !== own.x0 && overlaps(b, m));
       // Labels belong to scenes: none while the map is only fading in or out behind reading text.
-      const choice = frame.route >= l.t - 0.0001 && show > 0.45 && y > frame.clip + 30 ? candidates.find((c) => clear(c.box)) : undefined;
+      const choice = frame.route >= l.t - 0.0001 && show > 0.45 && y > frame.clip[0] + 30 && y < frame.clip[1] - 30 ? candidates.find((c) => clear(c.box)) : undefined;
       const isActive = rank(l.t) === 0;
       if (choice) placed.push(choice.box);
       l.el.style.opacity = choice ? (show * (isActive || frame.active === -1 ? 1 : 0.6)).toFixed(3) : '0';
@@ -657,8 +684,13 @@ export async function startField(): Promise<FieldHandle | null> {
       updateVisit();
     }, 160);
   });
+  // The readout leaves out chapters with no reading time; the portrait follows the rows it shows.
+  document.addEventListener('readout:rows', () => {
+    measure();
+    updateVisit();
+  });
   // Layout settles after fonts, images and pinned sections; measure again whenever ScrollTrigger does.
   import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => ScrollTrigger.addEventListener('refresh', measure));
 
-  return { textCue: skip ? 0.05 : 2.35 };
+  return { textCue: skip ? 0.05 : 2.35 * q };
 }

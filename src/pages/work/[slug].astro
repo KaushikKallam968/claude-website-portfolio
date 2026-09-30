@@ -5,6 +5,7 @@ import FigureScene from '../../components/FigureScene.astro';
 import NotesPanel from '../../components/NotesPanel.astro';
 import Arrow from '../../components/Arrow.astro';
 import { entryFor } from '../../data/journey';
+import { keepDots } from '../../lib/format';
 
 export async function getStaticPaths() {
   const cases = await getCollection('cases');
@@ -26,7 +27,7 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
         <header class="case__head">
           <h1 id="case-title" class:list={['case__title', { 'case__title--long': d.title.length > 25 }]} style={`view-transition-name: case-${entry.id}`}>{d.title}</h1>
           <p class="case__crumbs">
-            <span>{d.context}</span>
+            <span>{keepDots(d.context)}</span>
             <span>Case {d.order} of {ordered.length}</span>
             {d.draft && <span class="draft-marker" title="Draft copy awaiting Kaushik’s confirmation">Draft</span>}
           </p>
@@ -61,7 +62,7 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
               <ul>{d.cannotShow.map((s) => <li>{s}</li>)}</ul>
             </div>
           </div>
-          <p class="limits__status"><span class="label">Status</span> {d.status}</p>
+          <p class="limits__status"><span class="label">Status</span> {keepDots(d.status)}</p>
         </section>
 
         <nav class="case__next" aria-label="Where next">

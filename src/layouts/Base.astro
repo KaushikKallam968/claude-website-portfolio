@@ -18,7 +18,7 @@ const {
 } = Astro.props;
 
 const nav = [
-  { id: 'journey', label: 'Journey', href: '/#journey' },
+  { id: 'journey', label: 'Journey', href: '/#journey-index' },
   { id: 'work', label: 'Work', href: '/work/' },
   { id: 'resume', label: 'Résumé', href: '/resume/' },
   { id: 'contact', label: 'Contact', href: '/#contact' },
@@ -91,7 +91,7 @@ const nav = [
     <a class="skip" href={`#${mainId}`}>Skip to content</a>
     <header class="top grid" data-top>
       <a class="top__name" href="/" aria-label="Kaushik Kallam, home" data-observe="nav.home" data-observe-label="my name in the top bar" data-observe-cannot="Whether you wanted to start over.">Kaushik Kallam</a>
-      <p class="top__where label num" aria-hidden="true"><span>New York</span> <span data-clock="America/New_York">--:--</span></p>
+      <p class="top__where label num" aria-hidden="true" data-top-where><span data-top-place>New York</span> <span data-clock="America/New_York">--:--</span></p>
       <nav class="top__nav" aria-label="Primary">
         {nav.map((n) => (
           <a class="link" href={n.href} aria-current={current === n.id ? 'page' : undefined} data-observe={`nav.${n.id}`} data-observe-label={n.label} data-observe-cannot="Where you were hoping it would take you.">

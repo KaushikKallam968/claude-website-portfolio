@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { geoEqualEarthRaw } from 'd3-geo';
-import { equalEarth, greatCircle, subsolarPoint, CENTRAL_MERIDIAN } from './geo';
+import { equalEarth, greatCircle, distanceKm, subsolarPoint, CENTRAL_MERIDIAN } from './geo';
 
 const rad = Math.PI / 180;
 
@@ -48,5 +48,18 @@ describe('subsolarPoint', () => {
     expect(Math.abs(s.lat)).toBeLessThan(0.1);
     const m = subsolarPoint(new Date('2026-03-21T00:00:00Z'));
     expect(Math.abs(Math.abs(m.lon) - 180)).toBeLessThan(3);
+  });
+});
+
+describe('distanceKm', () => {
+  // Reference values from an independent haversine calculation (spherical Earth, mean radius 6371 km).
+  it('measures the flights between the places on the journey', () => {
+    expect(distanceKm([-74.006, 40.7128], [-96.6989, 33.0198])).toBeCloseTo(2184, -1); // New York to Plano
+    expect(distanceKm([-96.7502, 32.9857], [103.8198, 1.3521])).toBeCloseTo(15_630, -2); // Richardson to Singapore
+  });
+
+  it('is zero for the same place and symmetric', () => {
+    expect(distanceKm([10, 20], [10, 20])).toBe(0);
+    expect(distanceKm([-84.388, 33.749], [-121.9552, 37.3541])).toBeCloseTo(distanceKm([-121.9552, 37.3541], [-84.388, 33.749]), 9);
   });
 });
