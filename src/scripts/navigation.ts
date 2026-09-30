@@ -57,17 +57,21 @@ export function adoptOrigin(caseId: string): Origin | null {
   return handed;
 }
 
-/** Put the reader back where Return promised: scroll position, then focus on the Entry or Chapter heading. */
-export function restoreIfPending() {
+/**
+ * Put the reader back where Return promised: scroll position, then focus on the Entry or Chapter heading.
+ * Says whether it did, so nothing else moves focus away from where the reader was put back.
+ */
+export function restoreIfPending(): boolean {
   const pending = session.get<{ scrollY: number | null; focusId: string } | null>(KEYS.restore, null);
   session.remove(KEYS.restore);
-  if (!pending) return;
+  if (!pending) return false;
   if (pending.scrollY !== null) scrollTo({ top: pending.scrollY, behavior: 'instant' as ScrollBehavior });
   const el = document.getElementById(pending.focusId);
-  if (!el) return;
+  if (!el) return true;
   el.focus({ preventScroll: true });
   const r = el.getBoundingClientRect();
   if (r.bottom < 0 || r.top > innerHeight) el.scrollIntoView({ block: 'center' });
+  return true;
 }
 
 /**
@@ -138,20 +142,33 @@ export function wireDisclosures() {
  * the scroll: the section's heading takes focus, so the next Tab continues from there. A mouse click shows no
  * ring; a keyboard jump does.
  */
-export function wireAnchorFocus() {
+export function wireAnchorFocus(restored: boolean) {
+  // Focus goes where the jump lands: the target itself, or its own heading when that heading opens it (a Chapter,
+  // the close). A wrapper without one (the Journey, the route index) takes focus itself, so the next Tab
+  // continues from its start rather than skipping ahead to a heading further down.
   const focusAt = (id: string) => {
     const target = document.getElementById(id);
     if (!target) return;
-    const el = target.matches('[tabindex], a[href], button') ? target : target.querySelector<HTMLElement>('[tabindex="-1"], a[href]');
-    requestAnimationFrame(() => el?.focus({ preventScroll: true }));
+    let el = target;
+    if (!target.matches('[tabindex], a[href], button')) {
+      const heading = target.querySelector<HTMLElement>('h1[tabindex], h2[tabindex], h3[tabindex]');
+      if (heading && heading.getBoundingClientRect().top - target.getBoundingClientRect().top < 320) el = heading;
+      else {
+        target.tabIndex = -1;
+        target.classList.add('focus-target');
+      }
+    }
+    requestAnimationFrame(() => el.focus({ preventScroll: true }));
   };
   document.addEventListener('click', (ev) => {
     const a = (ev.target as Element).closest<HTMLAnchorElement>('a[href*="#"]');
     if (!a || ev.defaultPrevented || a.origin !== location.origin || a.pathname !== location.pathname || a.hash.length < 2) return;
     focusAt(decodeURIComponent(a.hash.slice(1)));
   });
-  // Arriving from another page with a fragment (Contact from a Case) lands focus there too.
-  if (location.hash.length > 1 && !session.get(KEYS.restore, null)) focusAt(decodeURIComponent(location.hash.slice(1)));
+  // Arriving from another page with a fragment (Contact from a Case) lands focus there too, unless the reader is
+  // being put back where they were (Return, or Back through history), where focus belongs to the Entry.
+  const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+  if (location.hash.length > 1 && !restored && nav?.type !== 'back_forward') focusAt(decodeURIComponent(location.hash.slice(1)));
 }
 
 /** The top bar steps aside while reading down and returns when scrolling up. */

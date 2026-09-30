@@ -6,7 +6,7 @@ import { startMotion } from './motion';
 import { startLens } from './lens';
 
 wireLivePause();
-restoreIfPending();
+const restored = restoreIfPending();
 restoreOnPageShow();
 restoreFocusOnBack();
 startClocks();
@@ -17,6 +17,6 @@ wireDisclosures();
 wireTopBar();
 wireTopWhere();
 wireRowLinks();
-wireAnchorFocus();
+wireAnchorFocus(restored);
 startLens();
 startMotion();

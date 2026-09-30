@@ -101,11 +101,23 @@ const roles = allRoles();
   .cv__skills { display: grid; gap: 12px; padding-top: 18px; max-width: 72ch; }
   .cv__skills strong { font-weight: 560; }
   @media (max-width: 700px) { .cv__item { grid-template-columns: 1fr; gap: 6px; } }
+  /* Paper: the PDF a recruiter forwards. Two pages at most, starting with the work on page one: roles keep
+     together, headings stay with what follows, and the screen's display sizes step down to print sizes. */
+  @page { margin: 0.5in; }
   @media print {
-    :global(.top), :global(.skip), .cv__print, .cv__more { display: none !important; }
-    .cv { padding: 0; }
-    .cv__name { font-size: 42pt; }
-    :global(body) { background: #fff; color: #000; font-size: 10.5pt; }
-    .cv__block { margin-top: 18pt; break-inside: avoid; }
+    :global(.top), :global(.skip), :global(.notes), .cv__print, .cv__more { display: none !important; }
+    :global(body) { background: #fff; color: #000; font-size: 10pt; line-height: 1.4; padding: 0 !important; }
+    .cv { padding: 0; max-width: none; }
+    .cv__head { padding-top: 0; }
+    .cv__name { margin-top: 0; font-size: 30pt; }
+    .cv__role { margin-top: 6pt; font-size: 13pt; }
+    .cv__contact { margin-top: 6pt; gap: 4pt 18pt; }
+    .cv__block { margin-top: 16pt; }
+    .cv__h { font-size: 13pt; padding-bottom: 4pt; break-after: avoid; }
+    .cv__item { grid-template-columns: 9em 1fr; padding: 8pt 0; break-inside: avoid; }
+    .cv__when, .cv__org { font-size: 9.5pt; }
+    .cv__title { font-size: 13pt; }
+    .cv__points { margin-top: 4pt; gap: 2pt; }
+    .cv__skills { padding-top: 8pt; gap: 6pt; }
   }
 </style>

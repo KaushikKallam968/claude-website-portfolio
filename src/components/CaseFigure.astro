@@ -252,9 +252,10 @@ const { kind, compact = false, scene = false } = Astro.props;
     --k: clamp(0, calc((var(--p, 0) - var(--at)) * 4), 1);
     clip-path: inset(0 0 calc((1 - var(--k)) * 100%) 0 round 16px);
   }
+  /* Each phone arrives at its own step's mark (FigureScene: 0, 0.34, 0.64), so no step shows a sliver of the next. */
   :global(html.scenes) .fig--scene .phone--a { --at: 0.02; translate: calc(12% + (1 - var(--k)) * 30%) calc(8% + (1 - var(--k)) * 20%); rotate: calc(-4deg * var(--k)); }
-  :global(html.scenes) .fig--scene .phone--b { --at: 0.3; translate: 0 calc((1 - var(--k)) * 24%); }
-  :global(html.scenes) .fig--scene .phone--c { --at: 0.6; translate: calc(-12% - (1 - var(--k)) * 30%) calc(8% + (1 - var(--k)) * 20%); rotate: calc(4deg * var(--k)); }
+  :global(html.scenes) .fig--scene .phone--b { --at: 0.34; translate: 0 calc((1 - var(--k)) * 24%); }
+  :global(html.scenes) .fig--scene .phone--c { --at: 0.64; translate: calc(-12% - (1 - var(--k)) * 30%) calc(8% + (1 - var(--k)) * 20%); rotate: calc(4deg * var(--k)); }
   :global(html.scenes) .fig--scene .fig__cap > span:first-child { display: none; }
 
   @media (max-width: 600px) {

@@ -403,6 +403,9 @@ A Case's figure told in steps, under the figure.
 ### Case figure
 Authored diagrams of each case's idea on a `paper-2` stage with 1px `ink-3` or `ink` outlines, and a caption in ink-2 that always says what the figure is not. Outside a scene, items enter once at 45% visibility, staggered by 0.28s.
 
+### Résumé on paper
+"Save as PDF" prints on 0.5in margins in two pages at most (Letter or A4): the name steps down to 30pt, section heads and role titles to 13pt, body to 10pt; a role never splits across pages and a section head never ends one. The top bar, the notes and the on-screen links back to the site are left out.
+
 ### Notes panel
 The observation layer.
 - **Style:** all text in note blue at label size; header rule in currentColor; title and controls in uppercase mono at 0.06em; each note a two-column grid (timestamp, then what was seen in ink and a mono "can't tell" line) above a dotted blue hairline.
@@ -452,7 +455,7 @@ Two curves, registered in GSAP as CustomEase and mirrored in CSS: `out` (`--ease
 - **Skip link:** first in the page, ink on paper, slides in on focus.
 - **Tagged controls:** every link and button carries a `data-observe` tag, so the lens has no gaps; the skip link is the one exemption.
 - **No-JS path:** all text is in the HTML; hidden entrance states apply only under `.js`, with a 5s failsafe; disclosures are open; notes say honestly that nothing was recorded.
-- **Focus:** 2px note-blue outline at 3px offset everywhere; row-wide links outline the whole row. A jump within the page (Contact, a route item, Explore the journey, or arriving with a fragment) moves focus to the heading it lands on, so the next Tab continues from there. Taps show no browser highlight (`-webkit-tap-highlight-color: transparent`); rows dim and links draw their rule instead. The top bar never hides while focus is inside it, and the Notes margin, faded during a scene, returns while focus is inside it. Back from a Case (when the browser cannot restore the page from its cache) returns focus to the link that opened it (its title, or on a Case the "Next case" link) if it is on screen.
+- **Focus:** 2px note-blue outline at 3px offset everywhere; row-wide links outline the whole row. A jump within the page (Contact, a route item, Explore the journey, or arriving with a fragment) moves focus to where it lands: the target's own opening heading (a Chapter, the close), or the target itself when it has none (the Journey, the route index), with no ring drawn on a section. Being put back by Return or Back always wins: focus returns to the Entry, never to the URL's fragment. Taps show no browser highlight (`-webkit-tap-highlight-color: transparent`); rows dim and links draw their rule instead. The top bar never hides while focus is inside it, and the Notes margin, faded during a scene, returns while focus is inside it. Back from a Case (when the browser cannot restore the page from its cache) returns focus to the link that opened it (its title, or on a Case the "Next case" link) if it is on screen.
 - **Touch targets:** every control's hit area is at least 44px on touch (WCAG 2.5.5), probed at 21px from its centre in the audit.
 - **Contrast:** ink-3 at #656560 is the lightest text allowed on paper.
 - **Known detector false positive:** the low-contrast check flags every `.link` because its underline is a currentColor gradient background. It is not a real contrast failure; do not "fix" it.

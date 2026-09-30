@@ -4,6 +4,13 @@ import Base from '../../layouts/Base.astro';
 import NotesPanel from '../../components/NotesPanel.astro';
 import Arrow from '../../components/Arrow.astro';
 import { allEntries, entryFor, kindLabels } from '../../data/journey';
+
+/** A status that opens with its kind ("Research in development · concept stage") keeps the rest, as a sentence. */
+const statusAfterKind = (status: string, kind: string) => {
+  if (!status.startsWith(`${kind} · `)) return status;
+  const rest = status.slice(kind.length + 3);
+  return rest.charAt(0).toUpperCase() + rest.slice(1);
+};
 import { keepDots } from '../../lib/format';
 
 const cases = (await getCollection('cases'))
@@ -61,7 +68,7 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
                   <span class="also__name">{entry.title} <Arrow /></span>
                   {/* Every item names its kind and Chapter the same way; the status drops the kind when it opens with it. */}
                   <span class="also__kind"><span>{keepDots(`${kindLabels[entry.kind]} · ${chapter.label}`)}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
-                  <span class="also__status">{keepDots(entry.status.startsWith(`${kindLabels[entry.kind]} · `) ? entry.status.slice(kindLabels[entry.kind].length + 3) : entry.status)}</span>
+                  <span class="also__status">{keepDots(statusAfterKind(entry.status, kindLabels[entry.kind]))}</span>
                 </a>
               </li>
             ))}
