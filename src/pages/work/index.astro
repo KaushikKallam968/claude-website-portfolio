@@ -52,6 +52,7 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
               </p>
               <dl class="row__facts">
                 <div><dt>Contribution</dt><dd>{c.journey.entry.contribution}</dd></div>
+                {c.data.methods && <div><dt>Methods</dt><dd>{c.data.methods.join('; ')}</dd></div>}
                 <div><dt>Status</dt><dd>{keepDots(c.data.status)}</dd></div>
               </dl>
               <span class="row__arrow" aria-hidden="true"><Arrow /></span>
