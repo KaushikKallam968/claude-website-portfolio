@@ -5,7 +5,7 @@
  */
 import { Image } from 'astro:assets';
 import Arrow from './Arrow.astro';
-import taste from '../assets/watched/taste-analytics.png';
+import track from '../assets/watched/track.png';
 import rec from '../assets/watched/ai-recommendation.png';
 import search from '../assets/watched/search.png';
 
@@ -88,7 +88,7 @@ const { kind, compact = false, scene = false } = Astro.props;
 
   {kind === 'watched' && (
     <div class="fig__stage phones">
-      <Image src={taste} alt="watched. taste analytics: rated titles, genres and personal rankings." widths={[360, 540, 720]} sizes="(max-width: 900px) 40vw, 18vw" class="phone phone--a" loading="lazy" />
+      <Image src={track} alt="The watched. welcome screen: Track. Log every movie and show you’ve seen and remember how you felt about it, not just that it happened." widths={[360, 540, 720]} sizes="(max-width: 900px) 40vw, 18vw" class="phone phone--a" loading="lazy" />
       <Image src={rec} alt="A watched. recommendation that explains why it suggests Blade Runner 2049, based on films the person liked." widths={[360, 540, 720]} sizes="(max-width: 900px) 40vw, 18vw" class="phone phone--b" loading="lazy" />
       {!compact && <Image src={search} alt="watched. search with trending films and shows." widths={[360, 540, 720]} sizes="(max-width: 900px) 40vw, 18vw" class="phone phone--c" loading="lazy" />}
     </div>
