@@ -12,3 +12,5 @@ docs/research/teardown/
 .impeccable/questions/
 # the live detector server's session folder, created and removed during critique runs
 .impeccable/live/
+# temporary git worktrees made by parallel agent runs
+.claude/worktrees/
