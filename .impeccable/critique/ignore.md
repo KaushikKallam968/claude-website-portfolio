@@ -2,7 +2,6 @@
 
 Findings that match these are settled decisions, not open issues. Drop them silently.
 
-- **Draft markers on case and entry copy.** The owner keeps them until they review the copy (PRODUCT.md, owner decisions). They come off at publish.
 - **The three hero text actions** ("Explore the journey", "Selected work", "Résumé") next to the top-bar navigation. The home-page direction contract specifies them.
 - **The WebGL dot Field existing at all, or being a particle/point-cloud effect.** The owner lifted the no-particle rule for the Field (ADR 0002).
 - **No portrait.** Owner decision.

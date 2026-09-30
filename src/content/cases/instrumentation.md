@@ -20,7 +20,6 @@ cannotShow:
   - That any instrumentation has been repaired yet.
   - Whether teams have adopted it. The work is still being publicized.
   - A measured improvement in data quality or in the decisions it informs.
-draft: true
 ---
 
 ## When an event is recorded but the behavior is still unclear

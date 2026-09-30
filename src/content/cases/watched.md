@@ -22,7 +22,6 @@ cannotShow:
   - Traction or retention numbers.
   - Why the project paused, or when it might return.
   - Which of these product decisions were mine alone. The work was shared.
-draft: true
 ---
 
 ## A problem we shared

@@ -36,8 +36,8 @@ export interface Entry {
   status: string;
   action: string;
   figure?: FigureKind;
-  /** Copy awaiting the owner's confirmation. */
-  draft: boolean;
+  /** Copy awaiting the owner's confirmation shows a Draft marker. */
+  draft?: boolean;
   /** Expanded text for entries that do not open a Case. */
   more?: string[];
 }
@@ -98,7 +98,6 @@ export const chapters: Chapter[] = [
         status: 'Dashboard and pipeline created · being publicized',
         action: 'Explore the assessment',
         figure: 'instrumentation',
-        draft: true,
       },
       {
         id: 'ai-evaluation',
@@ -116,7 +115,6 @@ export const chapters: Chapter[] = [
         status: 'Research in development · concept stage',
         action: 'Read the research overview',
         figure: 'ai-evaluation',
-        draft: true,
       },
     ],
   },
@@ -160,7 +158,6 @@ export const chapters: Chapter[] = [
         contribution: 'I ran the usability research and the interviews.',
         status: 'Research completed · recommendations for design and prioritization',
         action: 'Read the research summary',
-        draft: true,
       },
     ],
   },
@@ -198,7 +195,6 @@ export const chapters: Chapter[] = [
         status: 'Mixed-methods study completed · cross-language search implementation reported',
         action: 'Explore the Mexico case',
         figure: 'mexico',
-        draft: true,
       },
     ],
     subsections: [
@@ -230,7 +226,6 @@ export const chapters: Chapter[] = [
             status: 'Discovery and concept testing completed · recommendations for alpha and iteration',
             action: 'Explore the Discord case',
             figure: 'discord',
-            draft: true,
           },
         ],
       },
@@ -303,7 +298,6 @@ export const chapters: Chapter[] = [
         status: 'Launched project · currently paused',
         action: 'Explore watched.',
         figure: 'watched',
-        draft: true,
       },
     ],
   },

@@ -21,7 +21,7 @@ const cases = defineCollection({
     status: z.string(),
     shows: z.array(z.string()),
     cannotShow: z.array(z.string()),
-    draft: z.boolean().default(true),
+    draft: z.boolean().default(false),
   }),
 });
 

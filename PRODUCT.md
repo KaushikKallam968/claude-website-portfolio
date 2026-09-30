@@ -54,7 +54,7 @@ Claim boundaries that bind every surface:
 - **Discord:** discovery plus low-fidelity concept tests produced different advance/iterate recommendations. No launched bot or measured learning gains. Do not sum participants into 60 unique people.
 - **Mexico:** mixed-methods; stakeholder scoping from a 100+ question draft; bilingual search recommendation, implementation reported in the owner's presentation. No business uplift. Do not merge with the separate 400+ EGEL claim.
 - **watched.:** co-founded with two longtime friends; research, product/UX and front-end contributions alongside technical cofounders; launched, currently paused in an offline maintenance release (App Store, checked September 28, 2026; recheck before publishing). Singapore did not inspire or originate it.
-- Case copy is draft until the owner confirms it; review builds mark it as draft (owner, September 30, 2026: keep the markers until he reviews each case). Employer material is not cleared for public release: the JPMorganChase entries stay as written, and the owner clears them before anything is published.
+- Case copy is confirmed and cleared for publishing (owner, September 30, 2026: publish publicly with the Draft markers removed, confirming the copy and that the employer material, the JPMorganChase entries included, is cleared). The Draft marker remains in the code for any future copy that is not yet confirmed.
 
 ## Brand Commitments
 
