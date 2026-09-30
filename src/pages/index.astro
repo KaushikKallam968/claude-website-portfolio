@@ -216,32 +216,29 @@ const fieldPlaces = chapters.map((c) => ({
   }
   /* The visit is the last image: a chart at display scale, drawn (with the Field) in the dots that drew the
      name and the world. */
-  .readout { grid-column: 1 / -1; margin-top: clamp(40px, 5vw, 72px); color: var(--note); }
+  .readout { grid-column: 1 / span 8; margin-top: clamp(40px, 5vw, 72px); color: var(--note); }
   .readout__total { font-size: 0.9375rem; color: var(--ink-2); margin-bottom: 18px; }
   .readout__total .mono { font-size: 0.8125rem; color: var(--note); margin-right: 0.3em; }
-  .readout__bars { display: grid; gap: clamp(10px, 1.4vw, 20px); }
-  .readout__bars li {
-    display: grid;
-    grid-template-columns: minmax(7em, 0.34fr) 1fr 6.5em;
-    grid-template-areas: 'label track value';
-    align-items: end;
-    gap: 8px clamp(14px, 2vw, 32px);
-  }
-  .readout__label { grid-area: label; color: var(--ink); font-size: var(--t-h3); line-height: 1; letter-spacing: -0.028em; font-weight: 520; }
-  .readout__track { grid-area: track; height: 14px; background: var(--note-soft); position: relative; overflow: hidden; }
-  .readout__value { grid-area: value; }
+  /* One grid for all rows, so every track starts on the same line and lengths compare. */
+  .readout__bars { display: grid; grid-template-columns: max-content 1fr 5.5em; gap: clamp(10px, 1.4vw, 20px) clamp(14px, 2vw, 32px); }
+  .readout__bars li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: end; }
+  .readout__label { color: var(--ink); font-size: clamp(1.25rem, 0.8rem + 1vw, 1.9rem); line-height: 1; letter-spacing: -0.028em; font-weight: 520; white-space: nowrap; }
+  .readout__track { height: 14px; background: var(--note-soft); position: relative; overflow: hidden; }
   .readout__fill { position: absolute; inset: 0; background: var(--note); transform: scaleX(var(--share, 0)); transform-origin: left; transition: transform 1.2s var(--ease-out); }
   .readout__outside .readout__label { color: var(--ink-2); }
   .readout__unit { margin-top: 14px; color: var(--note); font-size: 0.9375rem; }
   /* With the Field running, the bars are drawn in dots: the same dots that drew the name and the world. */
-  :global(html.field-on) .readout__track { height: clamp(40px, 4.6vw, 66px); background: none; overflow: visible; border-bottom: 1px solid var(--rule); }
+  :global(html.field-on) .readout__track { height: clamp(34px, 3.6vw, 52px); background: none; overflow: visible; border-bottom: 1px solid var(--rule); }
   :global(html.field-on) .readout__fill { display: none; }
   .readout__outside .readout__fill { background: var(--ink-3); }
   @media (prefers-reduced-motion: reduce) { .readout__fill { transition: none; } }
   .readout__value { text-align: right; font-size: 0.875rem; }
   .readout__cases { margin-top: 18px; color: var(--ink-2); font-size: 0.9375rem; }
+  /* The hand-off shares the final screen with the portrait. */
   .close__text {
-    grid-column: 1 / span 7;
+    grid-column: 9 / -1;
+    grid-row: 2;
+    min-width: 0;
     margin-top: clamp(40px, 5vw, 72px);
     display: grid;
     gap: 1em;
@@ -251,15 +248,19 @@ const fieldPlaces = chapters.map((c) => ({
     letter-spacing: -0.012em;
   }
   .close__honest { color: var(--note); }
-  .close__email { font-size: clamp(1.5rem, 1rem + 1.8vw, 2.6rem); letter-spacing: -0.03em; font-weight: 520; margin-top: 0.4em; }
+  .close__email { font-size: clamp(1.4rem, 0.9rem + 1.1vw, 2.1rem); letter-spacing: -0.03em; font-weight: 520; margin-top: 0.4em; overflow-wrap: anywhere; }
   .close__links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: var(--t-body); }
   .foot { margin-top: clamp(80px, 10vw, 160px); padding-block: 22px; border-top: 1px solid var(--rule); }
   .foot p:first-child { grid-column: 1 / span 6; }
   .foot p:last-child { grid-column: 7 / -1; text-align: right; }
 
   @media (max-width: 900px) {
-    .readout, .close__text, .close__title { grid-column: 1 / -1; }
+    .readout, .close__text, .close__title { grid-column: 1 / -1; grid-row: auto; }
+    .readout__bars { grid-template-columns: 1fr; }
     .readout__bars li { grid-template-columns: 1fr auto; grid-template-areas: 'label value' 'track track'; }
+    .readout__label { grid-area: label; }
+    .readout__track { grid-area: track; }
+    .readout__value { grid-area: value; }
     .foot p:first-child, .foot p:last-child { grid-column: 1 / -1; text-align: left; }
   }
 </style>

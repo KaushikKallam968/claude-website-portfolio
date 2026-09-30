@@ -196,7 +196,7 @@ html.field:not(.motion-done) .route__list { --rule-w: 0; }
   padding-left: 14px; translate: 0 -50%;
   font-family: var(--mono); font-size: 0.6875rem; line-height: 1; white-space: nowrap;
   color: var(--ink); will-change: transform, opacity;
-  text-shadow: 0 0 4px var(--paper), 0 0 10px var(--paper);
+  text-shadow: 0 0 2px var(--paper), 0 0 4px var(--paper), 0 0 8px var(--paper), 0 0 14px var(--paper);
 }
 .field-label__name { text-transform: uppercase; letter-spacing: 0.06em; }
 .field-label.is-left { padding: 0 14px 0 0; translate: -100% -50%; flex-direction: row-reverse; }

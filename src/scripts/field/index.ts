@@ -191,7 +191,7 @@ export async function startField(): Promise<FieldHandle | null> {
   let visitOrder: number[] = [];
   let mapXY = new Float32Array(0);
   let visitDoc = { x: 0, y: 0 };
-  let visitRows: { id: string; x: number; y: number; cols: number; lines: number }[] = [];
+  let visitRows: { id: string; x: number; y: number; w: number; h: number }[] = [];
   let visitSpacing = 4.4;
   let visitEndY = 0;
   let closeDocTop = Infinity;
@@ -299,16 +299,15 @@ export async function startField(): Promise<FieldHandle | null> {
     if (bars) {
       const br = bars.getBoundingClientRect();
       visitDoc = { x: br.left, y: br.top + sy };
-      visitSpacing = narrow ? 4.6 : 7;
-      renderer.sizes.visit = visitSpacing * 0.8;
+      visitSpacing = 0; // chosen per update so the longest row fills its track
       visitRows = [...bars.querySelectorAll<HTMLElement>('[data-bar]')].map((li) => {
         const tr = li.querySelector('.readout__track')!.getBoundingClientRect();
         return {
           id: li.dataset.bar!,
           x: tr.left - br.left,
           y: tr.top - br.top,
-          cols: Math.max(1, Math.floor(tr.width / visitSpacing)),
-          lines: Math.max(1, Math.floor(tr.height / (visitSpacing * 0.9))),
+          w: tr.width,
+          h: tr.height,
         };
       });
       visitEndY = visitDoc.y - vh * 0.62;
@@ -327,8 +326,22 @@ export async function startField(): Promise<FieldHandle | null> {
     const ms = visitRows.map((row) => (row.id === 'outside' ? 0 : r.chapters.find((c) => c.id === row.id)?.ms ?? 0));
     const out = visitRows.findIndex((row) => row.id === 'outside');
     if (out >= 0) ms[out] = Math.max(0, all - ms.reduce((a, b) => a + b, 0));
-    const capacity = Math.min(...visitRows.map((row) => row.cols * row.lines));
-    const { phrase, counts } = dotUnit(ms, capacity);
+    // Dot size adapts so the longest row fills most of its track: a short visit gets fewer, larger dots.
+    // The unit is still the finest that fits at the smallest dot, and it is always stated.
+    const grid = (s: number) => visitRows.map((row) => ({ cols: Math.max(1, Math.floor(row.w / s)), lines: Math.max(1, Math.floor(row.h / (s * 0.9))) }));
+    const capacityAt = (s: number) => Math.min(...grid(s).map((g) => g.cols * g.lines));
+    const minS = narrow ? 4.2 : 6;
+    const maxS = narrow ? 9 : 13;
+    const { phrase, counts } = dotUnit(ms, capacityAt(minS));
+    const longest = Math.max(1, ...counts);
+    // Keep the current size while it still fits and the row is at least half full, so dots rarely re-flow.
+    if (!visitSpacing || capacityAt(visitSpacing) < longest || longest < capacityAt(visitSpacing) * 0.5) {
+      let s = maxS;
+      while (s > minS && capacityAt(s) < longest / 0.85) s -= 0.25;
+      visitSpacing = s;
+      renderer.sizes.visit = s * 0.8;
+    }
+    const cells = grid(visitSpacing);
     if (unitEl) {
       unitEl.hidden = false;
       unitEl.textContent = `Each dot is ${phrase} of your visit.`;
@@ -348,8 +361,8 @@ export async function startField(): Promise<FieldHandle | null> {
       const n = counts[ri];
       for (let j = 0; j < n && k < visitOrder.length; j++) {
         const idx = visitOrder[k++];
-        const col = Math.floor(j / row.lines);
-        const line = j % row.lines;
+        const col = Math.floor(j / cells[ri].lines);
+        const line = j % cells[ri].lines;
         const order = (ri + j / Math.max(1, n)) / rows; // row by row, left to right
         visit.set([row.x + (col + 0.5) * visitSpacing, row.y + (line + 0.5) * visitSpacing * 0.9, row.id === 'outside' ? 0.45 : 1, order], idx * 4);
       }
@@ -469,7 +482,7 @@ export async function startField(): Promise<FieldHandle | null> {
     let active: Window = windows[0];
     for (const w of windows) {
       const fadeIn =
-        w.kind === 'intro' ? 1 : w.kind === 'visit' ? smooth(closeDocTop - vh, closeDocTop - vh * 0.55, y) : smooth(vh * 0.95, vh * 0.15, w.start - y);
+        w.kind === 'intro' ? 1 : w.kind === 'visit' ? smooth(closeDocTop - vh, closeDocTop - vh * 0.55, y) : smooth(vh * 0.5, vh * 0.05, w.start - y);
       const fadeOut = smooth(vh * 0.5, vh * 0.95, w.nextBody - y);
       mapVis = Math.max(mapVis, fadeIn * fadeOut);
       if (w.kind === 'intro' || (w.kind === 'visit' ? y >= closeDocTop - vh : w.start <= y + vh * 0.6)) active = w;
@@ -563,7 +576,8 @@ export async function startField(): Promise<FieldHandle | null> {
       ].filter((c) => c.box.x0 > 4 && c.box.x1 < vw - 4);
       const clear = (b: Box) =>
         !placed.some((p) => overlaps(b, p)) && !text.some((t) => overlaps(b, t)) && !markers.some((m) => m.x0 !== own.x0 && overlaps(b, m));
-      const choice = frame.route >= l.t - 0.0001 && show > 0.02 && y > frame.clip + 30 ? candidates.find((c) => clear(c.box)) : undefined;
+      // Labels belong to scenes: none while the map is only fading in or out behind reading text.
+      const choice = frame.route >= l.t - 0.0001 && show > 0.45 && y > frame.clip + 30 ? candidates.find((c) => clear(c.box)) : undefined;
       const isActive = rank(l.t) === 0;
       if (choice) placed.push(choice.box);
       l.el.style.opacity = choice ? (show * (isActive || frame.active === -1 ? 1 : 0.6)).toFixed(3) : '0';
