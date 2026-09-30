@@ -18,5 +18,11 @@ export function formatElapsed(ms: number): string {
 /** Glue each " · " separator to the words before it, so a wrapped line never starts with a dot. */
 export const keepDots = (s: string) => s.replace(/ · /g, ' · ');
 
+/**
+ * Glue the part after a hyphen between two letters to the hyphen (a word joiner, which has no width), so a
+ * compound like "co-founded" or "front-end" is never split across lines. Text only: never a URL, id or attribute.
+ */
+export const keepCompounds = (s: string) => s.replace(/(?<=\p{L})-(?=\p{L})/gu, '-⁠');
+
 /** Ends a sentence with a full stop, unless the name that ends it already carries one ("watched."). */
 export const sentence = (s: string) => (/[.!?]$/.test(s) ? s : `${s}.`);
