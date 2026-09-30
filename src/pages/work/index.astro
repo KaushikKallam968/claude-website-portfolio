@@ -57,8 +57,8 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
             {others.map(({ entry, chapter }) => (
               <li>
                 <a class="also__item" href={`/#${entry.id}`} data-observe={`work.${entry.id}`} data-observe-label={entry.title}>
-                  <span class="also__kind"><span>{kindLabels[entry.kind]} · {chapter.label}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
                   <span class="also__name">{entry.title}</span>
+                  <span class="also__kind"><span>{kindLabels[entry.kind]} · {chapter.label}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
                   <span class="also__status">{entry.status}</span>
                 </a>
               </li>
