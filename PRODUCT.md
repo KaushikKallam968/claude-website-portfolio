@@ -53,7 +53,7 @@ Claim boundaries that bind every surface:
 - **AI evaluation:** bounded multi-agent workflows only; concept development with his manager; he does not design the agentic test experience. Internal signals, definitions, rubrics and logs are protected. Agent-side indicators are an operational construct, not proof agents feel emotion.
 - **Discord:** discovery plus low-fidelity concept tests produced different advance/iterate recommendations. No launched bot or measured learning gains. Do not sum participants into 60 unique people.
 - **Mexico:** mixed-methods; stakeholder scoping from a 100+ question draft; bilingual search recommendation, implementation reported in the owner's presentation. No business uplift. Do not merge with the separate 400+ EGEL claim.
-- **watched.:** co-founded with two longtime friends; research, product/UX and front-end contributions alongside technical cofounders; launched, currently paused in an offline maintenance release (App Store, checked September 28, 2026; recheck before publishing). Singapore did not inspire or originate it.
+- **watched.:** co-founded with two longtime friends; research, product/UX and front-end contributions alongside technical cofounders; launched, currently paused in an offline maintenance release (App Store, version 2.12.2 of September 8, 2026, rechecked September 30, 2026; recheck before sharing widely). Singapore did not inspire or originate it.
 - Case copy is confirmed and cleared for publishing (owner, September 30, 2026: publish publicly with the Draft markers removed, confirming the copy and that the employer material, the JPMorganChase entries included, is cleared). The Draft marker remains in the code for any future copy that is not yet confirmed.
 
 ## Brand Commitments
