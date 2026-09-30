@@ -108,9 +108,9 @@ const href = `/work/${entry.id}/`;
   /* Only the words slide: a transformed ancestor would shrink the row-wide link target to itself. */
   .entry__text { display: inline-block; transition: translate 0.8s var(--ease-out); }
   .entry__link { text-decoration: none; }
-  .entry__link::after { content: ''; position: absolute; inset: 0; }
   .entry__link:focus-visible { outline: none; }
-  .entry:has(.entry__link:focus-visible) { outline: 2px solid var(--note); outline-offset: -2px; }
+  /* The ring stands clear of the text, including at a phone's edge. */
+  .entry:has(.entry__link:focus-visible) { outline: 2px solid var(--note); outline-offset: 8px; }
   .entry__context { margin-top: 8px; font-size: var(--t-meta); color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
   .entry__preview, .entry__more { display: grid; gap: 0.8em; max-width: 60ch; color: var(--ink-2); margin-top: 18px; }
   .entry__more { margin-top: 0.8em; color: var(--ink); }

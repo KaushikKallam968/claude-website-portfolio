@@ -99,7 +99,8 @@ function wirePointing() {
   // A click that lands on nothing interactive is a coverage gap: recorded, but impossible to interpret.
   let lastGap = -Infinity;
   document.addEventListener('click', (ev) => {
-    if ((ev.target as Element).closest('a, button, input, label, summary, [data-observe], [data-notes]')) return;
+    // A row opens its Case from anywhere on it, so a click there is not a gap.
+    if ((ev.target as Element).closest('a, button, input, label, summary, [data-observe], [data-notes], .entry, .row')) return;
     if (elapsed() - lastGap < 4000) return;
     lastGap = elapsed();
     record({ type: 'press', t: elapsed(), tag: null });
@@ -109,17 +110,40 @@ function wirePointing() {
 function wireDepth() {
   let frame = 0;
   const page = location.pathname;
+  // A page that marks its own parts (a Case) is noted by those parts, in its own words; generic quarters would
+  // only repeat what every page says. Its end is still noted.
+  const marked = document.querySelector('[data-observe-reach]') !== null;
   addEventListener(
     'scroll',
     () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const max = document.documentElement.scrollHeight - innerHeight;
-        if (max > 0) record({ type: 'depth', t: elapsed(), page, fraction: scrollY / max });
+        if (max <= 0) return;
+        const fraction = scrollY / max;
+        if (!marked || fraction >= 0.98) record({ type: 'depth', t: elapsed(), page, fraction });
       });
     },
     { passive: true },
   );
+}
+
+/** A marked part of the page is reached when its top crosses the middle of the screen. */
+function wireReach() {
+  const parts = document.querySelectorAll<HTMLElement>('[data-observe-reach]');
+  if (!parts.length) return;
+  const page = location.pathname;
+  const io = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        const el = en.target as HTMLElement;
+        io.unobserve(el);
+        record({ type: 'reach', t: elapsed(), page, id: el.dataset.observeReach!, shows: el.dataset.observeShows!, cannotShow: el.dataset.observeCannot! });
+      }),
+    { rootMargin: '0px 0px -50% 0px' },
+  );
+  parts.forEach((p) => io.observe(p));
 }
 
 function wireIdle() {
@@ -219,9 +243,12 @@ export function startNotes() {
     notes.push({ t: 0, event: 'point', tag: 'page.arrive', quality: 'tagged', shows: 'You arrived.', cannotShow: 'From where, or what you hoped to find.' });
   }
   render();
+  // The next page need not explain the notes again.
+  session.set(KEYS.notesKnown, true);
   wireToggle();
   wirePointing();
   wireDepth();
+  wireReach();
   wireIdle();
   wireChapters();
 }

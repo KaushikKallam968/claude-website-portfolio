@@ -148,7 +148,7 @@ spacing:
   rail: "clamp(250px, 22vw, 340px)"
   entry-block: "clamp(26px, 3.4vw, 44px)"
   chapter-top: "clamp(56px, 8vw, 120px)"
-  prologue-runway: "160vh"
+  prologue-runway: "130vh"
   shift-runway: "150vh"
   shift-runway-phone: "140vh"
   shift-band: "60vh to 80vh by distance"
@@ -233,7 +233,7 @@ components:
 
 The site is a printed page that is taking notes on its reader. Daylight paper and near-black ink carry everything that is authored; a single annotation blue carries everything that is observed or live. The contrast between the two layers is the whole idea: the ink says what Kaushik did, the blue says what the page can see of you right now, and what it cannot tell.
 
-On the home page the page has one moving image, the Field: a single crowd of about 16,000 dots that is, in turn, the name, the world and the visit. It draws the world with tonight's real day and night, flies the map between the places of the Journey while the clocks count the hours, and ends as a chart of the reader's own time, stated in its unit. Every word the Field depicts is also real HTML underneath it; the canvas is decoration over the truth, never instead of it. Everywhere else the page stays an editorial layout: one grotesk at extreme scale contrast, hairline rules and flush-left columns on a twelve-column grid, flat surfaces. Motion happens between reading moments; reading text sits in quiet zones the dots thin out behind.
+On the home page the page has one moving image, the Field: a single crowd of about 16,000 dots that is, in turn, the name, the world and the visit. It draws the world with tonight's real day and night, flies the map between the places of the Journey while the clocks count the hours, and ends as a chart of the reader's own time, stated in its unit. Every word the Field depicts is also real HTML underneath it; the canvas is decoration over the truth, never instead of it. Everywhere else the page stays an editorial layout: one grotesk at extreme scale contrast, hairline rules and flush-left columns on a twelve-column grid, flat surfaces. Motion happens between reading moments; reading text sits in quiet zones the dots clear out from behind.
 
 The system rejects the template portfolio: no kicker above the hero, no pill buttons, no cards, no decorative gradients, no glass, no 3D. Real photography in full colour is the only colour besides the blue.
 
@@ -308,7 +308,7 @@ A twelve-column grid (`.grid`: 12 equal columns, `gutter` column gap, `margin` i
 - **Top bar:** fixed, 64px (56px at 720px and below), paper background, name in columns 1 to 3, a place and its live clock in 4 to 6 (New York, or on the home page the place of the Chapter being read), navigation right-aligned from column 7. A `rule` hairline appears once scrolled past 8px. It slides up while reading down past 400px and returns on scroll up, unless focus is inside it or the notes sheet is open.
 - **Rail:** the Notes panel lives in a right-hand rail (`rail` width), sticky at 88px. On the Journey it starts below the hero and fades out (0.6s) while a Field scene fills the screen, above 1100px; on Case and Work pages it is a second grid column.
 - **Journey:** the hero name spans the full width; the identity block sits in the negative space beside the second line; the route index is a six-column list on an ink hairline. Chapters: title in columns 1 to 9, mono meta in 10 to 12, text in 4 to 9 (max 34ch), roles in 10 to 12. Entries subgrid across 12: main 1 to 7, figure 8 to 12.
-- **Scenes (Field on):** the Prologue is a 160vh runway and an ocean-crossing Time Shift a 150vh runway (140vh at 700px and below), each with a 100svh sticky stage. A domestic Time Shift is a band 60 to 80vh tall, by distance flown (60vh at 1,000 km or less, 80vh at 3,500 km or more), with no pin: the map draws only inside the band and rides with the page, the flight framed on the band wherever it is on screen. Words and clock sit bottom left; the map frames the place up and to the right of them (14% of the width and 12% of the height off centre; 16% of the height on phones, centred horizontally). The Time Shift route row sits at the top, under the bar. Without the Field these collapse to a short static band with a blue top rule.
+- **Scenes (Field on):** the Prologue is a 130vh runway and an ocean-crossing Time Shift a 150vh runway (140vh at 700px and below), each with a 100svh sticky stage. A domestic Time Shift is a band 60 to 80vh tall, by distance flown (60vh at 1,000 km or less, 80vh at 3,500 km or more), with no pin: the map draws only inside the band and rides with the page, the flight framed on the band wherever it is on screen. Words and clock sit bottom left; the map frames the place up and to the right of them (14% of the width and 12% of the height off centre; 16% of the height on phones, centred horizontally). The Time Shift route row sits at the top, under the bar. Without the Field these collapse to a short static band with a blue top rule.
 - **Close:** title across columns 1 to 10; the hand-off (thanks, email, links) in 9 to 12 beside the readout in 1 to 8, with the blue "can't tell" sentence under the hand-off. In the source and on narrow screens the hand-off comes first, so Contact lands on the email. Readout rows are one grid (label max-content, track 1fr, value 5.5em) with each row on a subgrid, so every track starts on the same line and lengths compare. With the Field each track is a `readout-row` tall box with a `rule` baseline; without it, a 14px bar.
 - **Case:** single article column (title max 14ch, prose 66ch, blocks max 1100px) beside the rail.
 - **Rhythm:** large fluid gaps between reading moments (chapter tops `clamp(56px, 8vw, 120px)`, first chapter up to 220px, close up to 240px), tight gaps within them (6 to 18px).
@@ -350,7 +350,7 @@ Plain words, never buttons.
 
 ### Navigation
 - **Top bar:** see Layout. Links are text links with `aria-current="page"`. Journey goes to the chapter list at the foot of the hero, the one place every Chapter can be reached from.
-- **Route index:** six numbered places with period and live local time in mono. Hover, focus or current raises a 3px blue bar along the top rule, scaling in from the left.
+- **Route index:** six numbered places, each with its work in a few words beneath (ink-2, small, balanced lines), so the first screen names projects; then period and live local time in mono. Hover, focus or current raises a 3px blue bar along the top rule, scaling in from the left.
 - **Case Return:** a large text link (up to 5rem) with a left arrow on an ink rule, labelled with the reader's real origin.
 
 ### Entry row
@@ -373,7 +373,8 @@ One WebGL2 canvas, fixed full-screen and `aria-hidden`, with one crowd of about 
 - **Time Shift scenes:** the map flies each great-circle leg with a traveller, zooming out to fit both ends mid-flight. The place being read is blue with a pulsing ring; other markers are ink.
 - **Place labels:** mono, uppercase name and live local time, in ink (blue when active), with paper halos. Placement avoids collisions: right of the marker, then left, above, below, clear of other labels, markers and reading text. Labels show only inside scenes.
 - **The close:** the section is a window onto the world (dots are clipped above its top edge). The world evaporates while the visit pours into the readout row by row, left to right.
-- **Quiet zones:** any element marked `data-quiet` (up to six on screen) thins map and in-flight dots behind it by 88% and pushes labels away. The name and the settled portrait never thin.
+- **Quiet zones:** any element marked `data-quiet` (up to six on screen) clears map and in-flight dots from behind it, feathered over 28px, and pushes labels away. The name and the settled portrait never clear.
+- **Scene edges:** the map draws only inside its scene: below the close's top edge, inside a domestic band, and below an ocean crossing's top edge until its stage pins, so it never reaches back over the previous Chapter. Places that nearly coincide at the current zoom (Plano and Richardson) share one label.
 - **Colour:** reads `--ink` and `--note` from the page, so it follows the theme.
 
 ### Time Shift (signature)
@@ -381,11 +382,13 @@ Between two chapters, the local time moves from the previous place to the next.
 - **Style:** blue digits in the Clock role, a "+1 day" or "−1 day" tag, an ink sentence stating the real offset (daylight saving included), and a continue link. With the Field, a mono route row at the top ("FROM", a 1px `note-soft` line filling in `note`, "TO").
 - **With the Field:** an ocean crossing is a sticky scene; a domestic hop is a band scrubbed across its whole passage, counting while its clock is on screen. Either way the clock counts real hours one at a time like an odometer as the reader scrolls, every frame a real time, and the day tag appears at the moment the count passes midnight.
 - **Without the Field:** a static band on a blue top rule; each changed digit reel spins one full turn on `scene` (1.6s, 0.1s stagger) as it enters, up for forward in time, down for back.
-- **No script or reduced motion:** the reels land on the destination time.
+- **Reduced motion:** the reels land on the destination time.
+- **No script:** no clock at all (a clock that cannot run would read as a time); the band says "From X to Y." Every other live clock on the site is hidden too.
 
 ### Visit readout (signature)
 The close: the visitor's own time per chapter, plus "Everywhere else", so rows add up to the total. Chapters with less than a second of reading are left out; when that is all of them, an ink-2 line says "You haven't spent a second in any chapter yet." Rows settle a screen before the readout is seen, so nothing shifts in view.
-- **With the Field:** a display-scale dot chart in the annotation blue (it is observed data; "Everywhere else" at lower strength). The count pauses with Pause live. Dot pitch adapts (6 to 13px, 4.2 to 9px on phones) so the longest row fills about 85% of its track, and holds while the row stays at least half full. The unit is the finest that fits and is always stated in blue beneath: "Each dot is half a second of your visit."
+- **With the Field:** a display-scale dot chart in the annotation blue (it is observed data; "Everywhere else" at lower strength). The count pauses with Pause live. Dot pitch adapts (6 to 13px, 4.2 to 9px on phones) so the longest row fills about 85% of its track, and holds while the row stays at least half full. The unit is the finest that fits and is always stated in blue beneath: "Each dot is half a second of your visit." The total above sits at lede size, the values right after their tracks.
+- **Without scripts:** no numbers at all, since nothing was measured; one ink-2 line says so.
 - **Without it:** a 14px blue fill on a `note-soft` track, scaling from the left over 1.2s; "Everywhere else" uses ink-3.
 - **Always:** mono values right-aligned in blue; a total above in blue mono with ink-2 words.
 
@@ -401,6 +404,8 @@ Authored diagrams of each case's idea on a `paper-2` stage with 1px `ink-3` or `
 ### Notes panel
 The observation layer.
 - **Style:** all text in note blue at label size; header rule in currentColor; title and controls in uppercase mono at 0.06em; each note a two-column grid (timestamp, then what was seen in ink and a mono "can't tell" line) above a dotted blue hairline.
+- **Folding:** open by default on the Journey only. On Case and Work pages it starts folded to its header and the latest note on one line, unless the visitor opened it this visit; Show or Hide sets that for the rest of the visit. Its explanation (the about line and each control's description) shows on the visit's first page only.
+- **Notes a page writes:** a Case marks its own parts (figure, account of the research, limits), and reaching each writes a note in that page's words ("You reached what the evidence can't show." / "Whether it changed how you read the rest."), in place of the generic quarter-depth notes; the end of the page is still noted.
 - **Controls:** Hide (persisted for the session), Pause live (`aria-pressed`; shown only with scripts, since nothing moves without them), Show tracking (the lens). On the home page the panel comes before the journey in the source, so Pause live is reached early by keyboard.
 - **Phone sheet:** Show opens the list under the bar; scrolling on, tapping outside it or Escape closes it, returning focus to the toggle.
 - **Motion:** new notes arrive from 10px above with an opacity fade; on the ticker the latest note peeks up 6px.
@@ -408,8 +413,8 @@ The observation layer.
 
 ### Instrumentation lens
 The site's own tagging, made visible.
-- **Cursor tag:** on fine pointers a small paper chip with a blue 1px border follows the pointer (0.45s on `out`) naming the `data-observe` tag of what it is over; over an untagged control it turns ink-2 with a dashed ink-3 border.
-- **Show tracking:** a blue scan line passes down the screen (0.9s, `scene`); dashed blue outlines on `note-soft` appear as it reaches each tagged control; untagged controls get ink-2 outlines with a hatched `rule` fill; a blue tally at bottom left counts "tracked · not tracked", with a "Hide tracking" button beside it within thumb reach. On fine pointers outlines carry no labels (the cursor tag names them); on touch each label sits just outside its outline (below it near the top of the screen), slid onto the screen and stepped clear of other labels and controls. Controls under the top bar or the open notes sheet are not outlined. Escape or the button closes it.
+- **Cursor tag:** while the lens is on, on fine pointers, a small paper chip with a blue 1px border follows the pointer (0.45s on `out`) naming the `data-observe` tag of what it is over; over an untagged control it turns ink-2 with a dashed ink-3 border.
+- **Show tracking:** a blue scan line passes down the screen (0.9s, `scene`); dashed blue outlines on `note-soft` appear as it reaches each tagged control; untagged controls get ink-2 outlines with a hatched `rule` fill; a control whose tag another control on the page also sends (a Case's title and its action) gets a second dashed ring 3px out and "· shared" on its label, because a record of it can't say which was used (the quality half of the Instrumentation case); a blue tally at bottom left counts "tracked · share a tag · not tracked", with a "Hide tracking" button beside it within thumb reach. On fine pointers outlines carry no labels (the cursor tag names them); on touch each label sits just outside its outline (below it near the top of the screen), slid onto the screen and stepped clear of other labels and controls. Controls under the top bar or the open notes sheet are not outlined. Escape or the button closes it.
 
 ### Draft marker
 A small 1px `rule`-bordered tag reading Draft, for copy awaiting the owner's confirmation.

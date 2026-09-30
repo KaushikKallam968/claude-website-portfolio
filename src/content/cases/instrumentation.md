@@ -32,7 +32,7 @@ Both limit behavioral analysis, but they call for different work. A missing tag 
 
 ## What I built
 
-I created a cross-product HTML dashboard for the Payments line of business. It compares products side by side, and a team can drill into a single product to inspect its own analysis. I also created a resumable pipeline for the assessment, designed so it can be reused beyond this first analysis rather than run once and forgotten. It has not yet been deployed to other lines of business.
+I created a cross-product HTML dashboard for the Payments line of business. It spans roughly eight products and more than 200 million interaction events; that volume is context for the work, not a result of it. It compares products side by side, and a team can drill into a single product to inspect its own analysis. I also created a resumable pipeline for the assessment, designed so it can be reused beyond this first analysis rather than run once and forgotten. It has not yet been deployed to other lines of business.
 
 ## How the assessment frames the problem
 

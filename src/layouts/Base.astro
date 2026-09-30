@@ -61,7 +61,11 @@ const nav = [
         }
       } catch (e) {}
       try {
-        if (sessionStorage.getItem('kk:notes') === 'true') document.documentElement.classList.add('notes-off');
+        // The notes open by default on the journey only; on reading pages they start folded to one line
+        // unless the visitor opened them this visit. Once they have explained themselves, later pages skip it.
+        var notesPref = sessionStorage.getItem('kk:notes');
+        if (notesPref === 'true' || (notesPref === null && location.pathname !== '/')) document.documentElement.classList.add('notes-off');
+        if (sessionStorage.getItem('kk:notes-known') === 'true') document.documentElement.classList.add('notes-known');
         if (sessionStorage.getItem('kk:paused') === 'true') document.documentElement.classList.add('live-paused');
       } catch (e) {}
       // Arriving at a Case from its row: the new page opens out of the row's outline (see global.css).

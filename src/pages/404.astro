@@ -12,6 +12,7 @@ import Arrow from '../components/Arrow.astro';
       <li><a class="link link--under" href="/" data-observe="404.journey" data-observe-label="The journey" data-observe-cannot="What you were looking for.">The journey <Arrow /></a></li>
       <li><a class="link link--under" href="/work/" data-observe="404.work" data-observe-label="Selected work" data-observe-cannot="What you were looking for.">Selected work <Arrow /></a></li>
       <li><a class="link link--under" href="/resume/" data-observe="404.resume" data-observe-label="Résumé" data-observe-cannot="What you were looking for.">Résumé <Arrow /></a></li>
+      <li><a class="link link--under" href="/#contact" data-observe="404.contact" data-observe-label="Get in touch" data-observe-cannot="What you were looking for.">Get in touch <Arrow /></a></li>
     </ul>
   </main>
 </Base>
@@ -19,7 +20,7 @@ import Arrow from '../components/Arrow.astro';
 <style>
   .nf { min-height: 100svh; padding: 140px var(--margin) 80px; display: grid; align-content: center; gap: 18px; max-width: 1200px; }
   .nf__title { font-size: var(--t-page); line-height: 0.88; letter-spacing: -0.04em; font-weight: 530; }
-  .nf__note { color: var(--note); font-size: var(--t-small); }
+  .nf__note { color: var(--note); font-size: var(--t-small); margin-top: 0.6em; }
   .nf__text { font-size: var(--t-lede); letter-spacing: -0.015em; max-width: 34ch; }
   .nf__links { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; margin-top: 8px; }
   @media (pointer: coarse) { .nf__links { row-gap: 22px; } }

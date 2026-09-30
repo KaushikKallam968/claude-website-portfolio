@@ -138,6 +138,9 @@ html { scrollbar-color: var(--ink-3) var(--paper); caret-color: var(--note); acc
 .label { font-size: var(--t-small); color: var(--ink-3); letter-spacing: 0.01em; }
 .num { font-variant-numeric: tabular-nums; }
 
+/* Without scripts no clock can run, so none is shown rather than a placeholder that reads like a time. */
+html:not(.js) [data-clock], html:not(.js) .chapter__meta-live, html:not(.js) .shift__clock { display: none; }
+
 /* Text links: the underline draws on hover, from the left, on the entrance curve. */
 .link {
   text-decoration: none;
@@ -261,6 +264,8 @@ html.lens-on .lens-layer { display: block; }
 .lens-box.is-top span { bottom: auto; top: 100%; }
 .lens-box.is-gap { border-color: var(--ink-2); background: repeating-linear-gradient(-45deg, transparent 0 5px, var(--rule) 5px 6px); }
 .lens-box.is-gap span { background: var(--ink); }
+/* Two controls, one record: a tag another control also sends gets a second ring. */
+.lens-box.is-shared { outline: 1px dashed var(--note); outline-offset: 3px; }
 .lens-scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--note); opacity: 0; }
 .lens-bar {
   position: fixed; left: var(--margin); bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 56;

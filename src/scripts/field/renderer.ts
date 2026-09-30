@@ -102,9 +102,9 @@ void main() {
   // Outside the band only the portrait may show: the closing section and the domestic flights are windows
   // onto the world.
   a *= mix(smoothstep(uClip.x, uClip.x + 60.0, p.y) * (1.0 - smoothstep(uClip.y - 48.0, uClip.y, p.y)), 1.0, aVisit.z * t2);
-  // Map dots and dots in flight thin out behind reading text; the name and the settled portrait never do.
+  // Map dots and dots in flight clear out from behind reading text; the name and the settled portrait never do.
   float moving = t1 * (1.0 - t2) + sin(3.14159 * t2);
-  a *= 1.0 - quietAt(p) * 0.88 * clamp(moving, 0.0, 1.0);
+  a *= 1.0 - quietAt(p) * clamp(moving, 0.0, 1.0);
   vColor = vec4(col, a);
   vSize = size * uDpr;
   gl_PointSize = vSize;

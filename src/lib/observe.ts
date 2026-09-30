@@ -6,6 +6,8 @@ export type RawEvent =
   | { type: 'point'; t: number; tag: string; label: string; cannotShow?: string }
   | { type: 'press'; t: number; tag: string | null; label?: string }
   | { type: 'depth'; t: number; page: string; fraction: number }
+  /** Reaching a part of a page that says, in its own words, what reaching it shows and can't. */
+  | { type: 'reach'; t: number; page: string; id: string; shows: string; cannotShow: string }
   | { type: 'idle'; t: number; ms: number }
   | { type: 'enter'; t: number; id: string; title: string }
   | { type: 'leave'; t: number; id: string }
@@ -38,6 +40,7 @@ const IDLE_WORTH_NOTING_MS = 5000;
 
 export function createObservation() {
   const quartersSeen = new Map<string, number>();
+  const reached = new Set<string>();
   const chapters = new Map<string, { title: string; ms: number }>();
   let current: { id: string; since: number } | null = null;
   const opened = new Map<string, string>();
@@ -88,6 +91,12 @@ export function createObservation() {
             shows: QUARTERS[seen - 1].shows,
             cannotShow: QUARTERS[seen - 1].cannotShow,
           };
+        }
+        case 'reach': {
+          const key = `${e.page}#${e.id}`;
+          if (reached.has(key)) return null;
+          reached.add(key);
+          return { t: e.t, event: 'reach', tag: null, quality: 'tagged', shows: e.shows, cannotShow: e.cannotShow };
         }
         case 'idle':
           if (e.ms < IDLE_WORTH_NOTING_MS) return null;

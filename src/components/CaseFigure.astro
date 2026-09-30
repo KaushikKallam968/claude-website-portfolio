@@ -180,7 +180,8 @@ const { kind, compact = false, scene = false } = Astro.props;
 
   /* watched.: real screens */
   .phones { display: flex; justify-content: center; align-items: flex-end; gap: 0; padding-bottom: 0; min-height: 280px; }
-  .phone { width: 34%; height: auto; border-radius: 16px; box-shadow: 0 1px 0 var(--rule); }
+  /* Sized by the screen's height too, so the figure's steps stay in view beneath it. */
+  .phone { width: min(34%, 25vh); height: auto; border-radius: 16px; box-shadow: 0 1px 0 var(--rule); }
   .phone--a { translate: 12% 8%; rotate: -4deg; }
   .phone--b { position: relative; z-index: 2; }
   .phone--c { translate: -12% 8%; rotate: 4deg; }
@@ -242,10 +243,10 @@ const { kind, compact = false, scene = false } = Astro.props;
   :global(html.scenes) .fig--scene .xl__arrow { --at: 0.3; --c: var(--ink-2); }
   :global(html.scenes) .fig--scene .inst__log .inst__none { --c: var(--ink-3); }
   :global(html.scenes) .fig--scene .xl__result { --at: 0.54; }
+  /* Each screen arrives with its step, rather than waiting greyed out, which would read as disabled. */
   :global(html.scenes) .fig--scene .phone {
     --k: clamp(0, calc((var(--p, 0) - var(--at)) * 4), 1);
-    opacity: calc(0.22 + 0.78 * var(--k));
-    filter: grayscale(calc(1 - var(--k)));
+    opacity: var(--k);
   }
   :global(html.scenes) .fig--scene .phone--a { --at: 0.02; translate: calc(12% + (1 - var(--k)) * 30%) calc(8% + (1 - var(--k)) * 20%); rotate: calc(-4deg * var(--k)); }
   :global(html.scenes) .fig--scene .phone--b { --at: 0.3; translate: 0 calc((1 - var(--k)) * 24%); }

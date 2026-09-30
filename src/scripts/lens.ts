@@ -4,7 +4,10 @@ import { gsap } from 'gsap';
  * The instrumentation lens: this site's own tagging, made visible. Every element the observation layer
  * records carries a data-observe tag; the lens outlines those, names their tags, and marks interactive
  * elements with no tag as coverage gaps (the idea behind the Data Instrumentation case, applied to itself).
- * On fine pointers a small tag also follows the cursor, naming what it is over.
+ * It also shows the other half of that case, quality: a tag carried by more than one control on the page is
+ * recorded, but can't say which of them was used.
+ * While it is on, fine pointers also get a small tag that follows the cursor, naming what it is over; with the
+ * lens off the pointer carries nothing, so reading is never interrupted.
  */
 
 const INTERACTIVE = 'a[href], button, [data-observe]';
@@ -18,7 +21,20 @@ interface Mark {
   /** An inline link wrapping a block of text (a two-line title) measures by its children, not its line box. */
   inline: boolean;
   tagged: boolean;
+  /** Another control on this page sends the same tag, so a record of it can't say which was used. */
+  shared: boolean;
 }
+
+/** How many visible controls on the page carry each tag. */
+const tagCounts = () => {
+  const counts = new Map<string, number>();
+  document.querySelectorAll<HTMLElement>('[data-observe]').forEach((el) => {
+    if (!visible(el)) return;
+    const t = el.dataset.observe!;
+    counts.set(t, (counts.get(t) ?? 0) + 1);
+  });
+  return counts;
+};
 
 const rectOf = (m: Mark) => {
   const r = m.el.getBoundingClientRect();
@@ -55,8 +71,9 @@ function cursorTag() {
   let px = -1;
   let py = -1;
   // What is under the pointer can change without the pointer moving (scrolling), so both update the tag.
+  const lensOn = () => document.documentElement.classList.contains('lens-on');
   const update = (target: Element | null) => {
-    const el = target?.closest<HTMLElement>(INTERACTIVE) ?? null;
+    const el = lensOn() ? (target?.closest<HTMLElement>(INTERACTIVE) ?? null) : null;
     if (el === current) return;
     current = el;
     if (!el || !visible(el)) {
@@ -64,7 +81,8 @@ function cursorTag() {
       return;
     }
     const d = describe(el);
-    chip.textContent = d.text;
+    const n = d.tagged ? (tagCounts().get(d.text) ?? 1) : 1;
+    chip.textContent = n > 1 ? `${d.text} · sent by ${n} controls` : d.text;
     chip.classList.toggle('is-gap', !d.tagged);
     chip.classList.add('is-on');
   };
@@ -128,6 +146,7 @@ export function startLens() {
   const build = () => {
     layer.querySelectorAll('.lens-box').forEach((b) => b.remove());
     const seen = new Set<Element>();
+    const counts = tagCounts();
     marks = [];
     document.querySelectorAll<HTMLElement>(INTERACTIVE).forEach((el) => {
       if (seen.has(el) || !visible(el)) return;
@@ -136,13 +155,14 @@ export function startLens() {
       if (seen.has(owner)) return;
       seen.add(owner);
       const d = describe(owner);
+      const shared = d.tagged && (counts.get(d.text) ?? 0) > 1;
       const box = document.createElement('div');
-      box.className = `lens-box${d.tagged ? '' : ' is-gap'}`;
+      box.className = `lens-box${d.tagged ? '' : ' is-gap'}${shared ? ' is-shared' : ''}`;
       const label = document.createElement('span');
-      label.textContent = d.text;
+      label.textContent = shared ? `${d.text} · shared` : d.text;
       box.append(label);
       layer.append(box);
-      marks.push({ el: owner, box, label, labelW: 0, labelH: 0, inline: getComputedStyle(owner).display === 'inline', tagged: d.tagged });
+      marks.push({ el: owner, box, label, labelW: 0, labelH: 0, inline: getComputedStyle(owner).display === 'inline', tagged: d.tagged, shared });
     });
     // Measure each label once, so placing them never forces a layout per frame.
     marks.forEach((m) => {
@@ -153,6 +173,7 @@ export function startLens() {
 
   const place = () => {
     let tagged = 0;
+    let shared = 0;
     let gaps = 0;
     // Read every rect before writing any style, so the loop never forces a layout per element.
     const rects = marks.map(rectOf);
@@ -187,14 +208,17 @@ export function startLens() {
         // Clear of labels already placed, and of every other outlined control, so no label covers a control.
         const hits = () => taken.some(clash) || rects.some((o, j) => j !== i && !covered[j] && o.width > 0 && clash({ x0: o.left - 4, y0: o.top - 4, x1: o.right + 4, y1: o.bottom + 4 }));
         for (let k = 0; k < 4 && hits(); k++) dy += (below ? 1 : -1) * (m.labelH + 2);
-        y0 += dy;
-        taken.push({ x0, y0, x1: x0 + m.labelW, y1: y0 + m.labelH });
+        // With no clear place the label is left out; the outline still marks the control.
+        const clear = !hits();
+        m.label.style.visibility = clear ? '' : 'hidden';
+        if (clear) taken.push({ x0, y0: y0 + dy, x1: x0 + m.labelW, y1: y0 + dy + m.labelH });
         m.label.style.translate = dx || dy ? `${dx}px ${dy}px` : '';
       }
-      if (m.tagged) tagged++;
+      if (m.shared) shared++;
+      else if (m.tagged) tagged++;
       else gaps++;
     });
-    tally.textContent = `On screen: ${tagged} tracked · ${gaps} not tracked`;
+    tally.textContent = `On screen: ${tagged} tracked${shared ? ` · ${shared} share a tag` : ''} · ${gaps} not tracked`;
     raf = requestAnimationFrame(place);
   };
 
@@ -202,6 +226,7 @@ export function startLens() {
     root.classList.toggle('lens-on', on);
     btn.setAttribute('aria-pressed', String(on));
     btn.textContent = on ? 'Hide tracking' : 'Show tracking';
+    if (!on) document.querySelector('.lens-cursor')?.classList.remove('is-on');
     cancelAnimationFrame(raf);
     if (!on) return;
     build();

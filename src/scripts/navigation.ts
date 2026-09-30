@@ -167,3 +167,25 @@ export function wireTopWhere() {
   );
   sections.forEach((s) => io.observe(s));
 }
+
+/**
+ * A whole Entry or Selected Work row opens its Case, while its text stays selectable: a click anywhere on the
+ * row follows the row's link unless it landed on another control or the reader was selecting text. Modified
+ * clicks open a new tab, as a link would. Keyboard users reach the link itself.
+ */
+export function wireRowLinks() {
+  document.addEventListener('click', (ev) => {
+    if (ev.defaultPrevented || ev.button !== 0) return;
+    const target = ev.target as Element;
+    if (target.closest('a, button, summary, input, label, [data-notes]')) return;
+    const row = target.closest<HTMLElement>('.entry, .row');
+    const link = row?.querySelector<HTMLAnchorElement>('.entry__link, .row__link');
+    if (!link) return;
+    if (String(getSelection() ?? '').trim()) return;
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey) {
+      window.open(link.href, '_blank', 'noopener');
+      return;
+    }
+    link.click();
+  });
+}

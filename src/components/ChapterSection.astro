@@ -29,7 +29,7 @@ const groups: { text: string[]; roles: Role[]; heading?: string; entries: Chapte
     <dl class="chapter__meta mono num">
       <div><dt>Place</dt><dd>{chapter.place.name}</dd></div>
       <div><dt>Coordinates</dt><dd>{lat}<br />{lon}</dd></div>
-      <div><dt>Local time</dt><dd><span data-clock={chapter.place.timeZone}>--:--</span> <span data-daylight={`${chapter.place.lat},${chapter.place.lon}`}></span></dd></div>
+      <div class="chapter__meta-live"><dt>Local time</dt><dd><span data-clock={chapter.place.timeZone}>--:--</span> <span data-daylight={`${chapter.place.lat},${chapter.place.lon}`}></span></dd></div>
       <div><dt>Period</dt><dd>{chapter.period}</dd></div>
     </dl>
   </header>

@@ -42,15 +42,15 @@ const related = d.related ? all.find((c) => c.id === d.related) : undefined;
           <div class="tldr__outcome"><dt>Outcome <span class="tldr__type">{d.outcomeType}</span></dt><dd>{d.outcome}</dd></div>
         </dl>
 
-        <div class="case__figure">
+        <div class="case__figure" data-observe-reach="figure" data-observe-shows="You reached the figure." data-observe-cannot="Whether it made the idea clearer than the words.">
           {journeyEntry.figure && <FigureScene kind={journeyEntry.figure} />}
         </div>
 
-        <div class="prose">
+        <div class="prose" data-observe-reach="method" data-observe-shows="You reached the account of the research." data-observe-cannot="Whether you read it closely or looked for the result.">
           <Content />
         </div>
 
-        <section class="limits" aria-labelledby="limits-title">
+        <section class="limits" aria-labelledby="limits-title" data-observe-reach="limits" data-observe-shows="You reached what the evidence can’t show." data-observe-cannot="Whether it changed how you read the rest.">
           <h2 id="limits-title" class="limits__title">What the evidence shows, and what it can’t</h2>
           <div class="limits__cols">
             <div>

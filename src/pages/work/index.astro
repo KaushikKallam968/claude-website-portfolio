@@ -57,9 +57,10 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
           <ul class="also__list">
             {others.map(({ entry, chapter }) => (
               <li>
-                <a class="also__item" href={`/#${entry.id}`} data-observe={`work.${entry.id}`} data-observe-label={entry.title}>
+                <a class="also__item" href={`/#${entry.id}`} data-observe={`work.${entry.id}`} data-observe-label={entry.title} data-observe-cannot="Whether it was the work or the place that caught your eye.">
                   <span class="also__name">{entry.title} <Arrow /></span>
-                  <span class="also__kind"><span>{kindLabels[entry.kind]} · {chapter.label}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
+                  {/* The kind is left out when the status already says it. */}
+                  <span class="also__kind"><span>{entry.status.startsWith(kindLabels[entry.kind]) ? chapter.label : keepDots(`${kindLabels[entry.kind]} · ${chapter.label}`)}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
                   <span class="also__status">{keepDots(entry.status)}</span>
                 </a>
               </li>
@@ -120,9 +121,9 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
   /* Only the words slide: a transformed ancestor would shrink the row-wide link target to itself. */
   .row__text { display: inline-block; transition: translate 0.8s var(--ease-out); }
   .row__link { text-decoration: none; }
-  .row__link::after { content: ''; position: absolute; inset: 0; }
   .row__link:focus-visible { outline: none; }
-  .row:has(.row__link:focus-visible) { outline: 2px solid var(--note); outline-offset: -2px; }
+  .row:has(.row__link:focus-visible) { outline: 2px solid var(--note); outline-offset: 8px; }
+  .row { cursor: pointer; }
   .row__q { margin-top: 14px; font-size: var(--t-body); color: var(--ink-2); max-width: 58ch; }
   .row__meta { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 2px 18px; align-items: center; color: var(--ink-3); font-size: var(--t-meta); }
   .row__facts { margin: 18px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px var(--gutter); max-width: 70ch; }

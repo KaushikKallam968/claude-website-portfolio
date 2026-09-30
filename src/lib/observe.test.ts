@@ -54,6 +54,15 @@ describe('observation notes', () => {
     ]);
   });
 
+  it('notes reaching a marked part of a page once, in that page\'s own words', () => {
+    const obs = createObservation();
+    const reach = { type: 'reach' as const, page: '/work/instrumentation/', id: 'limits', shows: 'You reached what the evidence can’t show.', cannotShow: 'Whether it changed how you read the rest.' };
+    const first = obs.record({ ...reach, t: 1000 });
+    expect(first).toMatchObject({ event: 'reach', quality: 'tagged', shows: 'You reached what the evidence can’t show.', cannotShow: 'Whether it changed how you read the rest.' });
+    expect(obs.record({ ...reach, t: 2000 })).toBeNull();
+    expect(obs.record({ ...reach, t: 3000, page: '/work/watched/' })?.shows).toBe('You reached what the evidence can’t show.');
+  });
+
   it('notes depth separately for each page', () => {
     const obs = createObservation();
     obs.record({ type: 'depth', t: 1000, page: '/', fraction: 1 });

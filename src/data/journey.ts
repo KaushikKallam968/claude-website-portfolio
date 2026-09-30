@@ -47,6 +47,8 @@ export interface Chapter {
   title: string;
   /** How the chapter is labelled when both Texas chapters could be confused. */
   label: string;
+  /** What the Chapter holds, in a few words, for the route index: its work, or what the place was for. */
+  work: string;
   place: Place;
   period: string;
   intro: string[];
@@ -63,6 +65,7 @@ export const chapters: Chapter[] = [
     id: 'nyc',
     title: 'New York',
     label: 'New York',
+    work: 'Instrumentation · AI evaluation',
     place: { name: 'New York', lat: 40.7128, lon: -74.006, timeZone: 'America/New_York' },
     period: '2026 to now',
     intro: [
@@ -121,6 +124,7 @@ export const chapters: Chapter[] = [
     id: 'texas-career',
     title: 'Texas',
     label: 'Texas: career',
+    work: 'Chase Mobile · Chegg Discord',
     place: { name: 'Plano, Texas', lat: 33.0198, lon: -96.6989, timeZone: 'America/Chicago' },
     period: '2024 to 2026',
     lead: 'Before moving to New York, I worked on another team at JPMorganChase in Texas.',
@@ -198,6 +202,7 @@ export const chapters: Chapter[] = [
     id: 'silicon-valley',
     title: 'Silicon Valley',
     label: 'Silicon Valley',
+    work: 'Chegg Mexico',
     place: { name: 'Santa Clara County, California', lat: 37.3541, lon: -121.9552, timeZone: 'America/Los_Angeles' },
     period: 'Summer 2024',
     intro: [
@@ -235,6 +240,7 @@ export const chapters: Chapter[] = [
     id: 'atlanta',
     title: 'Atlanta',
     label: 'Atlanta',
+    work: 'Consumer insights, Inspire Brands',
     place: { name: 'Atlanta, Georgia', lat: 33.749, lon: -84.388, timeZone: 'America/New_York' },
     period: 'Summer 2023',
     intro: [
@@ -257,6 +263,7 @@ export const chapters: Chapter[] = [
     id: 'texas-education',
     title: 'Texas',
     label: 'Texas: education',
+    work: 'MS and BS, UT Dallas',
     place: { name: 'Richardson, Texas', lat: 32.9857, lon: -96.7502, timeZone: 'America/Chicago' },
     period: '2018 to 2024',
     intro: [
@@ -274,6 +281,7 @@ export const chapters: Chapter[] = [
     id: 'singapore',
     title: 'Singapore',
     label: 'Singapore',
+    work: 'watched.',
     place: { name: 'Singapore', lat: 1.3521, lon: 103.8198, timeZone: 'Asia/Singapore' },
     period: 'Home',
     intro: [

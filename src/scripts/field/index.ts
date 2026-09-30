@@ -518,7 +518,16 @@ export async function startField(): Promise<FieldHandle | null> {
 
     frame.visitAt = [visitDoc.x, visitDoc.y - y];
     frame.visitVis = 1;
-    frame.clip = active.kind === 'visit' ? [closeDocTop - y, 1e5] : active.band ? [active.band[0] - y, active.band[1] - y] : [-1e5, 1e5];
+    // The map draws only where its scene is: below the close's top edge, inside a band, and below an ocean
+    // crossing's top edge until it pins (so it never reaches back over the previous Chapter's text).
+    frame.clip =
+      active.kind === 'visit'
+        ? [closeDocTop - y, 1e5]
+        : active.band
+          ? [active.band[0] - y, active.band[1] - y]
+          : active.kind === 'shift'
+            ? [Math.max(-1e5, active.start - y), 1e5]
+            : [-1e5, 1e5];
     if (active.kind === 'visit') {
       const p = clamp01((y - active.start) / Math.max(1, active.end - active.start));
       const k = ease(clamp01(p * 1.4));
@@ -597,8 +606,12 @@ export async function startField(): Promise<FieldHandle | null> {
       .map((q) => ({ x0: q.left - 8, y0: q.top - 8, x1: q.right + 8, y1: q.bottom + 8 }));
     const overlaps = (a: Box, b: Box) => !(a.x1 < b.x0 || a.x0 > b.x1 || a.y1 < b.y0 || a.y0 > b.y1);
     const placed: Box[] = [];
+    // Places that sit almost on top of each other at this zoom (Plano and Richardson) share one label: the
+    // higher-ranked place's.
+    const named: [number, number][] = [];
     for (const l of [...labels].sort((a, b) => rank(a.t) - rank(b.t))) {
       const [x, y] = toScreen(l.x, l.y);
+      const crowded = named.some(([nx, ny]) => Math.hypot(nx - x, ny - y) < 28);
       const w = l.w || (l.w = l.el.offsetWidth || 110);
       const own = { x0: x - 12, y0: y - 12, x1: x + 12, y1: y + 12 };
       // Try right of the marker, then left, then above, then below.
@@ -611,9 +624,13 @@ export async function startField(): Promise<FieldHandle | null> {
       const clear = (b: Box) =>
         !placed.some((p) => overlaps(b, p)) && !text.some((t) => overlaps(b, t)) && !markers.some((m) => m.x0 !== own.x0 && overlaps(b, m));
       // Labels belong to scenes: none while the map is only fading in or out behind reading text.
-      const choice = frame.route >= l.t - 0.0001 && show > 0.45 && y > frame.clip[0] + 30 && y < frame.clip[1] - 30 ? candidates.find((c) => clear(c.box)) : undefined;
+      const choice =
+        !crowded && frame.route >= l.t - 0.0001 && show > 0.45 && y > frame.clip[0] + 30 && y < frame.clip[1] - 30 ? candidates.find((c) => clear(c.box)) : undefined;
       const isActive = rank(l.t) === 0;
-      if (choice) placed.push(choice.box);
+      if (choice) {
+        placed.push(choice.box);
+        named.push([x, y]);
+      }
       l.el.style.opacity = choice ? (show * (isActive || frame.active === -1 ? 1 : 0.6)).toFixed(3) : '0';
       l.el.style.visibility = choice ? '' : 'hidden';
       l.el.style.transform = `translate3d(${(x + (choice?.dx ?? 0)).toFixed(1)}px, ${(y + (choice?.dy ?? 0)).toFixed(1)}px, 0)`;
