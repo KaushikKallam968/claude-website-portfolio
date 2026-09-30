@@ -8,10 +8,11 @@
 <aside class="notes" aria-labelledby="notes-title" data-notes>
   <div class="notes__head">
     <h2 id="notes-title" class="notes__title mono">Notes on this visit <span class="notes__count num" data-notes-count>0</span></h2>
-    <button class="notes__toggle mono" type="button" aria-pressed="false" data-notes-toggle>Hide</button>
+    <button class="notes__toggle mono" type="button" aria-expanded="true" aria-controls="notes-list" data-notes-toggle>Hide</button>
   </div>
+  <p class="notes__latest" data-notes-latest aria-hidden="true"></p>
   <p class="notes__about">This page keeps notes on what you do here, and on what each note can’t explain. They stay in your browser.</p>
-  <ol class="notes__list" data-notes-list>
+  <ol class="notes__list" id="notes-list" data-notes-list>
     <noscript><li class="notes__empty">With scripts off, there’s nothing to note. That’s an honest dataset too.</li></noscript>
   </ol>
 </aside>
@@ -50,4 +51,35 @@
   .notes__empty { color: var(--ink-2); }
   :global(html.notes-off) .notes__list,
   :global(html.notes-off) .notes__about { display: none; }
+  .notes__latest { display: none; }
+
+  /* Phones and tablets: the notes become a thin bar along the bottom edge that opens into a sheet. */
+  @media (max-width: 1100px) {
+    .notes {
+      position: fixed;
+      inset: auto 0 0 0;
+      z-index: 30;
+      background: var(--paper);
+      padding: 0 var(--margin) calc(10px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--note);
+      max-height: 60svh;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+    .notes__head { border-top: 0; padding-top: 10px; }
+    .notes__latest {
+      display: block;
+      margin: 4px 0 0;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    :global(html:not(.notes-open)) .notes__list,
+    :global(html:not(.notes-open)) .notes__about { display: none; }
+    :global(html.notes-open) .notes__latest { display: none; }
+    :global(html.notes-open) .notes__list,
+    :global(html.notes-open) .notes__about { display: grid; }
+    :global(html.notes-open) .notes__about { display: block; }
+  }
 </style>

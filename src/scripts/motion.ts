@@ -76,17 +76,18 @@ function attentionTrace(chars: HTMLElement[]) {
   name.addEventListener('pointermove', () => {
     if (noted) return;
     noted = true;
-    record({ type: 'point', t: elapsed(), tag: 'hero.name', label: 'my name' });
+    record({ type: 'point', t: elapsed(), tag: 'hero.name', label: 'my name', cannotShow: 'Whether you were reading it or just passing through.' });
   });
-  gsap.ticker.add(() => {
+  gsap.ticker.add((_time, deltaMs) => {
     if (!active || name.getBoundingClientRect().bottom < 0) return;
+    const cool = Math.exp(-deltaMs / 900); // a letter cools to a third of its heat in about a second
     let warm = 0;
     for (let i = 0; i < chars.length; i++) {
       const b = chars[i].getBoundingClientRect();
       const dx = px - (b.left + b.width / 2);
       const dy = py - (b.top + b.height / 2);
-      const near = Math.exp(-(dx * dx + dy * dy) / (2 * 85 * 85));
-      heat[i] = Math.max(heat[i] * 0.972, near);
+      const near = Math.exp(-(dx * dx + dy * dy) / (2 * 70 * 70));
+      heat[i] = Math.max(heat[i] * cool, near);
       if (heat[i] < 0.002) heat[i] = 0;
       warm += heat[i];
       chars[i].style.setProperty('--heat', heat[i].toFixed(3));

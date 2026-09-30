@@ -24,9 +24,9 @@ const pad = (v: number) => String(v).padStart(2, '0');
         <div class="hero__more">
           <p class="hero__sub" data-reveal>I’ve lived across countries, worked across research disciplines, and co-founded watched. with two longtime friends. New York is my latest stop. This is the journey that brought me here.</p>
           <ul class="hero__actions" data-reveal>
-            <li><a class="link link--under" href="#journey" data-observe="cta.journey" data-observe-label="Explore the journey">Explore the journey <span aria-hidden="true">↓</span></a></li>
-            <li><a class="link link--under" href="/work/" data-observe="cta.work" data-observe-label="Selected work">Selected work <span aria-hidden="true">→</span></a></li>
-            <li><a class="link link--under" href="/resume/" data-observe="cta.resume" data-observe-label="Résumé">Résumé <span aria-hidden="true">→</span></a></li>
+            <li><a class="link link--under" href="#journey" data-observe="cta.journey" data-observe-label="Explore the journey" data-observe-cannot="Whether you have time for the whole thing.">Explore the journey <span aria-hidden="true">↓</span></a></li>
+            <li><a class="link link--under" href="/work/" data-observe="cta.work" data-observe-label="Selected work" data-observe-cannot="Whether you would rather skip straight to the evidence.">Selected work <span aria-hidden="true">→</span></a></li>
+            <li><a class="link link--under" href="/resume/" data-observe="cta.resume" data-observe-label="Résumé" data-observe-cannot="Whether a recruiter is reading this.">Résumé <span aria-hidden="true">→</span></a></li>
           </ul>
         </div>
       </div>
@@ -35,7 +35,7 @@ const pad = (v: number) => String(v).padStart(2, '0');
         <ol class="route__list">
           {chapters.map((c, i) => (
             <li>
-              <a href={`#${c.id}`} class="route__item" data-observe={`route.${c.id}`} data-observe-label={c.label}>
+              <a href={`#${c.id}`} class="route__item" data-observe={`route.${c.id}`} data-observe-label={c.label} data-observe-cannot="Whether you will jump there or keep scrolling.">
                 <span class="route__no mono num">{pad(i + 1)}</span>
                 <span class="route__place">{c.label}</span>
                 <span class="route__meta mono num"><span>{c.period}</span> <span data-clock={c.place.timeZone}>--:--</span></span>
@@ -74,9 +74,9 @@ const pad = (v: number) => String(v).padStart(2, '0');
         <div class="close__text">
           <p class="close__honest">That’s everything this page could observe. It can’t tell me what you were looking for, so I’d rather ask.</p>
           <p>{closing.text}</p>
-          <p class="close__email"><a class="link link--under" href={`mailto:${closing.email}`} data-observe="contact.email" data-observe-label="the email address">{closing.email}</a></p>
+          <p class="close__email"><a class="link link--under" href={`mailto:${closing.email}`} data-observe="contact.email" data-observe-label="my email address" data-observe-cannot="Whether you will write.">{closing.email}</a></p>
           <ul class="close__links">
-            <li><a class="link link--under" href={closing.linkedin} rel="me" data-observe="contact.linkedin" data-observe-label="LinkedIn">LinkedIn <span aria-hidden="true">↗</span></a></li>
+            <li><a class="link link--under" href={closing.linkedin} rel="me" data-observe="contact.linkedin" data-observe-label="LinkedIn" data-observe-cannot="Whether we are already connected.">LinkedIn <span aria-hidden="true">↗</span></a></li>
             <li><a class="link link--under" href="/resume/">Résumé <span aria-hidden="true">→</span></a></li>
             <li><a class="link link--under" href="/work/">Selected work <span aria-hidden="true">→</span></a></li>
           </ul>

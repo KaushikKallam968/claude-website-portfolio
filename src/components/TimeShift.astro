@@ -63,5 +63,7 @@ const reel = Array.from({ length: 30 }, (_, i) => i % 10);
   }
   @media (max-width: 700px) {
     .shift { grid-template-columns: 1fr; }
+    .shift__clock { flex-wrap: wrap; }
+    .shift__day { position: static; translate: none; align-self: flex-end; margin-left: 10px; }
   }
 </style>

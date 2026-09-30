@@ -15,6 +15,12 @@ describe('observation notes', () => {
     });
   });
 
+  it('lets an element say what pointing at it cannot show', () => {
+    const obs = createObservation();
+    const note = obs.record({ type: 'point', t: 1200, tag: 'hero.name', label: 'my name', cannotShow: 'Whether you were reading it or passing through.' });
+    expect(note?.cannotShow).toBe('Whether you were reading it or passing through.');
+  });
+
   it('calls a click on something untagged a coverage gap', () => {
     const obs = createObservation();
     expect(obs.record({ type: 'press', t: 5100, tag: null })).toEqual({

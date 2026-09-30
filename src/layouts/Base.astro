@@ -54,7 +54,7 @@ const nav = [
       <p class="top__where label num" aria-hidden="true"><span>New York</span> <span data-clock="America/New_York">--:--</span></p>
       <nav class="top__nav" aria-label="Primary">
         {nav.map((n) => (
-          <a class="link" href={n.href} aria-current={current === n.id ? 'page' : undefined} data-observe={`nav.${n.id}`} data-observe-label={n.label}>
+          <a class="link" href={n.href} aria-current={current === n.id ? 'page' : undefined} data-observe={`nav.${n.id}`} data-observe-label={n.label} data-observe-cannot="Where you were hoping it would take you.">
             {n.label}
           </a>
         ))}
@@ -103,9 +103,11 @@ const nav = [
   .top__nav a { text-decoration: none; }
   .top__nav a[aria-current='page'] { background-size: 100% 1px; }
   @media (max-width: 720px) {
-    .top { height: 56px; font-size: 0.875rem; }
+    .top { height: 56px; font-size: 0.875rem; display: flex; justify-content: space-between; gap: 12px; }
     .top__where { display: none; }
-    .top__name { grid-column: 1 / span 5; }
-    .top__nav { grid-column: 6 / -1; gap: 14px; }
+    .top__nav { gap: 12px; }
+  }
+  @media (max-width: 1100px) {
+    :global(body) { padding-bottom: 64px; }
   }
 </style>

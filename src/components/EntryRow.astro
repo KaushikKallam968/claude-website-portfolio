@@ -31,6 +31,7 @@ const kindLabel = entry.kind === 'research-in-development' ? 'Research in develo
           data-origin-chapter={chapter.id}
           data-observe={`case.${entry.id}`}
           data-observe-label={entry.title}
+          data-observe-cannot="Whether it was the title or the problem that caught your eye."
         >
           {entry.title}
         </a>
@@ -61,6 +62,7 @@ const kindLabel = entry.kind === 'research-in-development' ? 'Research in develo
           data-more-toggle
           data-observe={`more.${entry.id}`}
           data-observe-label={entry.action}
+          data-observe-cannot="Whether the summary will be enough."
         >
           {entry.action} <span class="arrow" aria-hidden="true">↓</span>
         </button>

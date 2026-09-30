@@ -3,7 +3,7 @@
  * Everything stays in the browser. Each note says what the event shows and what it cannot.
  */
 export type RawEvent =
-  | { type: 'point'; t: number; tag: string; label: string }
+  | { type: 'point'; t: number; tag: string; label: string; cannotShow?: string }
   | { type: 'press'; t: number; tag: string | null; label?: string }
   | { type: 'depth'; t: number; fraction: number }
   | { type: 'idle'; t: number; ms: number }
@@ -59,7 +59,7 @@ export function createObservation() {
             tag: e.tag,
             quality: 'tagged',
             shows: `You pointed at ${e.label}.`,
-            cannotShow: 'Whether you meant to open it.',
+            cannotShow: e.cannotShow ?? 'Whether you meant to open it.',
           };
         case 'press':
           if (e.tag === null) {

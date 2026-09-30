@@ -63,9 +63,13 @@ function noteEl(n: Note) {
   return li;
 }
 
+let latestEl: HTMLElement | null = null;
+
 function render(fresh?: Note) {
   if (!listEl) return;
   if (countEl) countEl.textContent = String(notes.length);
+  const last = fresh ?? notes[notes.length - 1];
+  if (latestEl && last) latestEl.textContent = last.shows;
   if (fresh) {
     const li = noteEl(fresh);
     li.classList.add('note--fresh');
@@ -102,7 +106,7 @@ function wirePointing() {
     const last = seen.get(tag) ?? -Infinity;
     if (now() - last < 20000) return; // one note per element per 20 s keeps the column readable
     seen.set(tag, now());
-    record({ type: 'point', t: now(), tag, label: el.dataset.observeLabel ?? el.textContent?.trim() ?? tag });
+    record({ type: 'point', t: now(), tag, label: el.dataset.observeLabel ?? el.textContent?.trim() ?? tag, cannotShow: el.dataset.observeCannot });
   });
   // A click that lands on nothing interactive is a coverage gap: the page recorded it but can't say what it was.
   let lastGap = -Infinity;
@@ -165,21 +169,29 @@ function wireChapters() {
   });
 }
 
+const compact = () => matchMedia('(max-width: 1100px)').matches;
+
 function wireToggle() {
   const btn = document.querySelector<HTMLButtonElement>('[data-notes-toggle]');
   if (!btn) return;
+  const root = document.documentElement;
   const sync = () => {
-    const off = document.documentElement.classList.contains('notes-off');
-    btn.textContent = off ? 'Show' : 'Hide';
-    btn.setAttribute('aria-pressed', String(off));
+    const open = compact() ? root.classList.contains('notes-open') : !root.classList.contains('notes-off');
+    btn.textContent = open ? 'Hide' : 'Show';
+    btn.setAttribute('aria-expanded', String(open));
   };
   sync();
+  matchMedia('(max-width: 1100px)').addEventListener('change', sync);
   btn.addEventListener('click', () => {
-    document.documentElement.classList.toggle('notes-off');
-    try {
-      sessionStorage.setItem('kk:notes', document.documentElement.classList.contains('notes-off') ? 'off' : 'on');
-    } catch {
-      /* ignore */
+    if (compact()) {
+      root.classList.toggle('notes-open');
+    } else {
+      root.classList.toggle('notes-off');
+      try {
+        sessionStorage.setItem('kk:notes', root.classList.contains('notes-off') ? 'off' : 'on');
+      } catch {
+        /* ignore */
+      }
     }
     sync();
   });
@@ -188,6 +200,7 @@ function wireToggle() {
 export function startNotes() {
   listEl = document.querySelector('[data-notes-list]');
   countEl = document.querySelector('[data-notes-count]');
+  latestEl = document.querySelector('[data-notes-latest]');
   if (!events.some((e) => e.type === 'enter') && !notes.length) {
     // The first note: arriving is the only thing the page knows for certain.
     const first: Note = {
