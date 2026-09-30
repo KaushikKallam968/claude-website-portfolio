@@ -35,7 +35,7 @@ Curated journey content, confirmed in the earlier project: New York (current wor
 Roles and dates:
 
 - Senior Quantitative UX Researcher · JPMorganChase · NYC · June 2026 to present (formal profile title: Senior Quantitative Behavioral Researcher; the site uses the functional title).
-- JPMorganChase · Plano, Texas · November 2024 to June 2026.
+- Experience Research Senior Associate · JPMorganChase · Plano, Texas · November 2024 to June 2026 (title confirmed by the owner, September 30, 2026).
 - Chegg · UX Researcher II, contractor · August to November 2024 · remote from Texas.
 - Chegg · UX Research internship · June to August 2024 · Santa Clara County, California.
 - Inspire Brands · Quantitative Consumer Insights internship · June to August 2023 · Atlanta.
@@ -52,14 +52,14 @@ Claim boundaries that bind every surface:
 - **Discord:** discovery plus low-fidelity concept tests produced different advance/iterate recommendations. No launched bot or measured learning gains. Do not sum participants into 60 unique people.
 - **Mexico:** mixed-methods; stakeholder scoping from a 100+ question draft; bilingual search recommendation, implementation reported in the owner's presentation. No business uplift. Do not merge with the separate 400+ EGEL claim.
 - **watched.:** co-founded with two longtime friends; research, product/UX and front-end contributions alongside technical cofounders; launched, currently paused in an offline maintenance release (App Store, checked September 28, 2026; recheck before publishing). Singapore did not inspire or originate it.
-- Case copy is draft until the owner confirms it; review builds mark it as draft. Employer material is not cleared for public release.
+- Case copy is draft until the owner confirms it; review builds mark it as draft (owner, September 30, 2026: keep the markers until he reviews each case). Employer material is not cleared for public release: the JPMorganChase entries stay as written, and the owner clears them before anything is published.
 
 ## Brand Commitments
 
 - Voice: warm, perceptive, quietly confident; a thoughtful researcher explaining consequential work to an intelligent colleague. No em dashes. No travel puns, slogans, invented motivations, anecdotes or metrics.
 - The journey conveys that he embraces change; no separate adaptability anecdote is required.
 - Singapore is a core part of who he is and holds life outside work: films, television, friendships, watched.
-- No particle or point-cloud effects.
+- Particles: the earlier "no particle or point-cloud effects" rule (from the airplane-window era) is lifted for the Field, the dot system that draws the world, the name and the visit (owner, September 30, 2026). The lift covers the Field only; it is not a licence for decorative particle effects elsewhere.
 - The earlier airplane and window-seat premise is no longer binding: the owner delegated the premise to Claude on September 30, 2026. Flight imagery may return only if the chosen direction earns it.
 - Contact shown on the site: kaushik.kallam@gmail.com and https://www.linkedin.com/in/kaushikkallam/ (owner-confirmed September 30, 2026).
 
@@ -68,7 +68,8 @@ Claim boundaries that bind every surface:
 - Content spine (owner-accepted chapter copy, reading flow, draft cases, source syntheses): `portfolio-handoff/outputs/portfolio-reading-draft.md`, `portfolio-reading-flow.md`, `portfolio-selected-case-studies.md`, `portfolio-journey-content-map.md`, `portfolio-voice-guide.md`, and the source notes they cite.
 - Licensed material: Figtree (SIL OFL) and CC0 Poly Haven HDR skies in `portfolio-handoff/`.
 - No portrait of Kaushik on the site (owner decision, September 30, 2026).
-- Absent, and never to be fabricated: photos of Kaushik or his life, watched. screenshots or video, a résumé PDF, publishable employer artifacts, participant quotes, outcome metrics.
+- watched. screenshots: the real screens from the public App Store listing (provenance in `assets-source/watched/PROVENANCE.md`) are approved for the site (owner, September 30, 2026).
+- Absent, and never to be fabricated: photos of Kaushik or his life, watched. video, a résumé PDF, publishable employer artifacts, participant quotes, outcome metrics.
 
 ## Product Principles
 
