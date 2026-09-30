@@ -86,6 +86,7 @@ const fieldPlaces = chapters.map((c) => ({
               <span class="readout__value mono num">0 s</span>
             </li>
           </ol>
+          <p class="readout__unit" data-visit-unit hidden></p>
           <p class="readout__cases" data-readout-cases>No cases opened yet.</p>
         </div>
         <div class="close__text">
@@ -222,6 +223,10 @@ const fieldPlaces = chapters.map((c) => ({
   .readout__track { height: 10px; background: var(--note-soft); position: relative; overflow: hidden; }
   .readout__fill { position: absolute; inset: 0; background: var(--note); transform: scaleX(var(--share, 0)); transform-origin: left; transition: transform 1.2s var(--ease-out); }
   .readout__outside .readout__label { color: var(--ink-2); }
+  .readout__unit { margin-top: 14px; color: var(--note); font-size: 0.9375rem; }
+  /* With the Field running, the bars are drawn in dots: the same dots that drew the name and the world. */
+  :global(html.field-on) .readout__track { height: 28px; background: none; overflow: visible; }
+  :global(html.field-on) .readout__fill { display: none; }
   .readout__outside .readout__fill { background: var(--ink-3); }
   @media (prefers-reduced-motion: reduce) { .readout__fill { transition: none; } }
   .readout__value { text-align: right; }

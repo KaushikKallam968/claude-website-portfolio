@@ -2,7 +2,8 @@ import { gsap } from 'gsap';
 import { equalEarth, greatCircle, subsolarPoint, type LonLat } from '../../lib/geo';
 import { KEYS, session } from '../../lib/store';
 import { clockFormat } from '../clock';
-import { record, elapsed } from '../notes';
+import { record, elapsed, readout } from '../notes';
+import { dotUnit } from '../../lib/visit';
 import { cssColor } from './gl';
 import { sampleName } from './name';
 import { FieldRenderer, type Camera, type FieldFrame } from './renderer';
@@ -27,7 +28,7 @@ interface Place {
 }
 
 interface Window {
-  kind: 'intro' | 'shift';
+  kind: 'intro' | 'shift' | 'visit';
   start: number;
   end: number;
   nextBody: number;
@@ -176,6 +177,14 @@ export async function startField(): Promise<FieldHandle | null> {
   let worldCam: Camera = { x: 0, y: 0, z: 1 };
   let cityZoom = 4;
   let nameCount = 0;
+  let dotTotal = 0;
+  let visitOrder: number[] = [];
+  let mapXY = new Float32Array(0);
+  let visitDoc = { x: 0, y: 0 };
+  let visitRows: { id: string; x: number; y: number; cols: number; lines: number }[] = [];
+  let visitSpacing = 4.4;
+  let visitEndY = 0;
+  let closeDocTop = Infinity;
 
   const fitZoom = (xs: number[], ys: number[], fillW: number, fillH: number) => {
     const w = Math.max(...xs) - Math.min(...xs) || 0.01;
@@ -220,6 +229,16 @@ export async function startField(): Promise<FieldHandle | null> {
       lastM = mi;
     }
     renderer.setDots({ name: nameArr, map: mapArr, meta, visit }, N);
+    dotTotal = N;
+    mapXY = new Float32Array(N * 2);
+    for (let i = 0; i < N; i++) mapXY.set([mapArr[i * 4], mapArr[i * 4 + 1]], i * 2);
+    // Dots that stand for the visit are drawn from those visible on the map, in a shuffled order.
+    visitOrder = [];
+    for (let i = 0; i < N; i++) if (meta[i * 4 + 3] > 0) visitOrder.push(i);
+    for (let i = visitOrder.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [visitOrder[i], visitOrder[j]] = [visitOrder[j], visitOrder[i]];
+    }
   }
 
   function measure() {
@@ -260,6 +279,63 @@ export async function startField(): Promise<FieldHandle | null> {
       if (from < 0 || to < 0) return;
       windows.push({ kind: 'shift', start: r.top + sy, end: r.top + sy + r.height - vh, nextBody: bodyTop(places[to].id), from, to });
     });
+
+    // The close: the world evaporates into the rows of the visit readout.
+    const bars = document.querySelector<HTMLElement>('[data-readout-bars]');
+    if (bars) {
+      const br = bars.getBoundingClientRect();
+      visitDoc = { x: br.left, y: br.top + sy };
+      visitSpacing = narrow ? 3.6 : 4.6;
+      visitRows = [...bars.querySelectorAll<HTMLElement>('[data-bar]')].map((li) => {
+        const tr = li.querySelector('.readout__track')!.getBoundingClientRect();
+        return {
+          id: li.dataset.bar!,
+          x: tr.left - br.left,
+          y: tr.top - br.top,
+          cols: Math.max(1, Math.floor(tr.width / visitSpacing)),
+          lines: Math.max(1, Math.floor(tr.height / (visitSpacing * 0.9))),
+        };
+      });
+      visitEndY = visitDoc.y - vh * 0.62;
+      const close = bars.closest('section');
+      closeDocTop = close ? close.getBoundingClientRect().top + sy : visitDoc.y - vh * 0.5;
+      const last = places.length - 1;
+      windows.push({ kind: 'visit', start: Math.min(closeDocTop - vh * 0.5, visitEndY - 200), end: visitEndY, nextBody: Infinity, from: last, to: last });
+    }
+  }
+
+  const unitEl = document.querySelector<HTMLElement>('[data-visit-unit]');
+  function updateVisit() {
+    if (!visitRows.length || !dotTotal) return;
+    const r = readout();
+    const all = elapsed();
+    const ms = visitRows.map((row) => (row.id === 'outside' ? 0 : r.chapters.find((c) => c.id === row.id)?.ms ?? 0));
+    const out = visitRows.findIndex((row) => row.id === 'outside');
+    if (out >= 0) ms[out] = Math.max(0, all - ms.reduce((a, b) => a + b, 0));
+    const capacity = Math.min(...visitRows.map((row) => row.cols * row.lines));
+    const { phrase, counts } = dotUnit(ms, capacity);
+    if (unitEl) {
+      unitEl.hidden = false;
+      unitEl.textContent = `Each dot is ${phrase} of your visit.`;
+    }
+    // Dots that are not part of the portrait head for where the world would be, fading as they go.
+    const visit = new Float32Array(dotTotal * 3);
+    const scale = renderer.scale * worldCam.z;
+    const topAtEnd = visitDoc.y - visitEndY;
+    for (let i = 0; i < dotTotal; i++) {
+      visit[i * 3] = vw / 2 + (mapXY[i * 2] - worldCam.x) * scale - visitDoc.x;
+      visit[i * 3 + 1] = vh / 2 + (worldCam.y - mapXY[i * 2 + 1]) * scale - topAtEnd;
+    }
+    let k = 0;
+    visitRows.forEach((row, ri) => {
+      for (let j = 0; j < counts[ri] && k < visitOrder.length; j++) {
+        const idx = visitOrder[k++];
+        const col = Math.floor(j / row.lines);
+        const line = j % row.lines;
+        visit.set([row.x + (col + 0.5) * visitSpacing, row.y + (line + 0.5) * visitSpacing * 0.9, row.id === 'outside' ? 0.45 : 1], idx * 3);
+      }
+    });
+    renderer.setVisit(visit);
   }
 
   buildDots();
@@ -342,7 +418,7 @@ export async function startField(): Promise<FieldHandle | null> {
   const frame: FieldFrame = {
     stage: 0, mapIn: 1, mapVis: 0, nameVis: 1, visitVis: 0,
     cam: { ...worldCam }, route: 1, routeVis: 0, leg: [0, 0, 0], traveller: [0, 0], active: -1,
-    nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0,
+    nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, clip: -1e5,
   };
   const t0 = performance.now();
   let idle = false;
@@ -353,10 +429,11 @@ export async function startField(): Promise<FieldHandle | null> {
     let mapVis = 0;
     let active: Window = windows[0];
     for (const w of windows) {
-      const fadeIn = w.kind === 'intro' ? 1 : smooth(vh * 0.95, vh * 0.15, w.start - y);
+      const fadeIn =
+        w.kind === 'intro' ? 1 : w.kind === 'visit' ? smooth(closeDocTop - vh, closeDocTop - vh * 0.55, y) : smooth(vh * 0.95, vh * 0.15, w.start - y);
       const fadeOut = smooth(vh * 0.5, vh * 0.95, w.nextBody - y);
       mapVis = Math.max(mapVis, fadeIn * fadeOut);
-      if (w.kind === 'intro' || w.start <= y + vh * 0.6) active = w;
+      if (w.kind === 'intro' || (w.kind === 'visit' ? y >= closeDocTop - vh : w.start <= y + vh * 0.6)) active = w;
     }
 
     frame.stage = Math.max(intro.stage, pStage);
@@ -367,7 +444,18 @@ export async function startField(): Promise<FieldHandle | null> {
     frame.mapVis = mapVis;
     frame.leg = [0, 0, 0];
 
-    if (active.kind === 'intro') {
+    frame.visitAt = [visitDoc.x, visitDoc.y - y];
+    frame.visitVis = 1;
+    frame.clip = active.kind === 'visit' ? closeDocTop - y : -1e5;
+    if (active.kind === 'visit') {
+      const p = clamp01((y - active.start) / Math.max(1, active.end - active.start));
+      const k = ease(clamp01(p * 1.4));
+      const city = cityCam(active.from);
+      frame.stage = 1 + p;
+      frame.cam = { x: lerp(city.x, worldCam.x, k), y: lerp(city.y, worldCam.y, k), z: Math.exp(lerp(Math.log(city.z), Math.log(worldCam.z), k)) };
+      frame.routeVis = mapVis * (1 - smooth(0.2, 0.7, p));
+      frame.active = -1;
+    } else if (active.kind === 'intro') {
       const p = clamp01((y - active.start) / (active.end - active.start));
       const k = ease(clamp01((p - 0.18) / 0.82));
       const city = cityCam(0);
@@ -391,7 +479,7 @@ export async function startField(): Promise<FieldHandle | null> {
       frame.traveller = [tx, ty];
       frame.active = p < 0.5 ? ta : tb;
     }
-    root.classList.toggle('in-scene', mapVis > 0.3 && frame.stage > 0.6);
+    root.classList.toggle('in-scene', mapVis > 0.3 && frame.stage > 0.6 && frame.stage < 1.5);
   };
 
   const placeLabels = () => {
@@ -403,7 +491,8 @@ export async function startField(): Promise<FieldHandle | null> {
       const isActive = Math.abs(frame.active - l.t) < 0.0001;
       // Plano and Richardson are a few miles apart: Richardson is labelled only while it is the place being read.
       const crowded = l.id === 'texas-education' && !isActive;
-      const o = crowded ? 0 : show * revealed * (isActive || frame.active === -1 ? 1 : 0.55);
+      const clipped = y < frame.clip + 30;
+      const o = crowded || clipped ? 0 : show * revealed * (isActive || frame.active === -1 ? 1 : 0.55);
       l.el.style.opacity = o.toFixed(3);
       l.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
       l.el.classList.toggle('is-active', isActive);
@@ -432,12 +521,22 @@ export async function startField(): Promise<FieldHandle | null> {
     placeLabels();
   });
 
+  // The portrait keeps counting while it is on screen.
+  const visitWindow = () => windows.find((w) => w.kind === 'visit');
+  setInterval(() => {
+    const w = visitWindow();
+    if (!w || scrollY < w.start - vh) return;
+    updateVisit();
+  }, 1000);
+  updateVisit();
+
   let resizeTimer = 0;
   addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(() => {
       measure();
       buildDots();
+      updateVisit();
     }, 160);
   });
   // Layout settles after fonts, images and pinned sections; measure again whenever ScrollTrigger does.

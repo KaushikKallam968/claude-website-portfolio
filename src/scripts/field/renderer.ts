@@ -31,6 +31,7 @@ uniform float uVisitDot;
 uniform vec3 uTrail[20];
 uniform vec3 uInk;
 uniform vec3 uNote;
+uniform float uClip;
 out vec4 vColor;
 out float vSize;
 
@@ -74,6 +75,8 @@ void main() {
   float size = mix(uNameDot * (1.0 + heat * 0.85), uMapDot * mix(0.78, 1.0, day) * pow(uCam.z, 0.72), t1);
   size = mix(size, uVisitDot, t2);
   vec3 col = mix(uInk, uNote, max(heat, dusk * t1 * (1.0 - t2) * 0.85));
+  // Above uClip only the portrait may show: the closing section is a window onto the world.
+  a *= mix(smoothstep(uClip, uClip + 60.0, p.y), 1.0, aVisit.z * t2);
   vColor = vec4(col, a);
   vSize = size * uDpr;
   gl_PointSize = vSize;
@@ -109,6 +112,7 @@ uniform vec2 uTraveller;
 uniform float uActive;  // t of the place being read, or -1
 uniform vec3 uNote;
 uniform vec3 uInk;
+uniform float uClip;
 out vec4 vColor;
 out float vSize;
 flat out float vKind;
@@ -141,6 +145,7 @@ void main() {
     size = 11.0;
     a = uVis * step(0.001, uLeg.z) * (1.0 - step(0.999, uLeg.z));
   }
+  a *= smoothstep(uClip, uClip + 60.0, p.y);
   vColor = vec4(col, a);
   vKind = kind;
   vSize = size * uDpr;
@@ -195,6 +200,7 @@ export interface FieldFrame {
   trail: Float32Array;
   sun: [number, number];
   time: number;
+  clip: number;
 }
 
 export interface Colors {
@@ -303,6 +309,7 @@ export class FieldRenderer {
     gl.uniform3fv(d.u('uTrail'), f.trail);
     gl.uniform3f(d.u('uInk'), ...ink);
     gl.uniform3f(d.u('uNote'), ...note);
+    gl.uniform1f(d.u('uClip'), f.clip);
     gl.bindVertexArray(this.dotsVao);
     gl.drawArrays(gl.POINTS, 0, this.dotCount);
 
@@ -321,6 +328,7 @@ export class FieldRenderer {
       gl.uniform1f(r.u('uActive'), f.active);
       gl.uniform3f(r.u('uNote'), ...note);
       gl.uniform3f(r.u('uInk'), ...ink);
+      gl.uniform1f(r.u('uClip'), f.clip);
       gl.bindVertexArray(this.routeVao);
       gl.drawArrays(gl.POINTS, 0, this.routeCount);
     }
