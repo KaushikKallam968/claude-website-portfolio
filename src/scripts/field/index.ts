@@ -2,6 +2,7 @@ import { gsap } from 'gsap';
 import { equalEarth, greatCircle, subsolarPoint, type LonLat } from '../../lib/geo';
 import { KEYS, session } from '../../lib/store';
 import { clockFormat } from '../clock';
+import { livePaused } from '../navigation';
 import { record, elapsed, readout } from '../notes';
 import { dotUnit } from '../../lib/visit';
 import { cssColor } from './gl';
@@ -614,7 +615,7 @@ export async function startField(): Promise<FieldHandle | null> {
   const visitWindow = () => windows.find((w) => w.kind === 'visit');
   setInterval(() => {
     const w = visitWindow();
-    if (!w || scrollY < w.start - vh) return;
+    if (!w || scrollY < w.start - vh || livePaused()) return;
     updateVisit();
   }, 1000);
   updateVisit();

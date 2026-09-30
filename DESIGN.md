@@ -314,7 +314,7 @@ Between two chapters, the local time moves from the previous place to the next.
 
 ### Visit readout (signature)
 The close: the visitor's own time per chapter, plus "Everywhere else", so rows add up to the total.
-- **With the Field:** a display-scale dot chart. Dot pitch adapts (6 to 13px, 4.2 to 9px on phones) so the longest row fills about 85% of its track, and holds while the row stays at least half full. The unit is the finest that fits and is always stated in blue beneath: "Each dot is half a second of your visit."
+- **With the Field:** a display-scale dot chart in the annotation blue (it is observed data; "Everywhere else" at lower strength). The count pauses with Pause live. Dot pitch adapts (6 to 13px, 4.2 to 9px on phones) so the longest row fills about 85% of its track, and holds while the row stays at least half full. The unit is the finest that fits and is always stated in blue beneath: "Each dot is half a second of your visit."
 - **Without it:** a 14px blue fill on a `note-soft` track, scaling from the left over 1.2s; "Everywhere else" uses ink-3.
 - **Always:** mono values right-aligned in blue; a total above in blue mono with ink-2 words.
 

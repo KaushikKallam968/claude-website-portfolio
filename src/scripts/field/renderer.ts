@@ -97,6 +97,8 @@ void main() {
   float size = mix(uNameDot * (1.0 + heat * 0.85), max(1.5, uMapDot * mix(0.78, 1.0, day) * pow(uCam.z, 0.72)), t1);
   size = mix(size, uVisitDot, t2);
   vec3 col = mix(uInk, uNote, max(heat, dusk * t1 * (1.0 - t2) * 0.85));
+  // Dots that become the visit are observed data, so they arrive in the annotation blue.
+  col = mix(col, uNote, t2 * step(0.001, aVisit.z));
   // Above uClip only the portrait may show: the closing section is a window onto the world.
   a *= mix(smoothstep(uClip, uClip + 60.0, p.y), 1.0, aVisit.z * t2);
   // Map dots and dots in flight thin out behind reading text; the name and the settled portrait never do.

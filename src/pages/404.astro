@@ -5,7 +5,6 @@ import Arrow from '../components/Arrow.astro';
 
 <Base title="Not found · Kaushik Kallam">
   <main id="main" class="nf">
-    <p class="mono nf__no">404</p>
     <h1 class="nf__title">This page doesn’t exist.</h1>
     <p class="nf__note mono">can’t tell: what you expected to find here, or how you got here.</p>
     <p class="nf__text">The journey, the selected work and the résumé are all still where they were.</p>
@@ -19,7 +18,6 @@ import Arrow from '../components/Arrow.astro';
 
 <style>
   .nf { min-height: 100svh; padding: 140px var(--margin) 80px; display: grid; align-content: center; gap: 18px; max-width: 1200px; }
-  .nf__no { color: var(--note); }
   .nf__title { font-size: clamp(3rem, 8vw, 6rem); line-height: 0.88; letter-spacing: -0.04em; font-weight: 530; }
   .nf__note { color: var(--note); font-size: 0.8125rem; }
   .nf__text { font-size: var(--t-lede); letter-spacing: -0.015em; max-width: 34ch; }

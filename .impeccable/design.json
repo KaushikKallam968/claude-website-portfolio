@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-30T03:06:52+00:00",
+  "generatedAt": "2026-09-30T04:15:56+00:00",
   "title": "Design System: Kaushik Kallam",
   "extensions": {
     "colorMeta": {
@@ -216,27 +216,31 @@
     "typographyMeta": {
       "display": {
         "displayName": "Display",
-        "purpose": "The hero name only."
+        "purpose": "The hero name only; drawn in dots when the Field runs."
       },
       "headline": {
         "displayName": "Chapter Title",
         "purpose": "Chapter titles on the Journey."
       },
+      "clock": {
+        "displayName": "Clock",
+        "purpose": "Time Shift digits in blue, tabular; 19rem ceiling for the far crossing."
+      },
       "page-title": {
         "displayName": "Page Title",
-        "purpose": "Case and Work titles; 6rem ceiling."
+        "purpose": "Case, Work, close, résumé and 404 titles; 6rem ceiling."
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Entry, role, prose h2 and limits headings."
+        "purpose": "Entry, Prologue sentence, role, prose h2 and limits headings."
       },
       "lede": {
         "displayName": "Lede",
-        "purpose": "Hero identity, chapter text, Case question."
+        "purpose": "Hero identity, chapter text, Time Shift sentence, Case question, close text."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Reading text, 52 to 66ch."
+        "purpose": "Reading text, 52 to 66ch; figure steps."
       },
       "label": {
         "displayName": "Label",
@@ -244,25 +248,100 @@
       },
       "data": {
         "displayName": "Data",
-        "purpose": "Fragment Mono: clocks, coordinates, periods, note timestamps, codes in figures."
+        "purpose": "Fragment Mono: clocks, coordinates, periods, readout values, codes in figures, lens tally."
+      },
+      "data-small": {
+        "displayName": "Data Small",
+        "purpose": "Fragment Mono 11px: note timestamps, can’t tell lines, Field place labels, lens cursor tag."
       }
     },
-    "shadows": [],
+    "shadows": [
+      {
+        "name": "paper-halo",
+        "value": "text-shadow: 0 0 18px var(--paper), 0 0 6px var(--paper)",
+        "purpose": "Clears Prologue and Time Shift text from the Field. Place labels use 0 0 2px, 4px, 8px, 14px in paper."
+      },
+      {
+        "name": "scan-glow",
+        "value": "box-shadow: 0 0 14px 1px var(--note)",
+        "purpose": "The lens scan line, for its 0.9s pass only."
+      },
+      {
+        "name": "screenshot-hairline",
+        "value": "box-shadow: 0 1px 0 var(--rule)",
+        "purpose": "Under watched. phone screenshots."
+      }
+    ],
     "motion": [
       {
         "name": "ease-out",
         "value": "cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Entrance curve (GSAP CustomEase 'out'): reveals, link underlines, hover slides, top bar and ticker."
+        "purpose": "Entrance curve (GSAP CustomEase 'out'): reveals, link underlines, hover slides, top bar, ticker, lens tag, map arrival."
       },
       {
         "name": "ease-scene",
         "value": "cubic-bezier(0.86, 0, 0.07, 1)",
-        "purpose": "Change of place (GSAP CustomEase 'scene'): view-transition group, Time Shift reels, entry rules, notes clip."
+        "purpose": "Change of place (GSAP CustomEase 'scene'): route draw, Case expand, reels, entry rules, notes clip, figure steps, lens scan."
       },
       {
-        "name": "hero-chars",
-        "value": "yPercent 108 to 0, 1.35s, stagger 0.034s, out",
-        "purpose": "Hero name entrance."
+        "name": "lenis",
+        "value": "duration 1.15s, easeOutQuart, anchor offset -64px",
+        "purpose": "Inertial scroll; off under reduced motion."
+      },
+      {
+        "name": "field-stage",
+        "value": "stage 0 name, 1 world, 2 visit; per-dot cubic in-out, lag up to 0.45, banded bow up to 0.275 of the leg",
+        "purpose": "One crowd of dots moves between its three roles."
+      },
+      {
+        "name": "field-arrival",
+        "value": "mapIn 1.1s out; route 1.7s scene at 0.3s; name gathers 1.55s at 1.85s; once per session, skipped by scroll or hash",
+        "purpose": "Map, then route Singapore to New York, then the name."
+      },
+      {
+        "name": "attention-trail",
+        "value": "20 samples; heat exp(-d²/5000); nudge 16px; fades after 2.5s still",
+        "purpose": "Pointer warms letters toward blue and nudges them; the attention trace."
+      },
+      {
+        "name": "terminator",
+        "value": "subsolar point every 60s; day smoothstep ±0.05; dusk band |cosZ| < 0.06",
+        "purpose": "Night land dims, dusk turns blue."
+      },
+      {
+        "name": "scene-runway",
+        "value": "Prologue 160vh; Time Shift 150vh (140vh at 700px); sticky 100svh stage",
+        "purpose": "Scroll-scrubbed scenes; nothing holds the scroll."
+      },
+      {
+        "name": "odometer",
+        "value": "hours counted one at a time over progress 0.12 to 0.78; click after 55% of each hour; +1 day at midnight",
+        "purpose": "Time Shift clock with the Field."
+      },
+      {
+        "name": "reel",
+        "value": "one full turn, 1.6s, scene, 0.1s stagger per digit",
+        "purpose": "Time Shift digits without the Field; up for forward, down for back."
+      },
+      {
+        "name": "visit-pour",
+        "value": "row by row, left to right; dot pitch 6 to 13px (4.2 to 9px phones) so the longest row fills about 85%",
+        "purpose": "World evaporates into the visit readout."
+      },
+      {
+        "name": "figure-steps",
+        "value": "autoplay on 55% visibility, 2.4s per step; parts ease 1.4s scene; chosen step 0.9s",
+        "purpose": "Case figures play their argument in place."
+      },
+      {
+        "name": "case-expand",
+        "value": "pagereveal; new root clip-path from row outline, 1s scene; old root fade + scale 0.975, 0.38s out; title morph via view-transition-name, 1s",
+        "purpose": "The clicked row grows into the Case."
+      },
+      {
+        "name": "view-transition",
+        "value": "group 0.9s scene; old root 0.5s fade; new root 0.9s out from 24px after 0.15s",
+        "purpose": "Other cross-document navigations."
       },
       {
         "name": "chapter-chars",
@@ -275,29 +354,9 @@
         "purpose": "Rules between entries draw in."
       },
       {
-        "name": "reel",
-        "value": "one full turn, 1.6s, scene, 0.1s stagger per digit",
-        "purpose": "Time Shift digits roll up for forward, down for back."
-      },
-      {
-        "name": "figure-play",
-        "value": "IntersectionObserver threshold 0.45, once; items stagger 0.28s",
-        "purpose": "Case figures demonstrate once."
-      },
-      {
-        "name": "view-transition",
-        "value": "group 0.9s scene; old root 0.5s fade; new root 0.9s out from 24px after 0.15s",
-        "purpose": "Entry title to Case title, cross-document."
-      },
-      {
-        "name": "attention-trace",
-        "value": "color-mix toward note by --heat; 70px gaussian; cools with exp(-dt/900ms)",
-        "purpose": "The only colour animation; fine pointers only."
-      },
-      {
-        "name": "lenis",
-        "value": "duration 1.15s, easeOutQuart, anchor offset -64px",
-        "purpose": "Inertial scroll; off under reduced motion."
+        "name": "lens-scan",
+        "value": "1px line, 0.9s scene; outlines fade in 0.35s out as the scan reaches them",
+        "purpose": "Show tracking."
       }
     ],
     "breakpoints": [
@@ -314,8 +373,16 @@
         "value": "720px"
       },
       {
+        "name": "field-narrow",
+        "value": "700px"
+      },
+      {
         "name": "narrow",
         "value": "600px"
+      },
+      {
+        "name": "facts-single",
+        "value": "520px"
       }
     ]
   },
@@ -356,25 +423,41 @@
       "name": "Time Shift",
       "kind": "custom",
       "refersTo": "time-shift",
-      "description": "Between chapters, the destination's local time in large blue tabular digits under a blue rule, with the offset stated in ink.",
-      "html": "<div class=\"ds-shift\"><div class=\"ds-shift-clock\">03:32<span>+1 day</span></div><div><p class=\"ds-shift-text\">Hyderabad is ten hours ahead of Dallas.</p><a class=\"ds-shift-next\" href=\"#\">Continue to Hyderabad</a></div></div>",
-      "css": ".ds-shift{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:12px 32px;padding-top:18px;border-top:1px solid var(--note,#2c3be0);color:var(--note,#2c3be0);font-family:Switzer,system-ui,sans-serif}.ds-shift-clock{font-size:5rem;line-height:1;letter-spacing:-.04em;font-weight:440;font-variant-numeric:tabular-nums;display:flex;align-items:flex-start}.ds-shift-clock span{font-size:.875rem;letter-spacing:0;font-weight:520;margin:.35em 0 0 .3em}.ds-shift-text{margin:0;color:var(--ink,#111110);font-size:clamp(1.25rem,1.05rem + .8vw,1.75rem);line-height:1.3;letter-spacing:-.015em;max-width:18ch}.ds-shift-next{color:var(--ink-2,#4a4a46);font-size:.9375rem;text-decoration:none}.ds-shift-next:hover{text-decoration:underline}.ds-shift-next:focus-visible{outline:2px solid var(--note,#2c3be0);outline-offset:3px}"
+      "description": "Between chapters: the destination time in large blue tabular digits, the day tag, an ink sentence with the real offset, and the mono route row that fills with scroll progress.",
+      "html": "<div class=\"ds-shift\"><p class=\"ds-shift-route\"><span>New York</span><span class=\"ds-line\"><span style=\"--p:.55\"></span></span><span>Dallas</span></p><div class=\"ds-shift-clock\">03:32<span>+1 day</span></div><div><p class=\"ds-shift-text\">Hyderabad is ten hours ahead of Dallas.</p><a class=\"ds-shift-next\" href=\"#\">Continue to Hyderabad <svg viewBox=\"0 0 16 16\" width=\"0.8em\" height=\"0.8em\" aria-hidden=\"true\" style=\"rotate:90deg\"><path d=\"M2 8h11M8.5 3.5 13 8l-4.5 4.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"square\"/></svg></a></div></div>",
+      "css": ".ds-shift{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:14px 32px;color:var(--note,#2c3be0);font-family:Switzer,system-ui,sans-serif}.ds-shift-route{grid-column:1/-1;display:flex;gap:12px;align-items:center;margin:0 0 24px;font:400 .75rem 'Fragment Mono',ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase}.ds-line{position:relative;flex:1;max-width:22rem;height:1px;background:var(--note-soft,rgb(44 59 224/.1))}.ds-line span{position:absolute;inset:0;background:var(--note,#2c3be0);transform-origin:left;transform:scaleX(var(--p,0))}.ds-shift-clock{font-size:5rem;line-height:1;letter-spacing:-.04em;font-weight:440;font-variant-numeric:tabular-nums;display:flex;align-items:flex-start}.ds-shift-clock span{font-size:.875rem;letter-spacing:0;font-weight:520;margin:.35em 0 0 .3em}.ds-shift-text{margin:0;color:var(--ink,#111110);font-size:clamp(1.25rem,1.05rem + .8vw,1.75rem);line-height:1.3;letter-spacing:-.015em;max-width:18ch;text-shadow:0 0 18px var(--paper,#ecece8),0 0 6px var(--paper,#ecece8)}.ds-shift-next{display:inline-flex;gap:6px;align-items:baseline;color:var(--ink-2,#4a4a46);font-size:.9375rem;text-decoration:none;margin-top:10px;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .6s cubic-bezier(.16,1,.3,1)}.ds-shift-next:hover{background-size:100% 1px}.ds-shift-next:focus-visible{outline:2px solid var(--note,#2c3be0);outline-offset:3px}"
     },
     {
-      "name": "Readout Bar",
+      "name": "Visit Readout",
       "kind": "custom",
-      "refersTo": "readout-bar",
-      "description": "The visitor's own time per chapter: a 10px blue fill on a tinted track with a mono value.",
-      "html": "<ol class=\"ds-readout\"><li><span>Dallas</span><span class=\"ds-track\"><span style=\"--share:.62\"></span></span><span class=\"ds-v\">1 min 12 s</span></li><li class=\"ds-out\"><span>Everywhere else</span><span class=\"ds-track\"><span style=\"--share:.2\"></span></span><span class=\"ds-v\">24 s</span></li></ol>",
-      "css": ".ds-readout{list-style:none;margin:0;padding:0;display:grid;gap:10px;color:var(--note,#2c3be0);font-family:Switzer,system-ui,sans-serif}.ds-readout li{display:grid;grid-template-columns:9em 1fr 5.5em;align-items:center;gap:14px}.ds-readout li>span:first-child{color:var(--ink,#111110);font-size:.9375rem}.ds-track{height:10px;background:var(--note-soft,rgb(44 59 224/.1));position:relative;overflow:hidden}.ds-track span{position:absolute;inset:0;background:var(--note,#2c3be0);transform:scaleX(var(--share,0));transform-origin:left;transition:transform 1.2s cubic-bezier(.16,1,.3,1)}.ds-out .ds-track span{background:var(--ink-3,#656560)}.ds-out>span:first-child{color:var(--ink-2,#4a4a46)!important}.ds-v{text-align:right;font-family:'Fragment Mono',ui-monospace,monospace;font-size:.75rem;font-variant-numeric:tabular-nums}"
+      "refersTo": "readout-row",
+      "description": "The close: one grid of rows on a subgrid, display-scale ink labels, dots counting the visitor’s time on a rule baseline, blue mono values, and the stated unit.",
+      "html": "<div class=\"ds-visit\"><ol><li><span class=\"ds-l\">Dallas</span><span class=\"ds-tr\"><i style=\"--n:34\"></i></span><span class=\"ds-v\">17 s</span></li><li class=\"ds-out\"><span class=\"ds-l\">Everywhere else</span><span class=\"ds-tr\"><i style=\"--n:12\"></i></span><span class=\"ds-v\">6 s</span></li></ol><p class=\"ds-unit\">Each dot is half a second of your visit.</p></div>",
+      "css": ".ds-visit{color:var(--note,#2c3be0);font-family:Switzer,system-ui,sans-serif}.ds-visit ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:max-content 1fr 5.5em;gap:14px 24px}.ds-visit li{display:grid;grid-column:1/-1;grid-template-columns:subgrid;align-items:end}.ds-l{color:var(--ink,#111110);font-size:1.6rem;line-height:1;letter-spacing:-.028em;font-weight:520;white-space:nowrap}.ds-out .ds-l{color:var(--ink-2,#4a4a46)}.ds-tr{height:40px;border-bottom:1px solid var(--rule,rgb(17 17 16/.16));position:relative}.ds-tr i{position:absolute;left:0;bottom:3px;height:34px;width:calc(var(--n) * 10px / 4);background:radial-gradient(circle,var(--ink,#111110) 3.2px,transparent 3.6px) 0 0/10px 9px;transition:width 1.2s cubic-bezier(.16,1,.3,1)}.ds-out .ds-tr i{opacity:.45}.ds-v{text-align:right;font:400 .875rem 'Fragment Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}.ds-unit{margin:14px 0 0;font-size:.9375rem}"
     },
     {
-      "name": "Case Figure",
-      "kind": "card",
-      "refersTo": "figure-stage",
-      "description": "A flat paper-2 stage with 1px outlined items and a caption that says what the figure is not.",
-      "html": "<figure class=\"ds-fig\"><div class=\"ds-fig-stage\"><span class=\"ds-fig-item\">Plan</span><span class=\"ds-fig-item\">Call tool</span><span class=\"ds-fig-item ds-waste\">Call tool again</span><span class=\"ds-fig-item ds-ok\">Correct answer</span></div><figcaption>Both runs are correct. Only one is efficient.<span>Illustration. Internal signals are not shown.</span></figcaption></figure>",
-      "css": ".ds-fig{margin:0;display:grid;gap:14px;font-family:Switzer,system-ui,sans-serif}.ds-fig-stage{background:var(--paper-2,#e3e3de);padding:clamp(18px,2.4vw,32px);display:flex;flex-wrap:wrap;gap:8px}.ds-fig-item{font-size:.75rem;padding:6px 9px;border:1px solid var(--ink-3,#656560);background:var(--paper,#ecece8);color:var(--ink,#111110)}.ds-waste{border-style:dashed;background:transparent;color:var(--ink-2,#4a4a46)}.ds-ok{border-color:var(--ink,#111110);font-weight:520}.ds-fig figcaption{display:grid;gap:6px;font-size:.875rem;color:var(--ink-2,#4a4a46);max-width:52ch}.ds-fig figcaption span{color:var(--ink-3,#656560);font-size:.8125rem}"
+      "name": "Figure Step",
+      "kind": "button",
+      "refersTo": "figure-step",
+      "description": "Each step of a Case figure is a button; the current one turns ink, its number blue, and an ink rule draws along its top for 2.4s.",
+      "html": "<ol class=\"ds-steps\"><li><button type=\"button\" class=\"ds-step\"><span class=\"ds-n\">1</span><span>Three search bars on one page.</span></button></li><li class=\"is-on\"><button type=\"button\" class=\"ds-step\"><span class=\"ds-n\">2</span><span>Each records the same event: search.</span></button></li></ol>",
+      "css": ".ds-steps{list-style:none;margin:0;padding:0;display:grid;gap:2px;max-width:64ch;border-top:1px solid var(--rule,rgb(17 17 16/.16));font-family:Switzer,system-ui,sans-serif}.ds-step{display:grid;grid-template-columns:2em 1fr;gap:10px;width:100%;padding:10px 0;text-align:left;font:inherit;font-size:1.0625rem;background:none;border:0;border-bottom:1px solid var(--rule,rgb(17 17 16/.16));color:var(--ink-3,#656560);cursor:pointer;position:relative;transition:color .5s cubic-bezier(.16,1,.3,1)}.ds-step:hover{color:var(--ink-2,#4a4a46)}.ds-step:focus-visible{outline:2px solid var(--note,#2c3be0);outline-offset:3px}.ds-step::before{content:'';position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--ink,#111110);transform:scaleX(0);transform-origin:left}.is-on .ds-step{color:var(--ink,#111110)}.is-on .ds-step::before{transform:scaleX(1);transition:transform 2.4s linear}.ds-n{font:400 .75rem 'Fragment Mono',ui-monospace,monospace;color:var(--ink-3,#656560);padding-top:.3em}.is-on .ds-n{color:var(--note,#2c3be0)}"
+    },
+    {
+      "name": "Lens Cursor Tag",
+      "kind": "chip",
+      "refersTo": "lens-cursor",
+      "description": "On fine pointers, a paper chip with a blue border names the data-observe tag under the cursor; untagged controls read as a dashed ink gap.",
+      "html": "<p class=\"ds-lens\">case.instrumentation</p> <p class=\"ds-lens ds-gap\">untagged link</p>",
+      "css": ".ds-lens{display:inline-block;margin:0 8px 0 0;font:400 .6875rem/1 'Fragment Mono',ui-monospace,monospace;white-space:nowrap;padding:5px 7px;background:var(--paper,#ecece8);color:var(--note,#2c3be0);border:1px solid var(--note,#2c3be0);transition:scale .45s cubic-bezier(.16,1,.3,1)}.ds-lens::before{content:'';display:inline-block;width:5px;height:5px;margin-right:6px;background:currentColor;vertical-align:.1em}.ds-lens:hover{scale:1.04}.ds-gap{color:var(--ink-2,#4a4a46);border:1px dashed var(--ink-3,#656560)}.ds-gap::before{background:none;outline:1px solid currentColor;outline-offset:-1px}"
+    },
+    {
+      "name": "Field Place Label",
+      "kind": "custom",
+      "refersTo": "field-label",
+      "description": "A place on the map: round marker, uppercase mono name and live local time, with a paper halo; blue when it is the place being read.",
+      "html": "<div class=\"ds-map\"><p class=\"ds-pl\"><span class=\"ds-pn\">Dallas</span><span class=\"ds-pt\">09:32</span></p><p class=\"ds-pl is-active\"><span class=\"ds-pn\">New York</span><span class=\"ds-pt\">10:32</span></p></div>",
+      "css": ".ds-map{display:grid;gap:14px;padding:16px;background:radial-gradient(circle,var(--ink,#111110) 1px,transparent 1.3px) 0 0/7px 6px;background-color:var(--paper,#ecece8)}.ds-pl{position:relative;display:flex;gap:8px;align-items:baseline;margin:0;padding-left:14px;font:400 .6875rem/1 'Fragment Mono',ui-monospace,monospace;white-space:nowrap;color:var(--ink,#111110);text-shadow:0 0 2px var(--paper,#ecece8),0 0 4px var(--paper,#ecece8),0 0 8px var(--paper,#ecece8),0 0 14px var(--paper,#ecece8)}.ds-pl::before{content:'';position:absolute;left:0;top:50%;width:7px;height:7px;border-radius:50%;background:currentColor;translate:-50% -50%}.ds-pn{text-transform:uppercase;letter-spacing:.06em}.ds-pt{color:var(--ink-2,#4a4a46);font-variant-numeric:tabular-nums}.is-active,.is-active .ds-pt{color:var(--note,#2c3be0)}"
     },
     {
       "name": "Draft Marker",
@@ -387,13 +470,14 @@
   ],
   "narrative": {
     "northStar": "The Annotated Page",
-    "overview": "The site is a printed page that is taking notes on its reader. Daylight paper and near-black ink carry everything that is authored; a single annotation blue carries everything that is observed or live. The contrast between the two layers is the whole idea: the ink says what Kaushik did, the blue says what the page can see of you right now, and what it cannot tell.\n\nOne grotesk does all the talking, used at extreme scale contrast: a name set to the width of the viewport against a calm reading size, with nothing in between that shouts. Structure comes from hairline rules and flush-left columns on a twelve-column grid, never from boxes. Depth is flat. Motion moves things between reading moments and never inside them.\n\nThe system rejects the template portfolio: no kicker above the hero, no pill buttons, no cards, no gradients, no glass. Real photography in full colour is the only colour besides the blue.",
+    "overview": "The site is a printed page that is taking notes on its reader. Daylight paper and near-black ink carry everything that is authored; a single annotation blue carries everything that is observed or live. The contrast between the two layers is the whole idea: the ink says what Kaushik did, the blue says what the page can see of you right now, and what it cannot tell.\n\nOn the home page the page has one moving image, the Field: a single crowd of about 16,000 dots that is, in turn, the name, the world and the visit. It draws the world with tonight's real day and night, flies the map between the places of the Journey while the clocks count the hours, and ends as a chart of the reader's own time, stated in its unit. Every word the Field depicts is also real HTML underneath it; the canvas is decoration over the truth, never instead of it. Everywhere else the page stays an editorial layout: one grotesk at extreme scale contrast, hairline rules and flush-left columns on a twelve-column grid, flat surfaces. Motion happens between reading moments; reading text sits in quiet zones the dots thin out behind.\n\nThe system rejects the template portfolio: no kicker above the hero, no pill buttons, no cards, no decorative gradients, no glass, no 3D. Real photography in full colour is the only colour besides the blue.",
     "keyCharacteristics": [
-      "Two-layer colour: ink for the authored record, blue for observation and live data.",
+      "Two-layer colour: ink for the authored record, blue for observation and live state.",
       "One variable grotesk (Switzer) at extreme scale contrast; one mono (Fragment Mono) for data only.",
+      "One dot field (raw WebGL2, home only) that plays name, world and visit; truth stays in HTML.",
       "Hairline rules instead of containers; square corners throughout.",
-      "Motion limited to position, opacity and clip, on two curves.",
-      "Light and dark themes with identical structure; dark follows `prefers-color-scheme` or `[data-theme]`."
+      "Two curves for every movement: `out` for entrances, `scene` for changes of place.",
+      "Light and dark themes with identical structure; dark follows `prefers-color-scheme` or `[data-theme]`, and the Field reads its colours from the same tokens."
     ],
     "rules": [
       {
@@ -403,7 +487,7 @@
       },
       {
         "name": "The Photography Exception Rule",
-        "body": "Real photographs and real product screenshots keep their full colour. No other colour enters the palette.",
+        "body": "Real photographs and real product screenshots keep their full colour. No other colour enters the palette, including inside the Field, which draws only in `ink` and `note`.",
         "section": "colors"
       },
       {
@@ -413,12 +497,12 @@
       },
       {
         "name": "The Six Rem Rule",
-        "body": "Display type caps at 6rem. Only pinned elements may exceed it: the hero name, Chapter titles, and the far Time Shift clock.",
+        "body": "Display type caps at 6rem. Only pinned, one-per-screen elements may exceed it: the hero name, Chapter titles and the Time Shift clocks.",
         "section": "typography"
       },
       {
         "name": "The Mono Means Data Rule",
-        "body": "Fragment Mono is for clocks, coordinates, periods, note timestamps, and event and language codes in figures. Never for headings, labels or decoration. The top-bar clock and the large Time Shift digits are Switzer with tabular numerals, because they are read as display, not logged.",
+        "body": "Fragment Mono is for clocks, coordinates, periods, timestamps, measured values, tags and codes. Never for headings, prose or decoration. The top-bar clock and the large Time Shift digits are Switzer with tabular numerals, because they are read as display, not logged.",
         "section": "typography"
       },
       {
@@ -427,32 +511,47 @@
         "section": "elevation"
       },
       {
+        "name": "The Clearance Not Lift Rule",
+        "body": "A shadow exists only to clear text from the Field (in paper) or to mark the lens scan (in blue). No surface ever floats.",
+        "section": "elevation"
+      },
+      {
         "name": "The Three Properties Rule",
-        "body": "Animate position, opacity and clip only. The attention trace is the one colour exception.",
+        "body": "In the DOM, animate position, opacity and clip only, plus left-origin scaleX for rules and bars. Colour changes only as state (a figure step becoming current) or as the attention trace. Scale appears only for something stepping back or arriving (the old page at 0.975, the lens tag from 0.92).",
+        "section": "motion"
+      },
+      {
+        "name": "The Welcome Rule",
+        "body": "The Field runs only on the home page, with WebGL2, and without a reduced-motion preference; the layout class is set before first paint so scroll positions stay stable. If the context is lost, the page falls back to the plain layout: HTML name, static bands, no scenes.",
         "section": "motion"
       },
       {
         "name": "The Reduced Motion Rule",
-        "body": "Under `prefers-reduced-motion: reduce`, the view transition is off, reels land on the destination time, reveals and figures show their end state, and Lenis does not run.",
+        "body": "Under `prefers-reduced-motion: reduce`, the Field never loads, scenes are static bands, figure steps read top to bottom, the view transition is off, reels land on the destination time, reveals and figures show their end state, the lens skips its scan, and Lenis does not run.",
         "section": "motion"
       }
     ],
     "dos": [
-      "**Do** keep annotation blue for notes, live data (Time Shift clocks, readout bars), the attention trace, selection and focus.",
+      "**Do** keep annotation blue for notes, live data (clocks, readout values, the unit sentence), the lens, the Field's live marks (dusk, route, traveller, active place, heat), selection and focus.",
       "**Do** separate content with 1px hairlines in `rule`, or `ink` to open a section.",
       "**Do** end every text action with the drawn Arrow in its direction of travel.",
-      "**Do** use Fragment Mono only for clocks, coordinates, periods, note timestamps and codes in figures.",
-      "**Do** use `ease-out` for entrances and `scene` for changes of place, and nothing else.",
+      "**Do** use Fragment Mono only for clocks, coordinates, periods, timestamps, measured values, tags and codes.",
+      "**Do** use `out` for entrances and `scene` for changes of place, and nothing else.",
+      "**Do** mark reading text that can sit over the Field with `data-quiet`, and give it a paper halo.",
+      "**Do** keep every word the Field depicts in real HTML, and state the unit of any dot count.",
+      "**Do** tag every new control with `data-observe`, a label and a \"can't tell\" line.",
       "**Do** give every live or animated element a reduced-motion and no-script end state."
     ],
     "donts": [
       "**Don't** set letter-spacing below -0.04em.",
-      "**Don't** set display type above 6rem unless it is the hero name, a Chapter title or the far Time Shift clock.",
+      "**Don't** set display type above 6rem unless it is the hero name, a Chapter title or a Time Shift clock.",
       "**Don't** add a kicker or eyebrow above any heading.",
       "**Don't** use side stripes thicker than 1px.",
-      "**Don't** use cards, gradients, glass, shadows or pill buttons.",
+      "**Don't** use cards, decorative gradients, glass, drop shadows, pill buttons or 3D.",
       "**Don't** use blue for authored content, headings or decoration.",
-      "**Don't** animate colour or layout properties, except the attention trace. Rules and bars draw with a left-origin scaleX, which reads as a clip; nothing else scales.",
+      "**Don't** gate identity text behind the arrival, or put the canvas in the accessibility tree.",
+      "**Don't** load the Field outside the home page, without WebGL2 or under reduced motion.",
+      "**Don't** hold the scroll: scenes are sticky runways, never scroll-jacking.",
       "**Don't** use text glyphs (→) as icons; use the Arrow component."
     ]
   }
