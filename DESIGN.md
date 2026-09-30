@@ -173,7 +173,8 @@ components:
   notes-ticker:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.note}"
-    padding: "7px clamp(16px, 2.3vw, 36px) 8px"
+    padding: "11px clamp(16px, 2.3vw, 36px)"
+    height: "44px"
   time-shift:
     textColor: "{colors.note}"
     typography: "{typography.clock}"
@@ -307,7 +308,7 @@ A twelve-column grid (`.grid`: 12 equal columns, `gutter` column gap, `margin` i
 - **Rhythm:** large fluid gaps between reading moments (chapter tops `clamp(56px, 8vw, 120px)`, first chapter up to 220px, close up to 240px), tight gaps within them (6 to 18px).
 
 ### Breakpoints
-- **1100px and below:** the rail collapses. The Notes become a one-line ticker fixed under the top bar showing the latest note; it hides with the bar while reading down and returns with it. "Show" opens the full list as a sheet under the bar (max 60svh). The body gains 36px top padding.
+- **1100px and below:** the rail collapses. The Notes become a one-line ticker fixed under the top bar showing the latest note; it hides with the bar while reading down and returns with it. "Show" opens the full list as a sheet under the bar (max 60svh). The ticker is 44px tall so the Show toggle's hit area fits inside it; the body gains 44px top padding.
 - **900px and below:** all grid spans go full width; the hero identity block becomes static; the route index becomes two columns; readout rows stack label and value over a full-width track.
 - **720px and below:** top bar 56px, clock hidden.
 - **700px and below:** the Field draws every other world dot with larger map dots, Time Shift runways shorten to 140vh, the clock wraps.
@@ -338,6 +339,7 @@ Plain words, never buttons.
 - **Shape:** no box, no radius.
 - **Default:** `.link` text with no underline; `.link--under` shows a 1px currentColor underline drawn as a background.
 - **Hover / Focus:** the underline draws in from the left over 0.6s on `out`; an underlined link retracts and redraws (0.9s). The current nav item keeps its underline drawn.
+- **Touch:** on coarse pointers every text link, the top bar name and the notes switches gain a 44px-tall hit area from a `::after`, so the drawn underline does not move; wrapped rows of links sit 22px apart so hit areas never overlap.
 - **Arrow:** every action ends with the drawn `Arrow` (16px viewBox, 1.6 stroke, square caps) pointing in the direction of travel: right, down, up-right (external), left (Return). It nudges 6px on row hover.
 
 ### Navigation
@@ -433,6 +435,7 @@ Two curves, registered in GSAP as CustomEase and mirrored in CSS: `out` (`--ease
 - **Tagged controls:** every link and button carries a `data-observe` tag, so the lens has no gaps; the skip link is the one exemption.
 - **No-JS path:** all text is in the HTML; hidden entrance states apply only under `.js`, with a 5s failsafe; disclosures are open; notes say honestly that nothing was recorded.
 - **Focus:** 2px note-blue outline at 3px offset everywhere; row-wide links outline the whole row. The top bar never hides while focus is inside it.
+- **Touch targets:** every control's hit area is at least 44px on touch (WCAG 2.5.5), probed at 21px from its centre in the audit.
 - **Contrast:** ink-3 at #656560 is the lightest text allowed on paper.
 - **Known detector false positive:** the low-contrast check flags every `.link` because its underline is a currentColor gradient background. It is not a real contrast failure; do not "fix" it.
 
