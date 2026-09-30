@@ -2,6 +2,7 @@ import { createObservation, type Note, type RawEvent } from '../lib/observe';
 import { formatElapsed } from '../lib/format';
 import { KEYS, session } from '../lib/store';
 import { createHoverIntent } from '../lib/hover';
+import { clockPlace } from '../lib/zone';
 
 /**
  * Wires the observation layer to the page. Events are kept in sessionStorage only and replayed on each
@@ -9,6 +10,8 @@ import { createHoverIntent } from '../lib/hover';
  */
 const MAX_EVENTS = 400;
 const VISIBLE_NOTES = 7;
+/** The reading line: a thin band a little above the middle of the screen, where what is being read is decided. */
+export const READING_LINE = '-45% 0px -54% 0px';
 
 const sessionStart: number = session.get(KEYS.sessionStart, 0) || Date.now();
 session.set(KEYS.sessionStart, sessionStart);
@@ -132,6 +135,20 @@ function wirePointing() {
   });
 }
 
+/** Copying text out of a tagged control (the email address) is noted once per control on each page. */
+function wireCopy() {
+  const page = location.pathname;
+  document.addEventListener('copy', () => {
+    const sel = getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+    const node = sel.getRangeAt(0).commonAncestorContainer;
+    const el = (node instanceof Element ? node : node.parentElement)?.closest<HTMLElement>('[data-observe]');
+    if (!el) return;
+    const tag = el.dataset.observe!;
+    record({ type: 'copy', t: elapsed(), page, tag, label: el.dataset.observeLabel ?? el.textContent?.trim() ?? tag, cannotShow: el.dataset.observeCannot });
+  });
+}
+
 function wireDepth() {
   let frame = 0;
   const page = location.pathname;
@@ -154,8 +171,9 @@ function wireDepth() {
 }
 
 /**
- * A marked part of the page is reached when its top has crossed the middle of the screen and stays there for a
- * second, the readout's own floor. A jump that flies past parts on its way elsewhere reaches none of them.
+ * A marked part of the page is reached when it is on the reading line (the one the readout reads the Chapter
+ * by) and stays there for a second, the readout's own floor. A jump that flies past parts on its way elsewhere
+ * reaches none of them, and neither does a sliver still showing at the top of the screen.
  */
 function wireReach() {
   const parts = document.querySelectorAll<HTMLElement>('[data-observe-reach]');
@@ -181,7 +199,7 @@ function wireReach() {
           }, 1000),
         );
       }),
-    { rootMargin: '0px 0px -50% 0px' },
+    { rootMargin: READING_LINE },
   );
   parts.forEach((p) => io.observe(p));
 }
@@ -211,7 +229,7 @@ function wireChapters() {
         document.querySelectorAll('.route__item').forEach((a) => a.setAttribute('aria-current', String(a.getAttribute('href') === `#${id}`)));
       }
     },
-    { rootMargin: '-45% 0px -54% 0px' },
+    { rootMargin: READING_LINE },
   );
   sections.forEach((s) => io.observe(s));
   addEventListener('pagehide', () => {
@@ -291,6 +309,10 @@ export function startNotes() {
   // The first note of a visit: arriving is the only thing the page knows for certain. It is kept like any other
   // note, so it is still there on the pages that follow.
   if (!savedEvents.length) record({ type: 'arrive', t: elapsed(), page: location.pathname, pageName: pageName() });
+  // A moment after arriving, the one thing the device says about where the reader is: its clock. The note names a
+  // place, never the zone, and like every note it stays here. Later pages replay it rather than say it again.
+  const place = clockPlace(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  if (place) setTimeout(() => record({ type: 'clock', t: elapsed(), place }), 2000);
   // A Case reached any way at all (a shared link included) counts as opened, not only one clicked to.
   const caseMain = document.querySelector<HTMLElement>('main[data-case]');
   if (caseMain) record({ type: 'open', t: elapsed(), id: caseMain.dataset.case!, title: caseMain.dataset.pageName ?? caseMain.dataset.case! });
@@ -310,6 +332,7 @@ export function startNotes() {
   }
   wireToggle();
   wirePointing();
+  wireCopy();
   wireDepth();
   wireReach();
   wireIdle();
