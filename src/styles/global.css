@@ -165,10 +165,10 @@ html { scrollbar-color: var(--ink-3) var(--paper); caret-color: var(--note); acc
 @keyframes vt-out { to { opacity: 0; } }
 @keyframes vt-in { from { opacity: 0; transform: translateY(24px); } }
 /* Opening a Case: the clicked row grows into the page while the old page steps back. */
-html.vt-expand::view-transition-old(root) { animation: 1s cubic-bezier(0.86, 0, 0.07, 1) both vt-step-back; }
+html.vt-expand::view-transition-old(root) { animation: 0.38s cubic-bezier(0.16, 1, 0.3, 1) both vt-step-back; }
 html.vt-expand::view-transition-new(root) { animation: 1s cubic-bezier(0.86, 0, 0.07, 1) both vt-expand; }
 html.vt-expand::view-transition-group(*) { animation-duration: 1s; }
-@keyframes vt-step-back { 55% { opacity: 0; transform: scale(0.975); } 100% { opacity: 0; transform: scale(0.97); } }
+@keyframes vt-step-back { to { opacity: 0; transform: scale(0.975); } }
 @keyframes vt-expand { from { clip-path: var(--vt-from, inset(50% 0 50% 0)); } to { clip-path: inset(0 0 0 0); } }
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
@@ -226,6 +226,10 @@ html.lens-on .lens-layer { display: block; }
   position: absolute; left: -1px; bottom: 100%; padding: 3px 5px; white-space: nowrap;
   font-family: var(--mono); font-size: 0.625rem; line-height: 1; background: var(--note); color: var(--paper);
 }
+/* With a fine pointer the cursor tag names what it is over, so outlines carry no labels over the text;
+   on touch the label sits inside the outline's top edge. */
+@media (pointer: fine) { .lens-box span { display: none; } }
+@media (pointer: coarse) { .lens-box span { bottom: auto; top: 0; } }
 .lens-box.is-top span { bottom: auto; top: 0; }
 .lens-box.is-right span { left: auto; right: -1px; }
 .lens-box.is-gap { border-color: var(--ink-2); background: repeating-linear-gradient(-45deg, transparent 0 5px, var(--rule) 5px 6px); }

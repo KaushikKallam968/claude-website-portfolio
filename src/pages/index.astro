@@ -214,25 +214,34 @@ const fieldPlaces = chapters.map((c) => ({
     font-weight: 520;
     outline: none;
   }
-  .readout { grid-column: 1 / span 6; margin-top: clamp(40px, 5vw, 72px); color: var(--note); }
+  /* The visit is the last image: a chart at display scale, drawn (with the Field) in the dots that drew the
+     name and the world. */
+  .readout { grid-column: 1 / -1; margin-top: clamp(40px, 5vw, 72px); color: var(--note); }
   .readout__total { font-size: 0.9375rem; color: var(--ink-2); margin-bottom: 18px; }
   .readout__total .mono { font-size: 0.8125rem; color: var(--note); margin-right: 0.3em; }
-  .readout__bars { display: grid; gap: 10px; }
-  .readout__bars li { display: grid; grid-template-columns: 11em 1fr 5.5em; align-items: center; gap: 14px; }
-  .readout__label { color: var(--ink); font-size: 0.9375rem; }
-  .readout__track { height: 10px; background: var(--note-soft); position: relative; overflow: hidden; }
+  .readout__bars { display: grid; gap: clamp(10px, 1.4vw, 20px); }
+  .readout__bars li {
+    display: grid;
+    grid-template-columns: minmax(7em, 0.34fr) 1fr 6.5em;
+    grid-template-areas: 'label track value';
+    align-items: end;
+    gap: 8px clamp(14px, 2vw, 32px);
+  }
+  .readout__label { grid-area: label; color: var(--ink); font-size: var(--t-h3); line-height: 1; letter-spacing: -0.028em; font-weight: 520; }
+  .readout__track { grid-area: track; height: 14px; background: var(--note-soft); position: relative; overflow: hidden; }
+  .readout__value { grid-area: value; }
   .readout__fill { position: absolute; inset: 0; background: var(--note); transform: scaleX(var(--share, 0)); transform-origin: left; transition: transform 1.2s var(--ease-out); }
   .readout__outside .readout__label { color: var(--ink-2); }
   .readout__unit { margin-top: 14px; color: var(--note); font-size: 0.9375rem; }
   /* With the Field running, the bars are drawn in dots: the same dots that drew the name and the world. */
-  :global(html.field-on) .readout__track { height: 30px; background: none; overflow: visible; border-bottom: 1px solid var(--rule); }
+  :global(html.field-on) .readout__track { height: clamp(40px, 4.6vw, 66px); background: none; overflow: visible; border-bottom: 1px solid var(--rule); }
   :global(html.field-on) .readout__fill { display: none; }
   .readout__outside .readout__fill { background: var(--ink-3); }
   @media (prefers-reduced-motion: reduce) { .readout__fill { transition: none; } }
-  .readout__value { text-align: right; }
+  .readout__value { text-align: right; font-size: 0.875rem; }
   .readout__cases { margin-top: 18px; color: var(--ink-2); font-size: 0.9375rem; }
   .close__text {
-    grid-column: 8 / -1;
+    grid-column: 1 / span 7;
     margin-top: clamp(40px, 5vw, 72px);
     display: grid;
     gap: 1em;
@@ -250,7 +259,7 @@ const fieldPlaces = chapters.map((c) => ({
 
   @media (max-width: 900px) {
     .readout, .close__text, .close__title { grid-column: 1 / -1; }
-    .readout__bars li { grid-template-columns: 8.5em 1fr 4.5em; }
+    .readout__bars li { grid-template-columns: 1fr auto; grid-template-areas: 'label value' 'track track'; }
     .foot p:first-child, .foot p:last-child { grid-column: 1 / -1; text-align: left; }
   }
 </style>

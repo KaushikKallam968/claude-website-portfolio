@@ -215,7 +215,6 @@ export async function startField(): Promise<FieldHandle | null> {
     nameCount = name.count;
     renderer.sizes.name = spacing * (narrow ? 1.08 : 0.94);
     renderer.sizes.map = narrow ? 2.3 : 2.1;
-    renderer.sizes.visit = narrow ? 2.4 : 3.2;
 
     const nIdx = Array.from({ length: name.count }, (_, i) => i).sort((a, b) => name.points[a * 2] - name.points[b * 2]);
     const N = Math.max(name.count, world.length);
@@ -300,7 +299,8 @@ export async function startField(): Promise<FieldHandle | null> {
     if (bars) {
       const br = bars.getBoundingClientRect();
       visitDoc = { x: br.left, y: br.top + sy };
-      visitSpacing = narrow ? 3.6 : 4.6;
+      visitSpacing = narrow ? 4.6 : 7;
+      renderer.sizes.visit = visitSpacing * 0.8;
       visitRows = [...bars.querySelectorAll<HTMLElement>('[data-bar]')].map((li) => {
         const tr = li.querySelector('.readout__track')!.getBoundingClientRect();
         return {
@@ -488,7 +488,10 @@ export async function startField(): Promise<FieldHandle | null> {
     if (active.kind === 'visit') {
       const p = clamp01((y - active.start) / Math.max(1, active.end - active.start));
       const k = ease(clamp01(p * 1.4));
-      const city = cityCam(active.from);
+      const c0 = cityCam(active.from);
+      const s0 = renderer.scale * c0.z;
+      // Start where the last scene left the camera (the place framed up and to the right).
+      const city = { x: c0.x - (narrow ? 0 : vw * 0.14) / s0, y: c0.y - (vh * (narrow ? 0.16 : 0.12)) / s0, z: c0.z };
       frame.stage = 1 + p;
       frame.cam = { x: lerp(city.x, worldCam.x, k), y: lerp(city.y, worldCam.y, k), z: Math.exp(lerp(Math.log(city.z), Math.log(worldCam.z), k)) };
       frame.routeVis = mapVis * (1 - smooth(0.2, 0.7, p));
@@ -497,7 +500,13 @@ export async function startField(): Promise<FieldHandle | null> {
       const p = clamp01((y - active.start) / (active.end - active.start));
       const k = ease(clamp01((p - 0.18) / 0.82));
       const city = cityCam(0);
-      frame.cam = { x: lerp(worldCam.x, city.x, k), y: lerp(worldCam.y, city.y, k), z: Math.exp(lerp(Math.log(worldCam.z * intro.push), Math.log(city.z), k)) };
+      const z = Math.exp(lerp(Math.log(worldCam.z * intro.push), Math.log(city.z), k));
+      const s = renderer.scale * z;
+      frame.cam = {
+        x: lerp(worldCam.x, city.x - (narrow ? 0 : vw * 0.14) / s, k),
+        y: lerp(worldCam.y, city.y - (vh * (narrow ? 0.16 : 0.12)) / s, k),
+        z,
+      };
       frame.routeVis = mapVis * Math.max(intro.running ? intro.routeVis : 0, smooth(0.55, 1, pStage));
       frame.active = k > 0.6 ? tOf(0) : -1;
     } else {
@@ -512,6 +521,10 @@ export async function startField(): Promise<FieldHandle | null> {
       const bump = Math.sin(Math.PI * e);
       const z = Math.min(cityZoom, Math.exp(lerp(Math.log(cityZoom), Math.log(Math.min(zFit, cityZoom)), bump)));
       frame.cam = { x: lerp(tx, (ax + bx) / 2, bump * 0.6), y: lerp(ty, (ay + by) / 2, bump * 0.6), z };
+      // Keep the places up and to the right of the clock and the words, which sit bottom left.
+      const s = renderer.scale * z;
+      frame.cam.x -= (narrow ? 0 : vw * 0.14) / s;
+      frame.cam.y -= (vh * (narrow ? 0.16 : 0.12)) / s;
       frame.routeVis = mapVis;
       frame.leg = [ta, tb, p];
       frame.traveller = [tx, ty];
@@ -520,32 +533,43 @@ export async function startField(): Promise<FieldHandle | null> {
     root.classList.toggle('in-scene', mapVis > 0.3 && frame.stage > 0.25 && frame.stage < 1.5);
   };
 
+  type Box = { x0: number; y0: number; x1: number; y1: number };
   const placeLabels = () => {
     const show = frame.routeVis;
     const leg = frame.leg[2] > 0 ? [frame.leg[0], frame.leg[1]] : [];
     // Most important first: the place being read, then the two ends of the current leg, then the rest.
     const rank = (t: number) => (Math.abs(frame.active - t) < 0.0001 ? 0 : leg.some((v) => Math.abs(v - t) < 0.0001) ? 1 : 2);
-    const placed: { x0: number; y0: number; x1: number; y1: number }[] = [];
-    const ordered = [...labels].sort((a, b) => rank(a.t) - rank(b.t));
-    for (const l of ordered) {
-      const x = vw / 2 + (l.x - frame.cam.x) * renderer.scale * frame.cam.z;
-      const y = vh / 2 + (frame.cam.y - l.y) * renderer.scale * frame.cam.z;
-      const revealed = frame.route >= l.t - 0.0001;
-      const isActive = rank(l.t) === 0;
-      const left = x > vw - 150;
+    const toScreen = (lx: number, ly: number) => [vw / 2 + (lx - frame.cam.x) * renderer.scale * frame.cam.z, vh / 2 + (frame.cam.y - ly) * renderer.scale * frame.cam.z];
+    // Every visible place marker (with its ring) is an obstacle, as is the reading text.
+    const markers: Box[] = labels
+      .filter((l) => frame.route >= l.t - 0.0001)
+      .map((l) => {
+        const [x, y] = toScreen(l.x, l.y);
+        return { x0: x - 12, y0: y - 12, x1: x + 12, y1: y + 12 };
+      });
+    const text: Box[] = quietRects.map((q) => ({ x0: q.left - 8, y0: q.top - 8, x1: q.right + 8, y1: q.bottom + 8 }));
+    const overlaps = (a: Box, b: Box) => !(a.x1 < b.x0 || a.x0 > b.x1 || a.y1 < b.y0 || a.y0 > b.y1);
+    const placed: Box[] = [];
+    for (const l of [...labels].sort((a, b) => rank(a.t) - rank(b.t))) {
+      const [x, y] = toScreen(l.x, l.y);
       const w = l.w || (l.w = l.el.offsetWidth || 110);
-      const box = { x0: left ? x - w - 4 : x - 4, y0: y - 9, x1: left ? x + 4 : x + w + 4, y1: y + 9 };
-      const hits = (r: { x0: number; y0: number; x1: number; y1: number }) => !(box.x1 < r.x0 || box.x0 > r.x1 || box.y1 < r.y0 || box.y0 > r.y1);
-      const overText = quietRects.some((q) => hits({ x0: q.left - 8, y0: q.top - 8, x1: q.right + 8, y1: q.bottom + 8 }));
-      const blocked = placed.some(hits);
-      const clipped = y < frame.clip + 30;
-      const visible = revealed && !overText && !blocked && !clipped && show > 0.02;
-      if (visible) placed.push(box);
-      const o = visible ? show * (isActive || frame.active === -1 ? 1 : 0.6) : 0;
-      l.el.style.opacity = o.toFixed(3);
-      l.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      const own = { x0: x - 12, y0: y - 12, x1: x + 12, y1: y + 12 };
+      // Try right of the marker, then left, then above, then below.
+      const candidates = [
+        { dx: 0, dy: 0, left: false, box: { x0: x + 12, y0: y - 8, x1: x + w + 2, y1: y + 8 } },
+        { dx: 0, dy: 0, left: true, box: { x0: x - w - 2, y0: y - 8, x1: x - 12, y1: y + 8 } },
+        { dx: -14, dy: -18, left: false, box: { x0: x - 2, y0: y - 27, x1: x + w - 12, y1: y - 10 } },
+        { dx: -14, dy: 18, left: false, box: { x0: x - 2, y0: y + 10, x1: x + w - 12, y1: y + 27 } },
+      ].filter((c) => c.box.x0 > 4 && c.box.x1 < vw - 4);
+      const clear = (b: Box) =>
+        !placed.some((p) => overlaps(b, p)) && !text.some((t) => overlaps(b, t)) && !markers.some((m) => m.x0 !== own.x0 && overlaps(b, m));
+      const choice = frame.route >= l.t - 0.0001 && show > 0.02 && y > frame.clip + 30 ? candidates.find((c) => clear(c.box)) : undefined;
+      const isActive = rank(l.t) === 0;
+      if (choice) placed.push(choice.box);
+      l.el.style.opacity = choice ? (show * (isActive || frame.active === -1 ? 1 : 0.6)).toFixed(3) : '0';
+      l.el.style.transform = `translate3d(${(x + (choice?.dx ?? 0)).toFixed(1)}px, ${(y + (choice?.dy ?? 0)).toFixed(1)}px, 0)`;
       l.el.classList.toggle('is-active', isActive);
-      l.el.classList.toggle('is-left', left);
+      l.el.classList.toggle('is-left', Boolean(choice?.left));
     }
   };
 
