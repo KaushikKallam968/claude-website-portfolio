@@ -243,10 +243,11 @@ const { kind, compact = false, scene = false } = Astro.props;
   :global(html.scenes) .fig--scene .xl__arrow { --at: 0.3; --c: var(--ink-2); }
   :global(html.scenes) .fig--scene .inst__log .inst__none { --c: var(--ink-3); }
   :global(html.scenes) .fig--scene .xl__result { --at: 0.54; }
-  /* Each screen arrives with its step, rather than waiting greyed out, which would read as disabled. */
+  /* Each screen arrives with its step, drawn in from the top as it rises into place, rather than waiting
+     greyed out, which would read as disabled. */
   :global(html.scenes) .fig--scene .phone {
     --k: clamp(0, calc((var(--p, 0) - var(--at)) * 4), 1);
-    opacity: var(--k);
+    clip-path: inset(0 0 calc((1 - var(--k)) * 100%) 0 round 16px);
   }
   :global(html.scenes) .fig--scene .phone--a { --at: 0.02; translate: calc(12% + (1 - var(--k)) * 30%) calc(8% + (1 - var(--k)) * 20%); rotate: calc(-4deg * var(--k)); }
   :global(html.scenes) .fig--scene .phone--b { --at: 0.3; translate: 0 calc((1 - var(--k)) * 24%); }
