@@ -100,6 +100,41 @@ describe('observation notes', () => {
     expect(obs.record({ type: 'depth', t: 3000, page: '/', fraction: 1 })).toBeNull();
   });
 
+  it('notes copying out of a tagged control once per page, in the control’s own words', () => {
+    const obs = createObservation();
+    const copy = { type: 'copy' as const, page: '/', tag: 'contact.email', label: 'my email address', cannotShow: 'Whether you will write.' };
+    expect(obs.record({ ...copy, t: 4000 })).toEqual({
+      t: 4000,
+      event: 'copy',
+      tag: 'contact.email',
+      quality: 'tagged',
+      shows: 'You copied my email address.',
+      cannotShow: 'Whether you will write.',
+    });
+    expect(obs.record({ ...copy, t: 5000 })).toBeNull();
+    // The résumé is another page: the same address is noted there once too.
+    expect(obs.record({ ...copy, t: 6000, page: '/resume/' })?.shows).toBe('You copied my email address.');
+    // A control that does not say what copying it can't show gets the general line, and a name that ends in a full stop is not doubled.
+    expect(obs.record({ type: 'copy', t: 7000, page: '/', tag: 'case.watched', label: 'watched.' })).toMatchObject({
+      shows: 'You copied watched.',
+      cannotShow: 'What you will do with it.',
+    });
+  });
+
+  it('notes the time the device keeps once per visit, and cannot tell whether the reader is there', () => {
+    const obs = createObservation();
+    expect(obs.record({ type: 'clock', t: 2000, place: 'Singapore' })).toEqual({
+      t: 2000,
+      event: 'clock',
+      tag: null,
+      quality: 'tagged',
+      shows: 'Your device keeps Singapore time.',
+      cannotShow: 'Whether you’re there, or only your clock is.',
+    });
+    // Later pages replay the notes of the visit; the visit has already said it.
+    expect(obs.record({ type: 'clock', t: 9000, place: 'Singapore' })).toBeNull();
+  });
+
   it('only notes a pause once it is long enough to mean something', () => {
     const obs = createObservation();
     expect(obs.record({ type: 'idle', t: 9000, ms: 2400 })).toBeNull();
