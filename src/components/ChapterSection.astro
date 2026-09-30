@@ -1,5 +1,5 @@
 ---
-import { keepDots } from '../lib/format';
+import { keepCompounds, keepDots } from '../lib/format';
 import { qualifierOf, type Chapter, type Role, shortPlace } from '../data/journey';
 import EntryRow from './EntryRow.astro';
 import TimeShift from './TimeShift.astro';
@@ -45,12 +45,12 @@ const reachCannot =
     <div class:list={['group', { 'group--sub': i > 0 }]}>
       <div class="chapter__body grid">
         <div class="chapter__text">
-          {g.heading && <h3 class="sub__title">{g.heading}</h3>}
-          {i === 0 && chapter.lead && <p class="chapter__lead">{chapter.lead}</p>}
-          {g.text.map((p) => <p>{p}</p>)}
+          {g.heading && <h3 class="sub__title">{keepCompounds(g.heading)}</h3>}
+          {i === 0 && chapter.lead && <p class="chapter__lead">{keepCompounds(chapter.lead)}</p>}
+          {g.text.map((p) => <p>{keepCompounds(p)}</p>)}
           {i === 0 && chapter.facts && (
             <ul class="chapter__facts">
-              {chapter.facts.map((f) => <li>{keepDots(f)}</li>)}
+              {chapter.facts.map((f) => <li>{keepCompounds(keepDots(f))}</li>)}
             </ul>
           )}
         </div>
@@ -58,9 +58,9 @@ const reachCannot =
           <ul class="chapter__roles">
             {g.roles.map((r) => (
               <li>
-                <span class="role__title">{r.title}</span>
-                <span class="role__org">{r.org}</span>
-                <span class="role__when label">{r.period} · {r.where}</span>
+                <span class="role__title">{keepCompounds(r.title)}</span>
+                <span class="role__org">{keepCompounds(r.org)}</span>
+                <span class="role__when label">{keepCompounds(`${r.period} · ${r.where}`)}</span>
               </li>
             ))}
           </ul>
