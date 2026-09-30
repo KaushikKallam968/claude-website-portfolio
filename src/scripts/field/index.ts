@@ -75,7 +75,9 @@ export async function startField(): Promise<FieldHandle | null> {
     fetch('/data/world-dots.bin').then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(r.status))),
     document.fonts.load(`${getComputedStyle(heading).fontWeight} 100px Switzer`),
   ]).catch(() => [null]);
-  if (!bin) return null;
+  // The page gives up on the Field after five seconds (see Base.astro) and shows the plain name. A world that
+  // arrives after that must not bring a canvas back over it.
+  if (!bin || !root.classList.contains('field')) return null;
 
   document.body.prepend(canvas);
   root.classList.add('field-on');

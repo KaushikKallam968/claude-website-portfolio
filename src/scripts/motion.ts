@@ -260,7 +260,8 @@ export function startMotion() {
     const field = wantsField ? await startField().catch(() => null) : null;
     if (!field) document.documentElement.classList.remove('field');
     startTimeShifts(false, livePaused);
-    intro(field);
+    // After a slow load the failsafe has already shown the page; an entrance now would only hide it again.
+    if (!document.documentElement.classList.contains('motion-done')) intro(field);
     chapters();
     ScrollTrigger.refresh();
     remeasureOnGrowth();
