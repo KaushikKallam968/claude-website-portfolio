@@ -52,12 +52,23 @@ const nav = [
     <script is:inline>
       // Scripts are on: allow entrance states that hide text until motion reveals it.
       document.documentElement.classList.add('js');
+      // The home page will draw its Field (WebGL): lay the page out for it from the first frame, so scroll
+      // positions stay stable. motion.ts removes the class if the Field cannot start.
+      try {
+        if (location.pathname === '/' && 'WebGL2RenderingContext' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.documentElement.classList.add('field');
+        }
+      } catch (e) {}
       try {
         if (sessionStorage.getItem('kk:notes') === 'true') document.documentElement.classList.add('notes-off');
         if (sessionStorage.getItem('kk:paused') === 'true') document.documentElement.classList.add('live-paused');
       } catch (e) {}
       // Failsafe: if the motion bundle never runs, reveal everything that waits for it.
-      setTimeout(function () { document.documentElement.classList.add('motion-done'); }, 4000);
+      setTimeout(function () {
+        var d = document.documentElement;
+        d.classList.add('motion-done');
+        if (!d.classList.contains('field-on')) d.classList.remove('field');
+      }, 5000);
     </script>
   </head>
   <body>

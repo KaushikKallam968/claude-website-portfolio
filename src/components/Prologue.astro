@@ -1,0 +1,43 @@
+---
+/**
+ * Between the introduction and the first Chapter. With the Field running, this is where the name dissolves
+ * into the world and the map comes down to New York; otherwise it is one line that sets the direction.
+ */
+import type { Chapter } from '../data/journey';
+
+interface Props {
+  first: Chapter;
+  last: Chapter;
+}
+const { first, last } = Astro.props;
+---
+
+<div class="prologue" data-prologue>
+  <div class="prologue__stage">
+    <p class="prologue__text">The journey runs backwards: from {first.place.name}, today, to {last.place.name}, where it began.</p>
+    <p class="prologue__now mono num" aria-hidden="true"><span>{first.place.name}</span> <span data-clock={first.place.timeZone}>--:--</span></p>
+  </div>
+</div>
+
+<style>
+  .prologue { margin: clamp(90px, 12vw, 180px) var(--margin) 0; }
+  .prologue__stage { display: grid; gap: 14px; justify-items: start; }
+  .prologue__text {
+    font-size: var(--t-h3);
+    line-height: 1.12;
+    letter-spacing: -0.028em;
+    font-weight: 520;
+    max-width: 20ch;
+  }
+  .prologue__now { color: var(--note); display: flex; gap: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  :global(html.field) .prologue { height: 230vh; margin-top: 0; }
+  :global(html.field) .prologue__stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    align-content: end;
+    padding-bottom: clamp(32px, 7vh, 80px);
+  }
+  :global(html.field) .prologue__text { text-shadow: 0 0 18px var(--paper), 0 0 6px var(--paper); }
+</style>

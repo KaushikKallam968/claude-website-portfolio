@@ -173,3 +173,26 @@ html { scrollbar-color: var(--ink-3) var(--paper); caret-color: var(--note); acc
 .ln-mask, .ch-mask { padding-bottom: 0.14em; margin-bottom: -0.14em; }
 h1, h2, h3 { text-wrap: balance; }
 p, li, dd { text-wrap: pretty; }
+
+/* ---------- The Field (home page) ---------- */
+.field-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; }
+html.field main, html.field .foot { position: relative; z-index: 1; }
+html.field .hero__word { color: transparent; }
+/* The introduction's supporting pieces wait for the Field's arrival sequence (motion.ts brings them in). */
+html.field:not(.motion-done) :is(.route__item, .rail .notes) { opacity: 0; }
+html.field:not(.motion-done) .route__list { --rule-w: 0; }
+.field-labels { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.field-label {
+  position: absolute; left: 0; top: 0; margin: 0;
+  display: flex; gap: 8px; align-items: baseline;
+  padding-left: 14px; translate: 0 -50%;
+  font-family: var(--mono); font-size: 0.6875rem; line-height: 1; white-space: nowrap;
+  color: var(--ink); will-change: transform, opacity;
+}
+.field-label__name { text-transform: uppercase; letter-spacing: 0.06em; }
+.field-label__time { color: var(--ink-2); }
+.field-label.is-active, .field-label.is-active .field-label__time { color: var(--note); }
+@media (min-width: 1101px) {
+  html.field .rail { transition: opacity 0.6s var(--ease-out); }
+  html.in-scene .rail { opacity: 0; pointer-events: none; }
+}

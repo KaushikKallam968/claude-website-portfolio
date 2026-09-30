@@ -26,13 +26,20 @@ function offsetHours(fromTz: string, toTz: string, at: Date) {
 const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen'];
 const hoursPhrase = (n: number) => `${words[n] ?? n} hour${n === 1 ? '' : 's'}`;
 
-/** Every Time Shift rolls from the previous place's clock to the next place's clock as it enters. */
+/**
+ * Every Time Shift rolls from the previous place's clock to the next place's clock. With the Field running
+ * the roll is tied to scroll across the scene (the map flies at the same pace); otherwise it plays once
+ * as the band enters.
+ */
 export function startTimeShifts(reduced: boolean, paused: () => boolean) {
+  const scrubbed = document.documentElement.classList.contains('field');
   document.querySelectorAll<HTMLElement>('[data-shift]').forEach((el) => {
     const { fromTz, toTz, from, to } = el.dataset as Record<string, string>;
     const reels = [...el.querySelectorAll<HTMLElement>('[data-reel] .reel__strip')];
     const text = el.querySelector<HTMLElement>('[data-shift-text]')!;
     const day = el.querySelector<HTMLElement>('[data-shift-day]')!;
+    const line = el.querySelector<HTMLElement>('[data-shift-progress]');
+    let dayText = '';
 
     const paint = () => {
       const now = new Date();
@@ -44,23 +51,50 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
           ? `${to} keeps the same time as ${from}.`
           : `${to} is ${hoursPhrase(Math.abs(off))} ${off > 0 ? 'ahead of' : 'behind'} ${from}.`;
       const sameDate = a.y === b.y && a.mo === b.mo && a.d === b.d;
-      day.textContent = sameDate ? '' : off > 0 ? '+1 day' : '−1 day';
+      dayText = sameDate ? '' : off > 0 ? '+1 day' : '−1 day';
+      day.textContent = dayText;
       if (!sameDate) text.textContent += off > 0 ? ' It’s already tomorrow there.' : ' It’s still yesterday there.';
       const digits = (t: { h: number; m: number }) => [Math.floor(t.h / 10), t.h % 10, Math.floor(t.m / 10), t.m % 10];
       return { from: digits(a), to: digits(b), off };
     };
 
     let state = paint();
+    const y = (index: number) => (-index * 100) / (DIGITS_PER_TURN * 3);
     // Position each reel on the middle turn so it can roll either way.
-    const place = (values: number[]) =>
-      reels.forEach((r, i) => gsap.set(r, { yPercent: (-(values[i] + DIGITS_PER_TURN) * 100) / (DIGITS_PER_TURN * 3) }));
+    const place = (values: number[]) => reels.forEach((r, i) => gsap.set(r, { yPercent: y(values[i] + DIGITS_PER_TURN) }));
+    // A changed digit spins through a full turn in the direction of travel: forward in time rolls up, back rolls down.
+    const startIndex = (i: number) => state.from[i] + (state.off >= 0 ? 0 : 2 * DIGITS_PER_TURN);
 
     if (reduced) {
       place(state.to);
       return;
     }
-    place(state.from);
 
+    if (scrubbed) {
+      let last = 0;
+      const scrub = (p: number) => {
+        last = p;
+        reels.forEach((r, i) => {
+          const rest = state.to[i] + DIGITS_PER_TURN;
+          if (state.from[i] === state.to[i]) return gsap.set(r, { yPercent: y(rest) });
+          const k = Math.min(1, Math.max(0, (p - 0.14 - i * 0.07) / 0.55));
+          const eased = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+          gsap.set(r, { yPercent: y(startIndex(i)) + (y(rest) - y(startIndex(i))) * eased });
+        });
+        day.style.opacity = dayText && p > 0.55 ? '1' : '0';
+        line?.style.setProperty('--p', p.toFixed(3));
+      };
+      ScrollTrigger.create({ trigger: el, start: 'top top', end: 'bottom bottom', onUpdate: (self) => scrub(self.progress), onRefresh: (self) => scrub(self.progress) });
+      scrub(0);
+      setInterval(() => {
+        if (paused() || !ScrollTrigger.isInViewport(el)) return;
+        state = paint();
+        scrub(last);
+      }, 30000);
+      return;
+    }
+
+    place(state.from);
     ScrollTrigger.create({
       trigger: el,
       start: 'top 70%',
@@ -73,17 +107,13 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
 
     function roll() {
       state = paint();
-      const dir = state.off >= 0 ? 1 : -1;
-      const y = (index: number) => (-index * 100) / (DIGITS_PER_TURN * 3);
       reels.forEach((r, i) => {
         const rest = state.to[i] + DIGITS_PER_TURN;
         if (state.from[i] === state.to[i]) {
           gsap.set(r, { yPercent: y(rest) });
           return;
         }
-        // A changed digit spins through a full turn in the direction of travel: forward in time rolls up, back rolls down.
-        const from = state.from[i] + (dir > 0 ? 0 : 2 * DIGITS_PER_TURN);
-        gsap.fromTo(r, { yPercent: y(from) }, { yPercent: y(rest), duration: 1.6, ease: 'scene', delay: i * 0.1 });
+        gsap.fromTo(r, { yPercent: y(startIndex(i)) }, { yPercent: y(rest), duration: 1.6, ease: 'scene', delay: i * 0.1 });
       });
     }
 

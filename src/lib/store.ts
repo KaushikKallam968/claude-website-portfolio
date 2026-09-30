@@ -8,6 +8,7 @@ export const KEYS = {
   notesHidden: 'kk:notes',
   livePaused: 'kk:paused',
   restore: 'kk:restore',
+  introSeen: 'kk:intro',
   origin: (caseId: string) => `kk:origin:${caseId}`,
 } as const;
 

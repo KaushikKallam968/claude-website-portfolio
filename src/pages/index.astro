@@ -1,14 +1,25 @@
 ---
 import Base from '../layouts/Base.astro';
 import ChapterSection from '../components/ChapterSection.astro';
+import Prologue from '../components/Prologue.astro';
 import NotesPanel from '../components/NotesPanel.astro';
 import Arrow from '../components/Arrow.astro';
 import { chapters, closing } from '../data/journey';
 
 const pad = (v: number) => String(v).padStart(2, '0');
+// The Field draws the world from these: every Chapter's place, in page order.
+const fieldPlaces = chapters.map((c) => ({
+  id: c.id,
+  label: c.label,
+  short: c.place.name.split(',')[0].replace(/ County$/, ''),
+  lat: c.place.lat,
+  lon: c.place.lon,
+  tz: c.place.timeZone,
+}));
 ---
 
 <Base title="Kaushik Kallam · Senior Quantitative UX Researcher" current="journey">
+  <script type="application/json" id="field-places" set:html={JSON.stringify(fieldPlaces)} />
   <main id="main">
     <div class="layout">
     <section class="hero" aria-labelledby="name">
@@ -48,6 +59,7 @@ const pad = (v: number) => String(v).padStart(2, '0');
     </section>
 
     <div id="journey" class="journey">
+      <Prologue first={chapters[0]} last={chapters[chapters.length - 1]} />
       {chapters.map((c, i) => <ChapterSection chapter={c} previous={chapters[i - 1]} />)}
     </div>
     <div class="rail">
@@ -145,7 +157,17 @@ const pad = (v: number) => String(v).padStart(2, '0');
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    border-top: 1px solid var(--ink);
+    position: relative;
+    --rule-w: 1;
+  }
+  .route__list::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: var(--ink);
+    transform: scaleX(var(--rule-w));
+    transform-origin: left;
   }
   .route__item {
     display: grid;

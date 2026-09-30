@@ -4,6 +4,7 @@ import { SplitText } from 'gsap/SplitText';
 import { CustomEase } from 'gsap/CustomEase';
 import Lenis from 'lenis';
 import { startTimeShifts } from './timeshift';
+import { startField, type FieldHandle } from './field';
 import { record, elapsed } from './notes';
 import { livePaused } from './navigation';
 
@@ -33,12 +34,25 @@ function smoothScroll() {
   gsap.ticker.lagSmoothing(0);
 }
 
-function intro() {
+function intro(field: FieldHandle | null) {
   const words = gsap.utils.toArray<HTMLElement>('.hero__word');
   if (!words.length) return;
+  const root = document.documentElement;
+
+  if (field) {
+    // The Field draws the name; the words stay as the accessible, selectable text underneath.
+    gsap.set(words, { opacity: 1 });
+    const tl = gsap.timeline({ defaults: { ease: 'out' }, delay: field.textCue, onComplete: () => root.classList.add('motion-done') });
+    tl.fromTo('[data-reveal]', { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 1.1, stagger: 0.08, clearProps: 'transform' }, 0);
+    tl.fromTo('.route__list', { '--rule-w': 0 }, { '--rule-w': 1, duration: 1.2, ease: 'scene' }, 0.1);
+    tl.fromTo('.route__item', { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 1, stagger: 0.05 }, 0.25);
+    tl.fromTo('.rail .notes', { clipPath: 'inset(0 0 100% 0)', opacity: 1 }, { clipPath: 'inset(0 0 0% 0)', opacity: 1, duration: 1.2, ease: 'scene' }, 0.3);
+    return;
+  }
+
   const splits = words.map((w) => SplitText.create(w, { type: 'chars', charsClass: 'ch', aria: 'none' }));
   gsap.set(words, { opacity: 1 });
-  const tl = gsap.timeline({ defaults: { ease: 'out' }, onComplete: () => document.documentElement.classList.add('motion-done') });
+  const tl = gsap.timeline({ defaults: { ease: 'out' }, onComplete: () => root.classList.add('motion-done') });
   splits.forEach((s, i) => {
     tl.from(s.chars, { yPercent: 108, duration: 1.35, stagger: 0.034 }, i * 0.12);
   });
@@ -151,13 +165,16 @@ export function startMotion() {
     reveal();
     return;
   }
-  startTimeShifts(false, livePaused);
   smoothScroll();
-  document.fonts.ready.then(() => {
-    intro();
+  document.fonts.ready.then(async () => {
+    const wantsField = document.documentElement.classList.contains('field');
+    const field = wantsField ? await startField().catch(() => null) : null;
+    if (!field) document.documentElement.classList.remove('field');
+    startTimeShifts(false, livePaused);
+    intro(field);
     chapters();
     ScrollTrigger.refresh();
   });
   // Failsafe: never leave text hidden if something above throws.
-  setTimeout(() => reveal(), 3500);
+  setTimeout(() => reveal(), 5500);
 }

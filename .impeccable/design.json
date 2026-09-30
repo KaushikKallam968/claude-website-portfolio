@@ -1,0 +1,459 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-30T03:06:52+00:00",
+  "title": "Design System: Kaushik Kallam",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Daylight Paper",
+        "canonical": "#ecece8",
+        "tonalRamp": [
+          "oklch(15% 0.005 106)",
+          "oklch(26% 0.005 106)",
+          "oklch(38% 0.005 106)",
+          "oklch(50% 0.005 106)",
+          "oklch(62% 0.005 106)",
+          "oklch(74% 0.005 106)",
+          "oklch(85% 0.005 106)",
+          "oklch(95% 0.005 106)"
+        ]
+      },
+      "paper-2": {
+        "role": "neutral",
+        "displayName": "Shade Paper",
+        "canonical": "#e3e3de",
+        "tonalRamp": [
+          "oklch(15% 0.005 106)",
+          "oklch(26% 0.005 106)",
+          "oklch(38% 0.005 106)",
+          "oklch(50% 0.005 106)",
+          "oklch(62% 0.005 106)",
+          "oklch(74% 0.005 106)",
+          "oklch(85% 0.005 106)",
+          "oklch(95% 0.005 106)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#111110",
+        "tonalRamp": [
+          "oklch(15% 0.005 106)",
+          "oklch(26% 0.005 106)",
+          "oklch(38% 0.005 106)",
+          "oklch(50% 0.005 106)",
+          "oklch(62% 0.005 106)",
+          "oklch(74% 0.005 106)",
+          "oklch(85% 0.005 106)",
+          "oklch(95% 0.005 106)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink Two",
+        "canonical": "#4a4a46",
+        "tonalRamp": [
+          "oklch(15% 0.005 106)",
+          "oklch(26% 0.005 106)",
+          "oklch(38% 0.005 106)",
+          "oklch(50% 0.005 106)",
+          "oklch(62% 0.005 106)",
+          "oklch(74% 0.005 106)",
+          "oklch(85% 0.005 106)",
+          "oklch(95% 0.005 106)"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Ink Three",
+        "canonical": "#656560",
+        "tonalRamp": [
+          "oklch(15% 0.005 106)",
+          "oklch(26% 0.005 106)",
+          "oklch(38% 0.005 106)",
+          "oklch(50% 0.005 106)",
+          "oklch(62% 0.005 106)",
+          "oklch(74% 0.005 106)",
+          "oklch(85% 0.005 106)",
+          "oklch(95% 0.005 106)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "rgb(17 17 16 / 0.16)"
+      },
+      "note": {
+        "role": "primary",
+        "displayName": "Annotation Blue",
+        "canonical": "#2c3be0",
+        "tonalRamp": [
+          "oklch(15% 0.23 268)",
+          "oklch(26% 0.23 268)",
+          "oklch(38% 0.23 268)",
+          "oklch(50% 0.23 268)",
+          "oklch(62% 0.23 268)",
+          "oklch(74% 0.23 268)",
+          "oklch(85% 0.23 268)",
+          "oklch(95% 0.23 268)"
+        ]
+      },
+      "note-soft": {
+        "role": "primary",
+        "displayName": "Annotation Blue Tint",
+        "canonical": "rgb(44 59 224 / 0.1)"
+      },
+      "paper-dark": {
+        "role": "neutral",
+        "displayName": "Daylight Paper (dark)",
+        "canonical": "#121211",
+        "tonalRamp": [
+          "oklch(15% 0.005 106)",
+          "oklch(26% 0.005 106)",
+          "oklch(38% 0.005 106)",
+          "oklch(50% 0.005 106)",
+          "oklch(62% 0.005 106)",
+          "oklch(74% 0.005 106)",
+          "oklch(85% 0.005 106)",
+          "oklch(95% 0.005 106)"
+        ],
+        "theme": "dark"
+      },
+      "paper-2-dark": {
+        "role": "neutral",
+        "displayName": "Shade Paper (dark)",
+        "canonical": "#1b1b19",
+        "tonalRamp": [
+          "oklch(15% 0.005 106)",
+          "oklch(26% 0.005 106)",
+          "oklch(38% 0.005 106)",
+          "oklch(50% 0.005 106)",
+          "oklch(62% 0.005 106)",
+          "oklch(74% 0.005 106)",
+          "oklch(85% 0.005 106)",
+          "oklch(95% 0.005 106)"
+        ],
+        "theme": "dark"
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Ink (dark)",
+        "canonical": "#ecebe6",
+        "tonalRamp": [
+          "oklch(15% 0.005 106)",
+          "oklch(26% 0.005 106)",
+          "oklch(38% 0.005 106)",
+          "oklch(50% 0.005 106)",
+          "oklch(62% 0.005 106)",
+          "oklch(74% 0.005 106)",
+          "oklch(85% 0.005 106)",
+          "oklch(95% 0.005 106)"
+        ],
+        "theme": "dark"
+      },
+      "ink-2-dark": {
+        "role": "neutral",
+        "displayName": "Ink Two (dark)",
+        "canonical": "#b5b4ad",
+        "tonalRamp": [
+          "oklch(15% 0.005 106)",
+          "oklch(26% 0.005 106)",
+          "oklch(38% 0.005 106)",
+          "oklch(50% 0.005 106)",
+          "oklch(62% 0.005 106)",
+          "oklch(74% 0.005 106)",
+          "oklch(85% 0.005 106)",
+          "oklch(95% 0.005 106)"
+        ],
+        "theme": "dark"
+      },
+      "ink-3-dark": {
+        "role": "neutral",
+        "displayName": "Ink Three (dark)",
+        "canonical": "#85847e",
+        "tonalRamp": [
+          "oklch(15% 0.005 106)",
+          "oklch(26% 0.005 106)",
+          "oklch(38% 0.005 106)",
+          "oklch(50% 0.005 106)",
+          "oklch(62% 0.005 106)",
+          "oklch(74% 0.005 106)",
+          "oklch(85% 0.005 106)",
+          "oklch(95% 0.005 106)"
+        ],
+        "theme": "dark"
+      },
+      "rule-dark": {
+        "role": "neutral",
+        "displayName": "Rule (dark)",
+        "canonical": "rgb(236 235 230 / 0.16)",
+        "theme": "dark"
+      },
+      "note-dark": {
+        "role": "primary",
+        "displayName": "Annotation Blue (dark)",
+        "canonical": "#8e98ff",
+        "tonalRamp": [
+          "oklch(15% 0.23 268)",
+          "oklch(26% 0.23 268)",
+          "oklch(38% 0.23 268)",
+          "oklch(50% 0.23 268)",
+          "oklch(62% 0.23 268)",
+          "oklch(74% 0.23 268)",
+          "oklch(85% 0.23 268)",
+          "oklch(95% 0.23 268)"
+        ],
+        "theme": "dark"
+      },
+      "note-soft-dark": {
+        "role": "primary",
+        "displayName": "Annotation Blue Tint (dark)",
+        "canonical": "rgb(142 152 255 / 0.12)",
+        "theme": "dark"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The hero name only."
+      },
+      "headline": {
+        "displayName": "Chapter Title",
+        "purpose": "Chapter titles on the Journey."
+      },
+      "page-title": {
+        "displayName": "Page Title",
+        "purpose": "Case and Work titles; 6rem ceiling."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Entry, role, prose h2 and limits headings."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "Hero identity, chapter text, Case question."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading text, 52 to 66ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "dt labels, metadata, footers, in ink-3."
+      },
+      "data": {
+        "displayName": "Data",
+        "purpose": "Fragment Mono: clocks, coordinates, periods, note timestamps, codes in figures."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Entrance curve (GSAP CustomEase 'out'): reveals, link underlines, hover slides, top bar and ticker."
+      },
+      {
+        "name": "ease-scene",
+        "value": "cubic-bezier(0.86, 0, 0.07, 1)",
+        "purpose": "Change of place (GSAP CustomEase 'scene'): view-transition group, Time Shift reels, entry rules, notes clip."
+      },
+      {
+        "name": "hero-chars",
+        "value": "yPercent 108 to 0, 1.35s, stagger 0.034s, out",
+        "purpose": "Hero name entrance."
+      },
+      {
+        "name": "chapter-chars",
+        "value": "yPercent 110 to 0, 1.3s, stagger 0.03s, out, masked, once at top 82%",
+        "purpose": "Chapter word reveal."
+      },
+      {
+        "name": "entry-rule",
+        "value": "scaleX 0 to 1 from left, 1.2s, scene, once at top 88%",
+        "purpose": "Rules between entries draw in."
+      },
+      {
+        "name": "reel",
+        "value": "one full turn, 1.6s, scene, 0.1s stagger per digit",
+        "purpose": "Time Shift digits roll up for forward, down for back."
+      },
+      {
+        "name": "figure-play",
+        "value": "IntersectionObserver threshold 0.45, once; items stagger 0.28s",
+        "purpose": "Case figures demonstrate once."
+      },
+      {
+        "name": "view-transition",
+        "value": "group 0.9s scene; old root 0.5s fade; new root 0.9s out from 24px after 0.15s",
+        "purpose": "Entry title to Case title, cross-document."
+      },
+      {
+        "name": "attention-trace",
+        "value": "color-mix toward note by --heat; 70px gaussian; cools with exp(-dt/900ms)",
+        "purpose": "The only colour animation; fine pointers only."
+      },
+      {
+        "name": "lenis",
+        "value": "duration 1.15s, easeOutQuart, anchor offset -64px",
+        "purpose": "Inertial scroll; off under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "rail-collapse",
+        "value": "1100px"
+      },
+      {
+        "name": "single-column",
+        "value": "900px"
+      },
+      {
+        "name": "phone-bar",
+        "value": "720px"
+      },
+      {
+        "name": "narrow",
+        "value": "600px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Text Action",
+      "kind": "button",
+      "refersTo": "text-link",
+      "description": "Every action is a text link ending in the drawn Arrow; the underline draws in from the left.",
+      "html": "<a class=\"ds-link\" href=\"#\">Selected work<svg viewBox=\"0 0 16 16\" width=\"0.8em\" height=\"0.8em\" aria-hidden=\"true\"><path d=\"M2 8h11M8.5 3.5 13 8l-4.5 4.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"square\"/></svg></a>",
+      "css": ".ds-link{color:var(--ink,#111110);text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .6s cubic-bezier(.16,1,.3,1);padding-bottom:2px;font-weight:520}.ds-link:hover,.ds-link:focus-visible{background-size:100% 1px}.ds-link:focus-visible{outline:2px solid var(--note,#2c3be0);outline-offset:3px}.ds-link svg{display:inline-block;vertical-align:-.05em;margin-left:.3em;transition:translate .6s cubic-bezier(.16,1,.3,1)}.ds-link:hover svg{translate:6px 0}"
+    },
+    {
+      "name": "Top Bar",
+      "kind": "nav",
+      "refersTo": "top-bar",
+      "description": "Fixed 64px bar: name, live local time, text navigation with the current item underlined.",
+      "html": "<header class=\"ds-top\"><a class=\"ds-top-name\" href=\"#\">Kaushik Kallam</a><span class=\"ds-top-where\">New York <span>14:32</span></span><nav class=\"ds-top-nav\"><a href=\"#\">Journey</a><a href=\"#\" aria-current=\"page\">Work</a><a href=\"#\">Résumé</a><a href=\"#\">Contact</a></nav></header>",
+      "css": ".ds-top{display:flex;align-items:center;gap:24px;height:64px;padding:0 clamp(16px,2.3vw,36px);background:var(--paper,#ecece8);color:var(--ink,#111110);border-bottom:1px solid var(--rule,rgb(17 17 16/.16));font:400 .9375rem Switzer,system-ui,sans-serif}.ds-top-name{font-weight:560;letter-spacing:-.01em;text-decoration:none;color:inherit}.ds-top-where{font-size:.8125rem;color:var(--ink-3,#656560);font-variant-numeric:tabular-nums}.ds-top-nav{margin-left:auto;display:flex;gap:clamp(14px,2vw,32px)}.ds-top-nav a{color:inherit;text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .6s cubic-bezier(.16,1,.3,1);padding-bottom:2px}.ds-top-nav a:hover,.ds-top-nav a[aria-current=page]{background-size:100% 1px}.ds-top-nav a:focus-visible{outline:2px solid var(--note,#2c3be0);outline-offset:3px}"
+    },
+    {
+      "name": "Entry Row",
+      "kind": "custom",
+      "refersTo": "entry-row",
+      "description": "A unit of work: hairline above, title that slides on hover, context, preview, facts and action.",
+      "html": "<article class=\"ds-entry\"><h3 class=\"ds-entry-title\"><a href=\"#\"><span>Three searches, one record</span></a></h3><p class=\"ds-entry-ctx\">JPMorganChase · 2025</p><p class=\"ds-entry-prev\">Instrumentation quality and coverage are different problems.</p><dl class=\"ds-entry-facts\"><div><dt>Contribution</dt><dd>Lead researcher</dd></div><div><dt>Status</dt><dd>Shipped</dd></div></dl><span class=\"ds-entry-act\">Read the case <svg viewBox=\"0 0 16 16\" width=\"0.8em\" height=\"0.8em\" aria-hidden=\"true\"><path d=\"M2 8h11M8.5 3.5 13 8l-4.5 4.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"square\"/></svg></span></article>",
+      "css": ".ds-entry{position:relative;padding:clamp(26px,3.4vw,44px) 0;border-top:1px solid var(--rule,rgb(17 17 16/.16));color:var(--ink,#111110);font-family:Switzer,system-ui,sans-serif;cursor:pointer}.ds-entry-title{margin:0;font-size:clamp(1.5rem,1.2rem + 1.2vw,2.25rem);line-height:1.08;letter-spacing:-.028em;font-weight:520;max-width:22ch}.ds-entry-title a{color:inherit;text-decoration:none}.ds-entry-title a::after{content:'';position:absolute;inset:0}.ds-entry-title span{display:inline-block;transition:translate .8s cubic-bezier(.16,1,.3,1)}.ds-entry:hover .ds-entry-title span{translate:8px 0}.ds-entry:has(a:focus-visible){outline:2px solid var(--note,#2c3be0);outline-offset:-2px}.ds-entry-title a:focus-visible{outline:none}.ds-entry-ctx{margin:8px 0 0;font-size:.9375rem;color:var(--ink-3,#656560)}.ds-entry-prev{margin:18px 0 0;color:var(--ink-2,#4a4a46);max-width:60ch}.ds-entry-facts{margin:24px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:12px 24px}.ds-entry-facts dt{font-size:.8125rem;color:var(--ink-3,#656560)}.ds-entry-facts dd{margin:2px 0 0;font-size:.9375rem}.ds-entry-act{display:inline-flex;gap:8px;margin-top:22px;font-weight:520;background:linear-gradient(currentColor,currentColor) 0 100%/100% 1px no-repeat;padding-bottom:2px}.ds-entry-act svg{transition:translate .6s cubic-bezier(.16,1,.3,1)}.ds-entry:hover .ds-entry-act svg{translate:6px 0}"
+    },
+    {
+      "name": "Notes Panel",
+      "kind": "custom",
+      "refersTo": "notes-panel",
+      "description": "The observation layer: blue mono header, Pause live, and notes that pair what was seen with what it can't tell.",
+      "html": "<aside class=\"ds-notes\"><div class=\"ds-notes-head\"><span>Notes on this visit 2</span><button type=\"button\">Hide</button></div><p class=\"ds-notes-live\"><button type=\"button\" aria-pressed=\"false\">Pause live</button> Stops the clocks and the running totals.</p><ol class=\"ds-notes-list\"><li><span class=\"ds-t\">00:14</span><span class=\"ds-shows\">You opened Work.</span><span class=\"ds-cannot\">Where you were hoping it would take you.</span></li><li><span class=\"ds-t\">00:41</span><span class=\"ds-shows\">You pointed at my name.</span><span class=\"ds-cannot\">Whether you were reading it or just passing through.</span></li></ol></aside>",
+      "css": ".ds-notes{color:var(--note,#2c3be0);font:400 .8125rem/1.45 Switzer,system-ui,sans-serif;max-width:340px}.ds-notes-head{display:flex;justify-content:space-between;border-top:1px solid currentColor;padding-top:10px;font-family:'Fragment Mono',ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em}.ds-notes button{font:inherit;color:var(--note,#2c3be0);background:none;border:0;padding:0;cursor:pointer;font-family:'Fragment Mono',ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em}.ds-notes button:hover{text-decoration:underline;text-underline-offset:3px}.ds-notes button:focus-visible{outline:2px solid var(--note,#2c3be0);outline-offset:3px}.ds-notes-live{margin:8px 0 18px;color:var(--ink-3,#656560)}.ds-notes-list{list-style:none;margin:0;padding:0;display:grid;gap:14px}.ds-notes-list li{display:grid;grid-template-columns:5.2em 1fr;column-gap:10px;padding-top:10px;border-top:1px dotted color-mix(in oklab,var(--note,#2c3be0) 50%,transparent)}.ds-t,.ds-cannot{font-family:'Fragment Mono',ui-monospace,monospace;font-size:.6875rem}.ds-shows{color:var(--ink,#111110)}.ds-cannot{grid-column:2;margin-top:3px}.ds-cannot::before{content:'can\\2019t tell: ';opacity:.7}"
+    },
+    {
+      "name": "Time Shift",
+      "kind": "custom",
+      "refersTo": "time-shift",
+      "description": "Between chapters, the destination's local time in large blue tabular digits under a blue rule, with the offset stated in ink.",
+      "html": "<div class=\"ds-shift\"><div class=\"ds-shift-clock\">03:32<span>+1 day</span></div><div><p class=\"ds-shift-text\">Hyderabad is ten hours ahead of Dallas.</p><a class=\"ds-shift-next\" href=\"#\">Continue to Hyderabad</a></div></div>",
+      "css": ".ds-shift{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:12px 32px;padding-top:18px;border-top:1px solid var(--note,#2c3be0);color:var(--note,#2c3be0);font-family:Switzer,system-ui,sans-serif}.ds-shift-clock{font-size:5rem;line-height:1;letter-spacing:-.04em;font-weight:440;font-variant-numeric:tabular-nums;display:flex;align-items:flex-start}.ds-shift-clock span{font-size:.875rem;letter-spacing:0;font-weight:520;margin:.35em 0 0 .3em}.ds-shift-text{margin:0;color:var(--ink,#111110);font-size:clamp(1.25rem,1.05rem + .8vw,1.75rem);line-height:1.3;letter-spacing:-.015em;max-width:18ch}.ds-shift-next{color:var(--ink-2,#4a4a46);font-size:.9375rem;text-decoration:none}.ds-shift-next:hover{text-decoration:underline}.ds-shift-next:focus-visible{outline:2px solid var(--note,#2c3be0);outline-offset:3px}"
+    },
+    {
+      "name": "Readout Bar",
+      "kind": "custom",
+      "refersTo": "readout-bar",
+      "description": "The visitor's own time per chapter: a 10px blue fill on a tinted track with a mono value.",
+      "html": "<ol class=\"ds-readout\"><li><span>Dallas</span><span class=\"ds-track\"><span style=\"--share:.62\"></span></span><span class=\"ds-v\">1 min 12 s</span></li><li class=\"ds-out\"><span>Everywhere else</span><span class=\"ds-track\"><span style=\"--share:.2\"></span></span><span class=\"ds-v\">24 s</span></li></ol>",
+      "css": ".ds-readout{list-style:none;margin:0;padding:0;display:grid;gap:10px;color:var(--note,#2c3be0);font-family:Switzer,system-ui,sans-serif}.ds-readout li{display:grid;grid-template-columns:9em 1fr 5.5em;align-items:center;gap:14px}.ds-readout li>span:first-child{color:var(--ink,#111110);font-size:.9375rem}.ds-track{height:10px;background:var(--note-soft,rgb(44 59 224/.1));position:relative;overflow:hidden}.ds-track span{position:absolute;inset:0;background:var(--note,#2c3be0);transform:scaleX(var(--share,0));transform-origin:left;transition:transform 1.2s cubic-bezier(.16,1,.3,1)}.ds-out .ds-track span{background:var(--ink-3,#656560)}.ds-out>span:first-child{color:var(--ink-2,#4a4a46)!important}.ds-v{text-align:right;font-family:'Fragment Mono',ui-monospace,monospace;font-size:.75rem;font-variant-numeric:tabular-nums}"
+    },
+    {
+      "name": "Case Figure",
+      "kind": "card",
+      "refersTo": "figure-stage",
+      "description": "A flat paper-2 stage with 1px outlined items and a caption that says what the figure is not.",
+      "html": "<figure class=\"ds-fig\"><div class=\"ds-fig-stage\"><span class=\"ds-fig-item\">Plan</span><span class=\"ds-fig-item\">Call tool</span><span class=\"ds-fig-item ds-waste\">Call tool again</span><span class=\"ds-fig-item ds-ok\">Correct answer</span></div><figcaption>Both runs are correct. Only one is efficient.<span>Illustration. Internal signals are not shown.</span></figcaption></figure>",
+      "css": ".ds-fig{margin:0;display:grid;gap:14px;font-family:Switzer,system-ui,sans-serif}.ds-fig-stage{background:var(--paper-2,#e3e3de);padding:clamp(18px,2.4vw,32px);display:flex;flex-wrap:wrap;gap:8px}.ds-fig-item{font-size:.75rem;padding:6px 9px;border:1px solid var(--ink-3,#656560);background:var(--paper,#ecece8);color:var(--ink,#111110)}.ds-waste{border-style:dashed;background:transparent;color:var(--ink-2,#4a4a46)}.ds-ok{border-color:var(--ink,#111110);font-weight:520}.ds-fig figcaption{display:grid;gap:6px;font-size:.875rem;color:var(--ink-2,#4a4a46);max-width:52ch}.ds-fig figcaption span{color:var(--ink-3,#656560);font-size:.8125rem}"
+    },
+    {
+      "name": "Draft Marker",
+      "kind": "chip",
+      "refersTo": "draft-marker",
+      "description": "A square 1px-bordered tag for copy awaiting the owner's confirmation.",
+      "html": "<span class=\"ds-draft\">Draft</span>",
+      "css": ".ds-draft{display:inline-block;font:520 .75rem/1.4 Switzer,system-ui,sans-serif;letter-spacing:.01em;color:var(--ink-2,#4a4a46);border:1px solid var(--rule,rgb(17 17 16/.16));padding:0 6px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Annotated Page",
+    "overview": "The site is a printed page that is taking notes on its reader. Daylight paper and near-black ink carry everything that is authored; a single annotation blue carries everything that is observed or live. The contrast between the two layers is the whole idea: the ink says what Kaushik did, the blue says what the page can see of you right now, and what it cannot tell.\n\nOne grotesk does all the talking, used at extreme scale contrast: a name set to the width of the viewport against a calm reading size, with nothing in between that shouts. Structure comes from hairline rules and flush-left columns on a twelve-column grid, never from boxes. Depth is flat. Motion moves things between reading moments and never inside them.\n\nThe system rejects the template portfolio: no kicker above the hero, no pill buttons, no cards, no gradients, no glass. Real photography in full colour is the only colour besides the blue.",
+    "keyCharacteristics": [
+      "Two-layer colour: ink for the authored record, blue for observation and live data.",
+      "One variable grotesk (Switzer) at extreme scale contrast; one mono (Fragment Mono) for data only.",
+      "Hairline rules instead of containers; square corners throughout.",
+      "Motion limited to position, opacity and clip, on two curves.",
+      "Light and dark themes with identical structure; dark follows `prefers-color-scheme` or `[data-theme]`."
+    ],
+    "rules": [
+      {
+        "name": "The Two Layers Rule",
+        "body": "Blue means \"observed or live\". If an element is authored content, it is ink, however important it is. A blue heading, blue button or blue decorative accent breaks the meaning of every note on the page.",
+        "section": "colors"
+      },
+      {
+        "name": "The Photography Exception Rule",
+        "body": "Real photographs and real product screenshots keep their full colour. No other colour enters the palette.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tracking Floor Rule",
+        "body": "Letter-spacing never goes below -0.04em, at any size.",
+        "section": "typography"
+      },
+      {
+        "name": "The Six Rem Rule",
+        "body": "Display type caps at 6rem. Only pinned elements may exceed it: the hero name, Chapter titles, and the far Time Shift clock.",
+        "section": "typography"
+      },
+      {
+        "name": "The Mono Means Data Rule",
+        "body": "Fragment Mono is for clocks, coordinates, periods, note timestamps, and event and language codes in figures. Never for headings, labels or decoration. The top-bar clock and the large Time Shift digits are Switzer with tabular numerals, because they are read as display, not logged.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hairline Rule",
+        "body": "Separation is a 1px line in `rule`, or `ink` when it opens a section. Nothing else divides content.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Three Properties Rule",
+        "body": "Animate position, opacity and clip only. The attention trace is the one colour exception.",
+        "section": "motion"
+      },
+      {
+        "name": "The Reduced Motion Rule",
+        "body": "Under `prefers-reduced-motion: reduce`, the view transition is off, reels land on the destination time, reveals and figures show their end state, and Lenis does not run.",
+        "section": "motion"
+      }
+    ],
+    "dos": [
+      "**Do** keep annotation blue for notes, live data (Time Shift clocks, readout bars), the attention trace, selection and focus.",
+      "**Do** separate content with 1px hairlines in `rule`, or `ink` to open a section.",
+      "**Do** end every text action with the drawn Arrow in its direction of travel.",
+      "**Do** use Fragment Mono only for clocks, coordinates, periods, note timestamps and codes in figures.",
+      "**Do** use `ease-out` for entrances and `scene` for changes of place, and nothing else.",
+      "**Do** give every live or animated element a reduced-motion and no-script end state."
+    ],
+    "donts": [
+      "**Don't** set letter-spacing below -0.04em.",
+      "**Don't** set display type above 6rem unless it is the hero name, a Chapter title or the far Time Shift clock.",
+      "**Don't** add a kicker or eyebrow above any heading.",
+      "**Don't** use side stripes thicker than 1px.",
+      "**Don't** use cards, gradients, glass, shadows or pill buttons.",
+      "**Don't** use blue for authored content, headings or decoration.",
+      "**Don't** animate colour or layout properties, except the attention trace. Rules and bars draw with a left-origin scaleX, which reads as a clip; nothing else scales.",
+      "**Don't** use text glyphs (→) as icons; use the Arrow component."
+    ]
+  }
+}

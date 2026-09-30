@@ -2,7 +2,7 @@ import { daylightWord, sunAltitude } from '../lib/sun';
 import { livePaused } from './navigation';
 
 const formatters = new Map<string, Intl.DateTimeFormat>();
-const clockFormat = (tz: string) => {
+export const clockFormat = (tz: string) => {
   let f = formatters.get(tz);
   if (!f) {
     f = new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit' });
