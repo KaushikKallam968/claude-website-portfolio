@@ -37,6 +37,8 @@ const nav = [
     <!-- Both schemes are designed, so a phone in dark mode paints its first frame dark rather than flashing white. -->
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- iOS draws its home-screen icon from a PNG on an opaque background; it ignores the SVG. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/switzer-variable.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/fragment-mono.woff2" as="font" type="font/woff2" crossorigin />
     <meta property="og:title" content={title} />
