@@ -1,6 +1,6 @@
 ---
 name: Kaushik Kallam
-description: A portfolio that quietly observes how it is being read, on daylight paper, in ink, with one annotation blue.
+description: A portfolio that quietly observes how it is being read, on daylight paper, in ink, with one annotation blue, moved by a single field of dots.
 colors:
   paper: "#ecece8"
   paper-2: "#e3e3de"
@@ -31,6 +31,13 @@ typography:
     fontWeight: 520
     lineHeight: 0.84
     letterSpacing: "-0.04em"
+  clock:
+    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(3.4rem, 13cqi, 11.5rem)"
+    fontWeight: 440
+    lineHeight: 1
+    letterSpacing: "-0.04em"
+    fontFeature: "'tnum' on"
   page-title:
     fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(2.8rem, 8cqi, 6rem)"
@@ -66,6 +73,12 @@ typography:
     fontWeight: 400
     lineHeight: 1.5
     letterSpacing: "0.01em"
+  data-small:
+    fontFamily: "Fragment Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
+    fontSize: "0.6875rem"
+    fontWeight: 400
+    lineHeight: 1
+    letterSpacing: "0.06em"
 rounded:
   none: "0px"
   focus: "1px"
@@ -77,6 +90,10 @@ spacing:
   rail: "clamp(250px, 22vw, 340px)"
   entry-block: "clamp(26px, 3.4vw, 44px)"
   chapter-top: "clamp(56px, 8vw, 120px)"
+  prologue-runway: "160vh"
+  shift-runway: "150vh"
+  shift-runway-phone: "140vh"
+  readout-row: "clamp(34px, 3.6vw, 52px)"
 components:
   text-link:
     textColor: "{colors.ink}"
@@ -101,15 +118,38 @@ components:
     padding: "7px clamp(16px, 2.3vw, 36px) 8px"
   time-shift:
     textColor: "{colors.note}"
+    typography: "{typography.clock}"
+    height: "150vh"
+  readout-row:
+    textColor: "{colors.ink}"
+    height: "clamp(34px, 3.6vw, 52px)"
   readout-bar:
     backgroundColor: "{colors.note-soft}"
     textColor: "{colors.note}"
-    height: "10px"
+    height: "14px"
   figure-stage:
     backgroundColor: "{colors.paper-2}"
     textColor: "{colors.ink}"
     padding: "clamp(18px, 2.4vw, 32px)"
     rounded: "{rounded.none}"
+  figure-step:
+    textColor: "{colors.ink-3}"
+    typography: "{typography.body}"
+    padding: "10px 0"
+  field-label:
+    textColor: "{colors.ink}"
+    typography: "{typography.data-small}"
+  lens-cursor:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.note}"
+    typography: "{typography.data-small}"
+    padding: "5px 7px"
+    rounded: "{rounded.none}"
+  lens-tally:
+    backgroundColor: "{colors.note}"
+    textColor: "{colors.paper}"
+    typography: "{typography.data}"
+    padding: "6px 10px"
   draft-marker:
     textColor: "{colors.ink-2}"
     padding: "0 6px"
@@ -128,38 +168,39 @@ components:
 
 The site is a printed page that is taking notes on its reader. Daylight paper and near-black ink carry everything that is authored; a single annotation blue carries everything that is observed or live. The contrast between the two layers is the whole idea: the ink says what Kaushik did, the blue says what the page can see of you right now, and what it cannot tell.
 
-One grotesk does all the talking, used at extreme scale contrast: a name set to the width of the viewport against a calm reading size, with nothing in between that shouts. Structure comes from hairline rules and flush-left columns on a twelve-column grid, never from boxes. Depth is flat. Motion moves things between reading moments and never inside them.
+On the home page the page has one moving image, the Field: a single crowd of about 16,000 dots that is, in turn, the name, the world and the visit. It draws the world with tonight's real day and night, flies the map between the places of the Journey while the clocks count the hours, and ends as a chart of the reader's own time, stated in its unit. Every word the Field depicts is also real HTML underneath it; the canvas is decoration over the truth, never instead of it. Everywhere else the page stays an editorial layout: one grotesk at extreme scale contrast, hairline rules and flush-left columns on a twelve-column grid, flat surfaces. Motion happens between reading moments; reading text sits in quiet zones the dots thin out behind.
 
-The system rejects the template portfolio: no kicker above the hero, no pill buttons, no cards, no gradients, no glass. Real photography in full colour is the only colour besides the blue.
+The system rejects the template portfolio: no kicker above the hero, no pill buttons, no cards, no decorative gradients, no glass, no 3D. Real photography in full colour is the only colour besides the blue.
 
 **Key Characteristics:**
-- Two-layer colour: ink for the authored record, blue for observation and live data.
+- Two-layer colour: ink for the authored record, blue for observation and live state.
 - One variable grotesk (Switzer) at extreme scale contrast; one mono (Fragment Mono) for data only.
+- One dot field (raw WebGL2, home only) that plays name, world and visit; truth stays in HTML.
 - Hairline rules instead of containers; square corners throughout.
-- Motion limited to position, opacity and clip, on two curves.
-- Light and dark themes with identical structure; dark follows `prefers-color-scheme` or `[data-theme]`.
+- Two curves for every movement: `out` for entrances, `scene` for changes of place.
+- Light and dark themes with identical structure; dark follows `prefers-color-scheme` or `[data-theme]`, and the Field reads its colours from the same tokens.
 
 ## Colors
 
 A near-achromatic warm-grey paper and ink pair, with one saturated blue held back for the observation layer.
 
 ### Primary
-- **Annotation Blue** (`note`; `note-dark` in dark): the observation layer only. The Notes panel and phone ticker, the Time Shift clocks and their top rule, the closing readout bars and total, the attention trace on the hero name, the route index hover bar, `::selection` background, the caret, and the `:focus-visible` outline. Its tint (`note-soft`) is the empty track of a readout bar and nothing else.
+- **Annotation Blue** (`note` #2c3be0; `note-dark` #8e98ff): the observation layer and live state only. The Notes panel and phone ticker; Time Shift clocks, their route line and progress; the Prologue's live clock; the readout total, values, unit sentence and fallback bars; the close's "can't tell" sentence; the 404 "can't tell" line; the lens (cursor tag, outlines, scan line, tally); the attention trace; the route index hover bar; `::selection`, the caret and the `:focus-visible` outline. In the Field: the dusk band of the live terminator, the route and the traveller, the place being read, and pointer heat on the name. Its tint (`note-soft`) is an empty track (readout fallback bars, Time Shift progress line), the fill of lens outlines, and nothing else.
 
 ### Neutral
-- **Daylight Paper** (`paper`): the page ground, the top bar and the phone ticker background.
-- **Shade Paper** (`paper-2`): the stage behind Case figures. The only tonal surface in the system.
-- **Ink** (`ink`): all authored text, heading rules above role lists, the Case summary and limits rules, the primary work-row hover rule.
-- **Ink Two** (`ink-2`): secondary prose, entry previews, figure captions, qualifiers.
-- **Ink Three** (`ink-3`): labels, metadata, dates, the smallest type. Raised from #7c7c76 to #656560 so 13px labels pass WCAG AA on paper; do not lighten it again.
-- **Rule** (`rule`): every hairline divider between rows, facts and footers.
+- **Daylight Paper** (`paper` #ecece8): the page ground, the top bar, the phone ticker, the lens cursor tag, and the halo behind text set over the Field.
+- **Shade Paper** (`paper-2` #e3e3de): the stage behind Case figures. The only tonal surface.
+- **Ink** (`ink` #111110): all authored text; section-opening rules (role lists, route index, résumé headings, Case Return); the name, world and visit dots of the Field; inactive place markers.
+- **Ink Two** (`ink-2` #4a4a46): secondary prose, entry previews, figure captions, qualifiers, the Time Shift continue link, label times on the map.
+- **Ink Three** (`ink-3` #656560): labels, metadata, dates, inactive figure steps. Raised from #7c7c76 to #656560 so 13px labels pass WCAG AA on paper; do not lighten it again.
+- **Rule** (`rule` rgb(17 17 16 / 0.16)): every hairline divider between rows, facts, steps, readout rows and footers.
 
 Dark theme swaps each token for its `-dark` twin with no structural change. The meta theme-color follows the paper (#ecece8 light, #121211 dark).
 
 ### Named Rules
 **The Two Layers Rule.** Blue means "observed or live". If an element is authored content, it is ink, however important it is. A blue heading, blue button or blue decorative accent breaks the meaning of every note on the page.
 
-**The Photography Exception Rule.** Real photographs and real product screenshots keep their full colour. No other colour enters the palette.
+**The Photography Exception Rule.** Real photographs and real product screenshots keep their full colour. No other colour enters the palette, including inside the Field, which draws only in `ink` and `note`.
 
 ## Typography
 
@@ -170,50 +211,62 @@ Dark theme swaps each token for its `-dark` twin with no structural change. The 
 **Character:** A single neutral grotesk carries identity through scale alone, from a name the width of the page to a 13px label. The mono appears only where the page reports a measured fact.
 
 ### Hierarchy
-- **Display** (530, clamp(4.2rem, 18.6vw, 23rem), 0.76): the hero name only. Two lines, the second set flush right.
-- **Headline** (520, clamp(3.25rem, 12.5cqi, 10rem), 0.84): Chapter titles on the Journey, with a qualifier at 0.24em in ink-2.
-- **Page title** (530, clamp(2.8rem, 8cqi, 6rem), 0.92): Case title and Work index title. Work rows use a 5rem ceiling; the Case Return link matches.
-- **Title** (520, `--t-h3`, 1.08): Entry titles, résumé role titles, Case prose h2, limits heading, Also-list names.
-- **Lede** (400 to 520, `--t-lede`, 1.3 to 1.4): hero role and point of view, chapter text, Case question, section headings on the résumé.
-- **Body** (400, `--t-body`, 1.55; Case prose 1.62): reading text, capped at 52 to 66ch.
+- **Display** (530, clamp(4.2rem, 18.6vw, 23rem), 0.76): the hero name only. Two lines, the second flush right. With the Field running the HTML letters are transparent and the dots draw them, sampled from the same font, size, tracking and baseline.
+- **Headline** (520, clamp(3.25rem, 12.5cqi, 10rem), 0.84): Chapter titles, with a qualifier at 0.24em in ink-2.
+- **Clock** (440, clamp(3.4rem, 13cqi, 11.5rem), 1, tabular): Time Shift digits in blue; the far Pacific crossing sets at clamp(4.4rem, 22cqi, 19rem) on its own row. The day tag ("+1 day") sits at max(0.14em, 0.875rem), 520.
+- **Page title** (530, clamp(2.8rem, 8cqi, 6rem), 0.92): Case title, Work title; the close title (520, clamp(2.6rem, 6.4vw, 6rem), 0.9), the résumé name (clamp(3rem, 8vw, 6rem), 0.86) and the 404 title (clamp(3rem, 8vw, 6rem), 0.88) share the 6rem ceiling. Work rows and the Case Return link use a 5rem ceiling.
+- **Title** (520, `--t-h3`, 1.08): Entry titles, the Prologue sentence, résumé role titles, Case prose h2, limits heading, Also-list names.
+- **Lede** (400 to 520, `--t-lede`, 1.3 to 1.4): hero role and point of view, chapter text, Time Shift sentence, Case question, close text, résumé section heads. Readout row labels sit between lede and title (520, clamp(1.25rem, 0.8rem + 1vw, 1.9rem), 1).
+- **Body** (400, `--t-body`, 1.55; Case prose 1.62): reading text, capped at 52 to 66ch. Figure steps use it too.
 - **Label** (400, 0.8125rem, 0.01em, ink-3): dt labels, footers, metadata.
-- **Data** (Fragment Mono 400, 0.75rem; notes timestamps 0.6875rem): chapter coordinates, local times and periods, route numbers and periods, note timestamps and "can't tell" lines, readout values, event and language codes inside figures, the 404 number.
+- **Data** (Fragment Mono 400, 0.75rem): chapter coordinates, local times and periods, route numbers, readout values (0.875rem), figure step numbers, event and language codes inside figures, the lens tally.
+- **Data small** (Fragment Mono 400, 0.6875rem): note timestamps and "can't tell" lines, Field place labels (name uppercase at 0.06em, then live time), the lens cursor tag. Uppercase mono at 0.06em is also the Notes header, its controls, the Prologue clock and the Time Shift route row.
 
-Weights sit in a narrow band: 400 for reading, 520 for emphasis and titles, 530 for the largest display, 560 for `strong` and the top-bar name. Headings are `text-wrap: balance`; paragraphs are `pretty`. Numerals that update or align use `tabular-nums`.
+Weights sit in a narrow band: 400 for reading, 440 for clocks and qualifiers, 520 for emphasis and titles, 530 for the largest display, 560 for `strong` and the top-bar name. Headings are `text-wrap: balance`; paragraphs are `pretty`. Numerals that update or align use `tabular-nums`.
 
 ### Named Rules
 **The Tracking Floor Rule.** Letter-spacing never goes below -0.04em, at any size.
 
-**The Six Rem Rule.** Display type caps at 6rem. Only pinned elements may exceed it: the hero name, Chapter titles, and the far Time Shift clock.
+**The Six Rem Rule.** Display type caps at 6rem. Only pinned, one-per-screen elements may exceed it: the hero name, Chapter titles and the Time Shift clocks.
 
-**The Mono Means Data Rule.** Fragment Mono is for clocks, coordinates, periods, note timestamps, and event and language codes in figures. Never for headings, labels or decoration. The top-bar clock and the large Time Shift digits are Switzer with tabular numerals, because they are read as display, not logged.
+**The Mono Means Data Rule.** Fragment Mono is for clocks, coordinates, periods, timestamps, measured values, tags and codes. Never for headings, prose or decoration. The top-bar clock and the large Time Shift digits are Switzer with tabular numerals, because they are read as display, not logged.
 
 ## Layout
 
 A twelve-column grid (`.grid`: 12 equal columns, `gutter` column gap, `margin` inline padding) organises every page. Content hangs flush left; nothing is centred except the watched. phone group inside its figure.
 
 - **Top bar:** fixed, 64px (56px at 720px and below), paper background, name in columns 1 to 3, New York clock in 4 to 6, navigation right-aligned from column 7. A `rule` hairline appears once scrolled past 8px. It slides up while reading down past 400px and returns on scroll up, unless focus is inside it or the notes sheet is open.
-- **Rail:** the Notes panel lives in a right-hand rail (`rail` width), sticky at 88px. On the Journey it starts below the hero; on Case and Work pages it is a second grid column.
+- **Rail:** the Notes panel lives in a right-hand rail (`rail` width), sticky at 88px. On the Journey it starts below the hero and fades out (0.6s) while a Field scene fills the screen, above 1100px; on Case and Work pages it is a second grid column.
 - **Journey:** the hero name spans the full width; the identity block sits in the negative space beside the second line; the route index is a six-column list on an ink hairline. Chapters: title in columns 1 to 9, mono meta in 10 to 12, text in 4 to 9 (max 34ch), roles in 10 to 12. Entries subgrid across 12: main 1 to 7, figure 8 to 12.
+- **Scenes (Field on):** the Prologue is a 160vh runway and each Time Shift a 150vh runway (140vh at 700px and below), each with a 100svh sticky stage. Words and clock sit bottom left; the map frames the place up and to the right of them (14% of the width and 12% of the height off centre; 16% of the height on phones, centred horizontally). The Time Shift route row sits at the top, under the bar. Without the Field these collapse to a short static band with a blue top rule.
+- **Close:** title across columns 1 to 10; the readout in 1 to 8 and the hand-off text in 9 to 12 share the final screen. Readout rows are one grid (label max-content, track 1fr, value 5.5em) with each row on a subgrid, so every track starts on the same line and lengths compare. With the Field each track is a `readout-row` tall box with a `rule` baseline; without it, a 14px bar.
 - **Case:** single article column (title max 14ch, prose 66ch, blocks max 1100px) beside the rail.
-- **Rhythm:** large fluid gaps between reading moments (chapter tops `clamp(56px, 8vw, 120px)`, first chapter up to 220px, Time Shifts up to 220px above), tight gaps within them (6 to 18px).
+- **Rhythm:** large fluid gaps between reading moments (chapter tops `clamp(56px, 8vw, 120px)`, first chapter up to 220px, close up to 240px), tight gaps within them (6 to 18px).
 
 ### Breakpoints
-- **1100px and below:** the rail collapses. On phones and tablets the Notes become a one-line ticker fixed under the top bar showing the latest note; it hides with the bar while reading down and returns with it. "Show" opens the full list as a sheet under the bar (max 60svh). The body gains 36px top padding to make room.
-- **900px and below:** all grid spans go full width; the hero identity block becomes static; the route index becomes two columns.
+- **1100px and below:** the rail collapses. The Notes become a one-line ticker fixed under the top bar showing the latest note; it hides with the bar while reading down and returns with it. "Show" opens the full list as a sheet under the bar (max 60svh). The body gains 36px top padding.
+- **900px and below:** all grid spans go full width; the hero identity block becomes static; the route index becomes two columns; readout rows stack label and value over a full-width track.
 - **720px and below:** top bar 56px, clock hidden.
-- **600px and below:** Work row arrows hidden, facts single-column, figure layouts stack.
+- **700px and below:** the Field draws every other world dot with larger map dots, Time Shift runways shorten to 140vh, the clock wraps.
+- **600px and below:** Work row arrows hidden, figure layouts stack. **520px:** entry facts single-column.
 
 ## Elevation & Depth
 
-Flat. There are no shadows, gradients or blurs on any surface. Depth is expressed by layering order only (the fixed top bar at z 40 over content, the ticker at 39) with an opaque paper background, and by the single tonal step of `paper-2` behind figures.
+Flat surfaces. Depth is layering order, not light: the Field canvas is fixed at z 0 behind `main` (z 1), with its place labels at z 1; the phone ticker at 39; the top bar at 40; the lens layer at 55 and its cursor tag at 60; the skip link at 100. The single tonal step is `paper-2` behind figures.
+
+### Shadow Vocabulary
+- **Paper halo** (`text-shadow: 0 0 18px var(--paper), 0 0 6px var(--paper)`; place labels use four paper layers from 2px to 14px): keeps reading text and map labels legible over the Field. Always paper-coloured; it reads as clearance, not lift.
+- **Scan glow** (`box-shadow: 0 0 14px 1px var(--note)`): the lens scan line, for its 0.9s pass only.
+- **Screenshot hairline** (`box-shadow: 0 1px 0 var(--rule)`): under watched. phone screenshots.
 
 ### Named Rules
 **The Hairline Rule.** Separation is a 1px line in `rule`, or `ink` when it opens a section. Nothing else divides content.
 
+**The Clearance Not Lift Rule.** A shadow exists only to clear text from the Field (in paper) or to mark the lens scan (in blue). No surface ever floats.
+
 ## Shapes
 
-Square. Every surface, link, figure stage, marker and bar has 0 radius; the focus outline carries a 1px radius only to soften its corners. Borders are 1px; dashed borders mean "absent or wasted" inside figures (a button with no event, a wasted agent step), and dotted borders separate notes and limits. The one rounded form is a phone screenshot in the watched. figure (16px), because it depicts a device.
+Square. Every surface, link, figure stage, marker, bar and lens outline has 0 radius; the focus outline carries a 1px radius only to soften its corners. Borders are 1px; dashed borders mean "absent, wasted or untracked" (a button with no event, a wasted agent step, an untagged control under the lens), and dotted borders separate notes. The circle belongs to the Field alone: every dot, place marker, pulsing ring and the traveller (a solid core inside a thin ring) is round, with about one device pixel of edge softening. The one rounded rectangle is a phone screenshot in the watched. figure (16px), because it depicts a device.
 
 ## Components
 
@@ -221,7 +274,7 @@ Square. Every surface, link, figure stage, marker and bar has 0 radius; the focu
 Plain words, never buttons.
 - **Shape:** no box, no radius.
 - **Default:** `.link` text with no underline; `.link--under` shows a 1px currentColor underline drawn as a background.
-- **Hover / Focus:** the underline draws in from the left over 0.6s on `ease-out`; an underlined link retracts and redraws (0.9s). The current nav item keeps its underline drawn.
+- **Hover / Focus:** the underline draws in from the left over 0.6s on `out`; an underlined link retracts and redraws (0.9s). The current nav item keeps its underline drawn.
 - **Arrow:** every action ends with the drawn `Arrow` (16px viewBox, 1.6 stroke, square caps) pointing in the direction of travel: right, down, up-right (external), left (Return). It nudges 6px on row hover.
 
 ### Navigation
@@ -235,53 +288,87 @@ The unit of work on the Journey.
 - **Divider:** a `rule` hairline above each row that draws in from the left on scroll.
 - **Hover:** for Case entries the whole row is the link target; the title words slide 8px right and the arrow 6px.
 - **Focus:** the row takes the 2px blue outline, inset.
+- **Opening a Case:** the clicked row's outline is handed to the next page, which grows out of it (see Motion).
 - **Disclosure:** non-Case entries with more text expand in place; the panel clips open over 0.7s. Without scripts the text is simply present.
 - **Work index rows** follow the same pattern at page-title scale, with an ink rule that draws across on hover or focus-within.
 
-### Notes panel (signature)
-The observation layer.
-- **Style:** all text in note blue at label size; header rule in currentColor; title and controls in uppercase mono at 0.06em tracking; each note a two-column grid (timestamp, then what was seen in ink and a mono "can't tell" line) above a dotted blue hairline.
-- **States:** Hide collapses the list (persisted for the session); new notes arrive from 10px above with an opacity fade.
-- **Pause live:** stops clocks and running totals, `aria-pressed`, persisted for the visit.
-- **Not a live region:** screen readers read it on demand.
-- **Phone ticker:** see Layout.
+### The Field (signature, home only)
+One WebGL2 canvas, fixed full-screen and `aria-hidden`, with one crowd of about 16,000 dots in three roles. `stage` moves the crowd: 0 is the name, 1 the world, 2 the visit.
+- **The world:** Natural Earth land sampled once on a hexagonal grid in Equal Earth centred on 150°E (Antarctica left out). The live terminator: night land dims to about half, and the band where the sun is on the horizon turns blue.
+- **The name:** sampled from the HTML heading on a hexagonal grid; the heading stays the real, selectable name.
+- **Arrival:** the map appears, the route draws from Singapore to New York, then the dots gather into the name. It runs once per session; scrolling, a hash or a return skips to the end.
+- **Attention:** the pointer's recent path (20 samples) warms letters toward blue and nudges them aside; it fades after 2.5s of stillness.
+- **Prologue:** the name dissolves into the world with dots bowing in banded arcs (neighbouring dots bend the same way, so the crowd pours in streams), and the map comes down to New York.
+- **Time Shift scenes:** the map flies each great-circle leg with a traveller, zooming out to fit both ends mid-flight. The place being read is blue with a pulsing ring; other markers are ink.
+- **Place labels:** mono, uppercase name and live local time, in ink (blue when active), with paper halos. Placement avoids collisions: right of the marker, then left, above, below, clear of other labels, markers and reading text. Labels show only inside scenes.
+- **The close:** the section is a window onto the world (dots are clipped above its top edge). The world evaporates while the visit pours into the readout row by row, left to right.
+- **Quiet zones:** any element marked `data-quiet` (up to six on screen) thins map and in-flight dots behind it by 88% and pushes labels away. The name and the settled portrait never thin.
+- **Colour:** reads `--ink` and `--note` from the page, so it follows the theme.
 
 ### Time Shift (signature)
-Between two chapters, the local time rolls from the previous place to the next.
-- **Style:** blue top rule and digits, Switzer 440 at up to 11.5rem (19rem for the far Pacific crossing, which sets on its own row), tabular numerals, a "+1 day" or "−1 day" tag, and an ink sentence stating the real offset.
-- **Motion:** each changed digit reel spins one full turn on `scene` (1.6s, 0.1s stagger), up for forward in time, down for back.
-- **No script:** the places are stated plainly.
+Between two chapters, the local time moves from the previous place to the next.
+- **Style:** blue digits in the Clock role, a "+1 day" or "−1 day" tag, an ink sentence stating the real offset (daylight saving included), and a continue link. With the Field, a mono route row at the top ("FROM", a 1px `note-soft` line filling in `note`, "TO").
+- **With the Field:** a sticky scene; the clock counts real hours one at a time like an odometer as the reader scrolls, every frame a real time, and the day tag appears at the moment the count passes midnight.
+- **Without the Field:** a static band on a blue top rule; each changed digit reel spins one full turn on `scene` (1.6s, 0.1s stagger) as it enters, up for forward in time, down for back.
+- **No script or reduced motion:** the reels land on the destination time.
+
+### Visit readout (signature)
+The close: the visitor's own time per chapter, plus "Everywhere else", so rows add up to the total.
+- **With the Field:** a display-scale dot chart. Dot pitch adapts (6 to 13px, 4.2 to 9px on phones) so the longest row fills about 85% of its track, and holds while the row stays at least half full. The unit is the finest that fits and is always stated in blue beneath: "Each dot is half a second of your visit."
+- **Without it:** a 14px blue fill on a `note-soft` track, scaling from the left over 1.2s; "Everywhere else" uses ink-3.
+- **Always:** mono values right-aligned in blue; a total above in blue mono with ink-2 words.
+
+### Figure scene
+A Case's figure told in steps, under the figure.
+- **Structure:** a numbered list of steps between `rule` hairlines; each step is a button (mono number in ink-3, text in body size).
+- **Behaviour:** on entry (55% visible) the steps autoplay in place, 2.4s each, driving the figure's parts through `--p`. The step being shown turns ink, its number blue, and a 1px ink rule draws along its top for the step's duration. Choosing a step stops the autoplay. Nothing holds the scroll.
+- **Without motion:** the figure and its steps read top to bottom.
 
 ### Case figure
-Authored diagrams of each case's idea on a `paper-2` stage with 1px `ink-3` or `ink` outlines, and a caption in ink-2 that always says what the figure is not. Items enter once at 45% visibility, staggered by 0.28s.
+Authored diagrams of each case's idea on a `paper-2` stage with 1px `ink-3` or `ink` outlines, and a caption in ink-2 that always says what the figure is not. Outside a scene, items enter once at 45% visibility, staggered by 0.28s.
 
-### Readout
-Closing bars of the visitor's own time per chapter: 10px blue fill on a `note-soft` track, scaling from the left over 1.2s; mono values right-aligned. "Everywhere else" uses ink-3.
+### Notes panel
+The observation layer.
+- **Style:** all text in note blue at label size; header rule in currentColor; title and controls in uppercase mono at 0.06em; each note a two-column grid (timestamp, then what was seen in ink and a mono "can't tell" line) above a dotted blue hairline.
+- **Controls:** Hide (persisted for the session), Pause live (`aria-pressed`), Show tracking (the lens).
+- **Motion:** new notes arrive from 10px above with an opacity fade; on the ticker the latest note peeks up 6px.
+- **Not a live region:** screen readers read it on demand.
+
+### Instrumentation lens
+The site's own tagging, made visible.
+- **Cursor tag:** on fine pointers a small paper chip with a blue 1px border follows the pointer (0.45s on `out`) naming the `data-observe` tag of what it is over; over an untagged control it turns ink-2 with a dashed ink-3 border.
+- **Show tracking:** a blue scan line passes down the screen (0.9s, `scene`); dashed blue outlines on `note-soft` appear as it reaches each tagged control; untagged controls get ink-2 outlines with a hatched `rule` fill; a blue tally at bottom left counts "tracked · not tracked". On fine pointers outlines carry no labels (the cursor tag names them); on touch the label sits inside the outline's top edge. Escape closes it.
 
 ### Draft marker
 A small 1px `rule`-bordered tag reading Draft, for copy awaiting the owner's confirmation.
 
 ## Motion
 
-Motion tokens (`--ease-out` cubic-bezier(0.16, 1, 0.3, 1) for entrances, `--ease-scene` cubic-bezier(0.86, 0, 0.07, 1) for changes of place) are registered in GSAP as CustomEase `out` and `scene`. Lenis provides inertial scroll (1.15s).
+Two curves, registered in GSAP as CustomEase and mirrored in CSS: `out` (`--ease-out`, cubic-bezier(0.16, 1, 0.3, 1)) for entrances and anything that settles, `scene` (`--ease-scene`, cubic-bezier(0.86, 0, 0.07, 1)) for changes of place. The Field's own interpolation uses the matching cubic in-out. Lenis provides inertial scroll (1.15s, quartic out, anchors offset by 64px).
 
-- **Hero entrance:** SplitText characters of the name rise from 108% (1.35s, 0.034s stagger); identity lines rise 26px and fade in; route items follow; the notes clip open on `scene`. On scroll the two name lines drift apart.
-- **Attention trace:** under a fine pointer, letters of the name warm toward the annotation blue and cool back over about a second. It never changes layout. It is the only colour animation in the system.
-- **Chapter word:** characters rise from 110% under a mask once, at 82% viewport.
+- **Arrival with the Field:** map in 1.1s on `out`, route draws 1.7s on `scene` from 0.3s, dots gather into the name 1.55s from 1.85s. The identity text is first paint and never waits; the route index, its rule and the notes follow the name.
+- **Arrival without the Field:** SplitText characters of the name rise from 108% (1.35s, 0.034s stagger); identity lines rise 26px and fade; route items follow; the notes clip open on `scene`. On scroll the two name lines drift apart. The attention trace warms letters toward blue under a fine pointer and cools over about a second.
+- **Scenes:** Prologue and Time Shifts are scroll-scrubbed; the map fades out before each Chapter's text.
+- **Chapter word:** characters rise from 110% under a mask once, at 82% viewport. The close title rises line by line.
 - **Entry rules:** draw in from the left on `scene` (1.2s).
-- **Figures:** play once at 45% visibility.
-- **Case transition:** a cross-document view transition carries the Entry title into the Case title (0.9s, `scene`); the old page fades in 0.5s, the new rises 24px from 0.15s.
-- **Reading text never animates** except the hero identity block on arrival.
+- **Case transition:** the clicked row grows into the Case: on `pagereveal` the new page opens from the row's outline by clip-path (1s, `scene`), the old page fades and steps back to 0.975 in 0.38s, and the Entry title morphs into the Case title through its `view-transition-name`. Other navigations cross-fade (old 0.5s; new rises 24px over 0.9s from 0.15s).
+- **Reading text never animates** in place.
 
 ### Named Rules
-**The Three Properties Rule.** Animate position, opacity and clip only. The attention trace is the one colour exception.
+**The Three Properties Rule.** In the DOM, animate position, opacity and clip only, plus left-origin scaleX for rules and bars. Colour changes only as state (a figure step becoming current) or as the attention trace. Scale appears only for something stepping back or arriving (the old page at 0.975, the lens tag from 0.92).
 
-**The Reduced Motion Rule.** Under `prefers-reduced-motion: reduce`, the view transition is off, reels land on the destination time, reveals and figures show their end state, and Lenis does not run.
+**The Welcome Rule.** The Field runs only on the home page, with WebGL2, and without a reduced-motion preference; the layout class is set before first paint so scroll positions stay stable. If the context is lost, the page falls back to the plain layout: HTML name, static bands, no scenes.
+
+**The Reduced Motion Rule.** Under `prefers-reduced-motion: reduce`, the Field never loads, scenes are static bands, figure steps read top to bottom, the view transition is off, reels land on the destination time, reveals and figures show their end state, the lens skips its scan, and Lenis does not run.
 
 ## Accessibility commitments
-- **Pause live** stops every updating clock and total (WCAG 2.2.2) and persists for the session.
+- **Reduced-motion path:** see The Reduced Motion Rule; the page is complete without any of it.
+- **Truth in HTML:** the canvas and the place labels are `aria-hidden`; the name, places, times and readout are real text behind them. Identity text is first-paint HTML and never gated by the arrival.
+- **Pause live** stops the clocks and running totals (WCAG 2.2.2) and persists for the session.
 - **Return restores focus** to the originating Entry or Chapter heading, and scroll, including from the back-forward cache.
-- **No-JS path:** all text is in the HTML; hidden entrance states apply only under `.js`, with a 4s failsafe; disclosures are open; notes say honestly that nothing was recorded.
+- **Skip link:** first in the page, ink on paper, slides in on focus.
+- **Tagged controls:** every link and button carries a `data-observe` tag, so the lens has no gaps; the skip link is the one exemption.
+- **No-JS path:** all text is in the HTML; hidden entrance states apply only under `.js`, with a 5s failsafe; disclosures are open; notes say honestly that nothing was recorded.
 - **Focus:** 2px note-blue outline at 3px offset everywhere; row-wide links outline the whole row. The top bar never hides while focus is inside it.
 - **Contrast:** ink-3 at #656560 is the lightest text allowed on paper.
 - **Known detector false positive:** the low-contrast check flags every `.link` because its underline is a currentColor gradient background. It is not a real contrast failure; do not "fix" it.
@@ -289,19 +376,24 @@ Motion tokens (`--ease-out` cubic-bezier(0.16, 1, 0.3, 1) for entrances, `--ease
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep annotation blue for notes, live data (Time Shift clocks, readout bars), the attention trace, selection and focus.
+- **Do** keep annotation blue for notes, live data (clocks, readout values, the unit sentence), the lens, the Field's live marks (dusk, route, traveller, active place, heat), selection and focus.
 - **Do** separate content with 1px hairlines in `rule`, or `ink` to open a section.
 - **Do** end every text action with the drawn Arrow in its direction of travel.
-- **Do** use Fragment Mono only for clocks, coordinates, periods, note timestamps and codes in figures.
-- **Do** use `ease-out` for entrances and `scene` for changes of place, and nothing else.
+- **Do** use Fragment Mono only for clocks, coordinates, periods, timestamps, measured values, tags and codes.
+- **Do** use `out` for entrances and `scene` for changes of place, and nothing else.
+- **Do** mark reading text that can sit over the Field with `data-quiet`, and give it a paper halo.
+- **Do** keep every word the Field depicts in real HTML, and state the unit of any dot count.
+- **Do** tag every new control with `data-observe`, a label and a "can't tell" line.
 - **Do** give every live or animated element a reduced-motion and no-script end state.
 
 ### Don't:
 - **Don't** set letter-spacing below -0.04em.
-- **Don't** set display type above 6rem unless it is the hero name, a Chapter title or the far Time Shift clock.
+- **Don't** set display type above 6rem unless it is the hero name, a Chapter title or a Time Shift clock.
 - **Don't** add a kicker or eyebrow above any heading.
 - **Don't** use side stripes thicker than 1px.
-- **Don't** use cards, gradients, glass, shadows or pill buttons.
+- **Don't** use cards, decorative gradients, glass, drop shadows, pill buttons or 3D.
 - **Don't** use blue for authored content, headings or decoration.
-- **Don't** animate colour or layout properties, except the attention trace. Rules and bars draw with a left-origin scaleX, which reads as a clip; nothing else scales.
+- **Don't** gate identity text behind the arrival, or put the canvas in the accessibility tree.
+- **Don't** load the Field outside the home page, without WebGL2 or under reduced motion.
+- **Don't** hold the scroll: scenes are sticky runways, never scroll-jacking.
 - **Don't** use text glyphs (→) as icons; use the Arrow component.
