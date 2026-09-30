@@ -28,6 +28,11 @@ uniform float uVisitVis;
 uniform float uNameDot;
 uniform float uMapDot;
 uniform float uVisitDot;
+// Light dots on a dark ground read larger and brighter than the same dots in ink on paper, so dark mode draws
+// the scattered world slightly smaller and softer. The name keeps its size (its dots are packed, and smaller
+// ones would open into a mesh), and the portrait (observed data, in blue) stays as it is.
+uniform float uDotTone;
+uniform float uMapTone;
 uniform vec3 uTrail[20];
 uniform vec3 uInk;
 uniform vec3 uNote;
@@ -80,7 +85,7 @@ void main() {
   float dusk = 1.0 - smoothstep(0.0, 0.06, abs(cosZ));
 
   float appear = clamp((uMapIn - aMeta.x * 0.7) / 0.3, 0.0, 1.0);
-  float mapA = aMeta.w * uMapVis * appear * mix(0.5, 0.92, day);
+  float mapA = aMeta.w * uMapVis * appear * mix(0.5, 0.92, day) * uMapTone;
   float a = mix(mix(aName.z * uNameVis, mapA, t1), aVisit.z * uVisitVis, t2);
 
   // Attention: the pointer's recent path warms the letters it passes and nudges them aside.
@@ -94,7 +99,7 @@ void main() {
   float dist = max(length(away), 0.001);
   p += (away / dist) * uTrail[0].z * 16.0 * exp(-dist * dist / 3200.0) * (1.0 - t1);
 
-  float size = mix(uNameDot * (1.0 + heat * 0.85), max(1.5, uMapDot * mix(0.78, 1.0, day) * pow(uCam.z, 0.72)), t1);
+  float size = mix(uNameDot * (1.0 + heat * 0.85), max(1.5, uMapDot * mix(0.78, 1.0, day) * pow(uCam.z, 0.72) * uDotTone), t1);
   size = mix(size, uVisitDot, t2);
   vec3 col = mix(uInk, uNote, max(heat, dusk * t1 * (1.0 - t2) * 0.85));
   // Dots that become the visit are observed data, so they arrive in the annotation blue.
@@ -270,6 +275,8 @@ export class FieldRenderer {
   dpr = 1;
   scale = 1;
   sizes = { name: 3, map: 2.2, visit: 4 };
+  /** Dark-mode compensation: dot size and world-dot strength (1 in light mode). */
+  tone = { dot: 1, map: 1 };
   colors: Colors = { ink: [0.07, 0.07, 0.06], note: [0.17, 0.23, 0.88] };
 
   constructor(readonly canvas: HTMLCanvasElement) {
@@ -354,6 +361,8 @@ export class FieldRenderer {
     gl.uniform1f(d.u('uNameDot'), this.sizes.name);
     gl.uniform1f(d.u('uMapDot'), this.sizes.map);
     gl.uniform1f(d.u('uVisitDot'), this.sizes.visit);
+    gl.uniform1f(d.u('uDotTone'), this.tone.dot);
+    gl.uniform1f(d.u('uMapTone'), this.tone.map);
     gl.uniform3fv(d.u('uTrail'), f.trail);
     gl.uniform3f(d.u('uInk'), ...ink);
     gl.uniform3f(d.u('uNote'), ...note);

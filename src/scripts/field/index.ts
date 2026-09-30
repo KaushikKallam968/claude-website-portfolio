@@ -390,7 +390,14 @@ export async function startField(): Promise<FieldHandle | null> {
   // ---------- Colours follow the theme ----------
   const readColors = () => {
     const cs = getComputedStyle(root);
-    renderer.colors = { ink: cssColor(cs.getPropertyValue('--ink')), note: cssColor(cs.getPropertyValue('--note')) };
+    const ink = cssColor(cs.getPropertyValue('--ink'));
+    const paper = cssColor(cs.getPropertyValue('--paper'));
+    renderer.colors = { ink, note: cssColor(cs.getPropertyValue('--note')) };
+    // Ink lighter than paper means the dark theme: light dots on black look bigger and louder than ink dots
+    // on paper, so they are drawn a little smaller and the world a little softer, to read at the same weight.
+    const lum = (c: number[]) => 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    const dark = lum(ink) > lum(paper);
+    renderer.tone = dark ? { dot: 0.84, map: 0.62 } : { dot: 1, map: 1 };
     force = true;
   };
   readColors();
