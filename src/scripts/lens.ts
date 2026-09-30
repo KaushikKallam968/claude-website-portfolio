@@ -35,26 +35,44 @@ function cursorTag() {
   const x = gsap.quickTo(chip, 'x', { duration: 0.45, ease: 'out' });
   const y = gsap.quickTo(chip, 'y', { duration: 0.45, ease: 'out' });
   let current: Element | null = null;
+  let px = -1;
+  let py = -1;
+  // What is under the pointer can change without the pointer moving (scrolling), so both update the tag.
+  const update = (target: Element | null) => {
+    const el = target?.closest<HTMLElement>(INTERACTIVE) ?? null;
+    if (el === current) return;
+    current = el;
+    if (!el || !visible(el)) {
+      chip.classList.remove('is-on');
+      return;
+    }
+    const d = describe(el);
+    chip.textContent = d.text;
+    chip.classList.toggle('is-gap', !d.tagged);
+    chip.classList.add('is-on');
+  };
+  const follow = () => {
+    // Keep the tag inside the viewport: it flips to the other side of the pointer near an edge.
+    const w = chip.offsetWidth || 120;
+    const h = chip.offsetHeight || 20;
+    x(px + 16 + w > innerWidth - 8 ? px - 12 - w : px + 16);
+    y(py + 18 + h > innerHeight - 8 ? py - 12 - h : py + 18);
+  };
   addEventListener(
     'pointermove',
     (e) => {
-      x(e.clientX + 16);
-      y(e.clientY + 18);
-      const el = (e.target as Element).closest<HTMLElement>(INTERACTIVE);
-      if (el === current) return;
-      current = el;
-      if (!el || !visible(el)) {
-        chip.classList.remove('is-on');
-        return;
-      }
-      const d = describe(el);
-      chip.textContent = d.text;
-      chip.classList.toggle('is-gap', !d.tagged);
-      chip.classList.add('is-on');
+      px = e.clientX;
+      py = e.clientY;
+      update(e.target as Element);
+      follow();
     },
     { passive: true },
   );
-  document.addEventListener('pointerleave', () => chip.classList.remove('is-on'));
+  addEventListener('scroll', () => px >= 0 && update(document.elementFromPoint(px, py)), { passive: true });
+  document.addEventListener('pointerleave', () => {
+    current = null;
+    chip.classList.remove('is-on');
+  });
 }
 
 export function startLens() {
@@ -108,6 +126,9 @@ export function startLens() {
       m.box.style.transform = `translate3d(${r.left - 4}px, ${r.top - 4}px, 0)`;
       m.box.style.width = `${r.width + 8}px`;
       m.box.style.height = `${r.height + 8}px`;
+      // Labels stay on screen: they tuck inside the box at the top edge and align right near the right edge.
+      m.box.classList.toggle('is-top', r.top < 90);
+      m.box.classList.toggle('is-right', r.left > innerWidth - 220);
       if (m.tagged) tagged++;
       else gaps++;
     }

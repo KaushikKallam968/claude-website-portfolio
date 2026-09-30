@@ -3,6 +3,8 @@
  * its track, and it is always stated, so the picture never implies more precision than it has.
  */
 const UNITS: [number, string][] = [
+  [20, 'a fiftieth of a second'],
+  [50, 'a twentieth of a second'],
   [100, 'a tenth of a second'],
   [250, 'a quarter of a second'],
   [500, 'half a second'],

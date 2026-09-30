@@ -71,17 +71,36 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
     }
 
     if (scrubbed) {
+      // The clock counts the hours between the two places, one at a time, like an odometer: every frame is
+      // a real time, and the day marker appears at the moment the count passes midnight.
       let last = 0;
+      const hourOf = (d: number[]) => d[0] * 10 + d[1];
       const scrub = (p: number) => {
         last = p;
-        reels.forEach((r, i) => {
-          const rest = state.to[i] + DIGITS_PER_TURN;
-          if (state.from[i] === state.to[i]) return gsap.set(r, { yPercent: y(rest) });
-          const k = Math.min(1, Math.max(0, (p - 0.14 - i * 0.07) / 0.55));
-          const eased = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-          gsap.set(r, { yPercent: y(startIndex(i)) + (y(rest) - y(startIndex(i))) * eased });
+        const from = hourOf(state.from);
+        const steps = Math.abs(state.off);
+        const dir = state.off >= 0 ? 1 : -1;
+        const k = Math.min(1, Math.max(0, (p - 0.12) / 0.66));
+        const count = k * steps;
+        const whole = Math.min(steps, Math.floor(count));
+        const f = whole === steps ? 0 : count - whole;
+        const click = f < 0.55 ? 0 : (() => { const t = (f - 0.55) / 0.45; return t * t * (3 - 2 * t); })();
+        const raw = from + dir * whole;
+        const h = ((raw % 24) + 24) % 24;
+        const next = (((h + dir) % 24) + 24) % 24;
+        const now = [Math.floor(h / 10), h % 10];
+        const then = [Math.floor(next / 10), next % 10];
+        [0, 1].forEach((i) => {
+          const a = now[i] + DIGITS_PER_TURN;
+          let b = then[i] + DIGITS_PER_TURN;
+          if (dir > 0 && then[i] < now[i]) b += DIGITS_PER_TURN; // rolling forward past 9 (or 23 to 00)
+          if (dir < 0 && then[i] > now[i]) b -= DIGITS_PER_TURN;
+          gsap.set(reels[i], { yPercent: y(a + (then[i] === now[i] ? 0 : (b - a) * click)) });
         });
-        day.style.opacity = dayText && p > 0.55 ? '1' : '0';
+        [2, 3].forEach((i) => gsap.set(reels[i], { yPercent: y(state.to[i] + DIGITS_PER_TURN) }));
+        const dayShift = Math.floor((from + dir * (whole + click)) / 24);
+        day.textContent = dayShift > 0 ? '+1 day' : dayShift < 0 ? '−1 day' : '';
+        day.style.opacity = dayShift !== 0 ? '1' : '0';
         line?.style.setProperty('--p', p.toFixed(3));
       };
       ScrollTrigger.create({ trigger: el, start: 'top top', end: 'bottom bottom', onUpdate: (self) => scrub(self.progress), onRefresh: (self) => scrub(self.progress) });

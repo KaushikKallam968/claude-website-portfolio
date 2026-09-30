@@ -28,8 +28,8 @@ const far = Math.abs(from.place.lon - to.place.lon) > 120;
   data-to={short(to)}
 >
   <div class="shift__stage">
-    <p class="shift__route" aria-hidden="true"><span>{short(from)}</span><span class="shift__line"><span data-shift-progress></span></span><span>{short(to)}</span></p>
-    <div class="shift__clock num" aria-hidden="true">
+    <p class="shift__route" aria-hidden="true" data-quiet><span>{short(from)}</span><span class="shift__line"><span data-shift-progress></span></span><span>{short(to)}</span></p>
+    <div class="shift__clock num" aria-hidden="true" data-quiet>
       {[0, 1].map((i) => (
         <span class="reel" data-reel={i}><span class="reel__strip">{reel.map((d) => <span>{d}</span>)}</span></span>
       ))}
@@ -39,7 +39,7 @@ const far = Math.abs(from.place.lon - to.place.lon) > 120;
       ))}
       <span class="shift__day" data-shift-day></span>
     </div>
-    <div class="shift__words">
+    <div class="shift__words" data-quiet>
       <p class="shift__text" data-shift-text>From {short(from)} to {short(to)}.</p>
       <a class="shift__next link" href={`#${to.id}`} data-observe={`shift.${to.id}`} data-observe-label={`Continue to ${to.label}`} data-observe-cannot="Whether you wanted to skip the scene or see where it went.">Continue to {to.label} <Arrow to="down" /></a>
     </div>
@@ -73,9 +73,11 @@ const far = Math.abs(from.place.lon - to.place.lon) > 120;
   }
   .shift--far .shift__clock { font-size: clamp(4.4rem, 22cqi, 19rem); }
   .shift--far .shift__stage { grid-template-columns: 1fr; }
-  .reel { display: inline-block; height: 1em; overflow: hidden; width: 0.58em; text-align: center; }
+  /* Each reel shows exactly one digit: the window is the digits' cap height, and every digit in the strip
+     sits on the same baseline within its cell. */
+  .reel { display: inline-block; height: 0.76em; overflow: hidden; width: 0.58em; text-align: center; margin-top: 0.12em; }
   .reel__strip { display: flex; flex-direction: column; will-change: transform; }
-  .reel__strip span { height: 1em; display: block; }
+  .reel__strip span { height: 0.76em; line-height: 0.76em; display: block; }
   .shift__colon { width: 0.3em; text-align: center; translate: 0 -0.06em; }
   .shift__day { font-size: max(0.14em, 0.875rem); letter-spacing: 0; margin: 0.35em 0 0 0.2em; white-space: nowrap; font-weight: 520; }
   .shift__words { display: grid; gap: 10px; padding-bottom: 0.4em; }
@@ -85,7 +87,7 @@ const far = Math.abs(from.place.lon - to.place.lon) > 120;
 
   /* With the Field running, the band becomes a scene: a tall runway with the clock pinned to the viewport
      while the map flies behind it. */
-  :global(html.field) .shift { height: 240vh; margin-top: 0; }
+  :global(html.field) .shift { height: 150vh; margin-top: 0; }
   :global(html.field) .shift__stage {
     position: sticky;
     top: 0;
@@ -114,6 +116,6 @@ const far = Math.abs(from.place.lon - to.place.lon) > 120;
   @media (max-width: 700px) {
     .shift__stage { grid-template-columns: 1fr; }
     .shift__clock { flex-wrap: wrap; }
-    :global(html.field) .shift { height: 200vh; }
+    :global(html.field) .shift { height: 140vh; }
   }
 </style>

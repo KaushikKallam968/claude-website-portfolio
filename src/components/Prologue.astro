@@ -14,8 +14,8 @@ const { first, last } = Astro.props;
 
 <div class="prologue" data-prologue>
   <div class="prologue__stage">
-    <p class="prologue__text">The journey runs backwards: from {first.place.name}, today, to {last.place.name}, where it began.</p>
-    <p class="prologue__now mono num" aria-hidden="true"><span>{first.place.name}</span> <span data-clock={first.place.timeZone}>--:--</span></p>
+    <p class="prologue__text" data-quiet>The journey runs backwards: from {first.place.name}, today, to {last.place.name}, where it began.</p>
+    <p class="prologue__now mono num" aria-hidden="true" data-quiet><span>{first.place.name}</span> <span data-clock={first.place.timeZone}>--:--</span></p>
   </div>
 </div>
 
@@ -31,7 +31,7 @@ const { first, last } = Astro.props;
   }
   .prologue__now { color: var(--note); display: flex; gap: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
 
-  :global(html.field) .prologue { height: 230vh; margin-top: 0; }
+  :global(html.field) .prologue { height: 160vh; margin-top: 0; }
   :global(html.field) .prologue__stage {
     position: sticky;
     top: 0;

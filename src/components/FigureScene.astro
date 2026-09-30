@@ -46,7 +46,12 @@ const list = steps[kind];
     {list.length > 0 && (
       <ol class="scene__steps" aria-label="The figure, step by step">
         {list.map(([, text], i) => (
-          <li data-step={i}><span class="scene__n num" aria-hidden="true">{i + 1}/{list.length}</span> {text}</li>
+          <li data-step={i}>
+            <button type="button" class="scene__step" data-step-button={i} data-observe={`figure.${kind}.step${i + 1}`} data-observe-label={`step ${i + 1} of the figure`} data-observe-cannot="Whether the step was clear or you were checking the order.">
+              <span class="scene__n num" aria-hidden="true">{i + 1}</span>
+              <span>{text}</span>
+            </button>
+          </li>
         ))}
       </ol>
     )}
@@ -55,35 +60,32 @@ const list = steps[kind];
 
 <style>
   .scene__stage { display: grid; gap: 22px; }
-  .scene__steps { display: grid; gap: 8px; counter-reset: s; max-width: 60ch; }
-  .scene__steps li { display: grid; grid-template-columns: 3.2em 1fr; gap: 10px; font-size: var(--t-body); }
+  .scene__steps { display: grid; gap: 2px; max-width: 64ch; border-top: 1px solid var(--rule); }
+  .scene__step {
+    display: grid;
+    grid-template-columns: 2em 1fr;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 0;
+    text-align: left;
+    font-size: var(--t-body);
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
   .scene__n { font-family: var(--mono); font-size: 0.75rem; color: var(--ink-3); padding-top: 0.3em; }
-
-  :global(html.scenes) .scene { height: 240vh; }
-  :global(html.scenes) .scene__stage {
-    position: sticky;
-    top: 64px;
-    height: calc(100svh - 64px);
-    align-content: center;
-    padding-block: 24px;
-  }
-  :global(html.scenes) .scene__steps { position: relative; min-height: 5.5em; }
-  @media (min-width: 1100px) and (min-height: 760px) {
-    :global(html.scenes) .scene :global(.fig__stage) { zoom: 1.32; }
-  }
-  :global(html.scenes) .scene__steps li {
+  /* The step being shown draws a rule along its top, timed to the step. */
+  .scene__step::before {
+    content: '';
     position: absolute;
-    inset: 0 0 auto;
-    font-size: var(--t-lede);
-    line-height: 1.25;
-    letter-spacing: -0.015em;
-    opacity: 0;
-    translate: 0 14px;
-    transition: opacity 0.5s var(--ease-out), translate 0.7s var(--ease-out);
+    left: 0; right: 0; top: -1px;
+    height: 1px;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left;
   }
-  :global(html.scenes) .scene__steps li.is-on { opacity: 1; translate: 0 0; }
-  :global(html.scenes) .scene__steps li.is-past { opacity: 0; translate: 0 -14px; }
-  @media (max-width: 1100px) {
-    :global(html.scenes) .scene__stage { top: calc(56px + 36px); height: calc(100svh - 92px); }
-  }
+  :global(html.scenes) .scene__step { color: var(--ink-3); transition: color 0.5s var(--ease-out); }
+  :global(html.scenes) .scene__step:hover { color: var(--ink-2); }
+  :global(html.scenes) li.is-on .scene__step { color: var(--ink); }
+  :global(html.scenes) li.is-on .scene__step::before { transform: scaleX(1); transition: transform var(--step-ms, 1800ms) linear; }
+  :global(html.scenes) li.is-on .scene__n { color: var(--note); }
 </style>

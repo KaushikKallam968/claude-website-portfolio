@@ -139,28 +139,55 @@ function chapters() {
   }
 }
 
-/** On Case pages the figure holds while scrolling plays it: progress drives its parts and its steps. */
+/**
+ * On Case pages the figure plays its argument in place, step by step, once it is on screen: progress
+ * (--p) drives its parts and the numbered caption follows. Any step can be chosen directly; choosing one
+ * stops the autoplay. Nothing holds the scroll.
+ */
 function figureScenes() {
+  const STEP_MS = 2400;
   document.querySelectorAll<HTMLElement>('[data-fig-scene]').forEach((scene) => {
     const stage = scene.querySelector<HTMLElement>('.scene__stage')!;
     const marks: number[] = JSON.parse(scene.dataset.steps ?? '[]');
     const items = [...scene.querySelectorAll<HTMLElement>('[data-step]')];
-    let current = -1;
-    const update = (p: number) => {
-      stage.style.setProperty('--p', p.toFixed(4));
-      let step = 0;
-      marks.forEach((at, i) => {
-        if (p >= at) step = i;
-      });
-      if (step === current) return;
-      current = step;
-      items.forEach((li, i) => {
-        li.classList.toggle('is-on', i === step);
-        li.classList.toggle('is-past', i < step);
-      });
+    const state = { p: 0 };
+    let step = -1;
+    let timer = 0;
+    stage.style.setProperty('--step-ms', `${STEP_MS}ms`);
+    const paint = () => stage.style.setProperty('--p', state.p.toFixed(4));
+    // Each step plays from its own mark to the next, so the parts it introduces arrive while it is shown.
+    const show = (i: number, duration = 1.4) => {
+      step = i;
+      items.forEach((li, k) => li.classList.toggle('is-on', k === i));
+      const end = i + 1 < marks.length ? marks[i + 1] - 0.001 : 1;
+      gsap.to(state, { p: end, duration, ease: 'scene', onUpdate: paint, overwrite: true });
     };
-    ScrollTrigger.create({ trigger: scene, start: 'top top+=64', end: 'bottom bottom', onUpdate: (st) => update(st.progress), onRefresh: (st) => update(st.progress) });
-    update(0);
+    const play = () => {
+      clearTimeout(timer);
+      if (step >= marks.length - 1) return;
+      show(step + 1);
+      timer = window.setTimeout(play, STEP_MS);
+    };
+    items.forEach((li, i) =>
+      li.querySelector('button')?.addEventListener('click', () => {
+        clearTimeout(timer);
+        if (i < step) {
+          state.p = marks[i];
+          paint();
+        }
+        show(i, 0.9);
+      }),
+    );
+    paint();
+    const io = new IntersectionObserver(
+      ([en]) => {
+        if (!en.isIntersecting) return;
+        io.disconnect();
+        play();
+      },
+      { threshold: 0.55 },
+    );
+    io.observe(stage);
   });
 }
 

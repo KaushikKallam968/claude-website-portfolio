@@ -11,7 +11,7 @@ precision highp float;
 in vec3 aName;   // px from the name's top-left, alpha
 in vec4 aMap;    // projected x, y; longitude, latitude (radians)
 in vec4 aMeta;   // stagger, orbit radius, orbit phase, map alpha
-in vec3 aVisit;  // px from the portrait's top-left, alpha
+in vec4 aVisit;  // px from the portrait's top-left, alpha, arrival order (0 first)
 uniform vec2 uRes;
 uniform float uDpr;
 uniform float uStage;
@@ -32,8 +32,21 @@ uniform vec3 uTrail[20];
 uniform vec3 uInk;
 uniform vec3 uNote;
 uniform float uClip;
+uniform vec4 uQuiet[6];
 out vec4 vColor;
 out float vSize;
+
+// How far a point sits inside the text blocks that must stay readable (1 inside, 0 clear of them).
+float quietAt(vec2 p) {
+  float q = 0.0;
+  for (int i = 0; i < 6; i++) {
+    vec4 r = uQuiet[i];
+    if (r.z <= r.x) continue;
+    vec2 d = max(vec2(r.x, r.y) - p, p - vec2(r.z, r.w));
+    q = max(q, 1.0 - smoothstep(0.0, 28.0, max(d.x, d.y)));
+  }
+  return q;
+}
 
 float inout3(float t) { return t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3.0) * 0.5; }
 
@@ -44,7 +57,8 @@ void main() {
 
   float lag = aMeta.x * 0.45;
   float t1 = inout3(clamp((uStage - lag) / 0.55, 0.0, 1.0));
-  float t2 = inout3(clamp((uStage - 1.0 - lag) / 0.55, 0.0, 1.0));
+  // Into the portrait the dots arrive in reading order (row by row, left to right), so the chart assembles.
+  float t2 = inout3(clamp((uStage - 1.0 - aVisit.w * 0.5) / 0.5, 0.0, 1.0));
   vec2 p = mix(mix(namePos, mapPos, t1), visitPos, t2);
 
   // In flight each dot bows off the straight line into an arc (bands of dots bend the same way, so the crowd
@@ -85,6 +99,9 @@ void main() {
   vec3 col = mix(uInk, uNote, max(heat, dusk * t1 * (1.0 - t2) * 0.85));
   // Above uClip only the portrait may show: the closing section is a window onto the world.
   a *= mix(smoothstep(uClip, uClip + 60.0, p.y), 1.0, aVisit.z * t2);
+  // Map dots and dots in flight thin out behind reading text; the name and the settled portrait never do.
+  float moving = t1 * (1.0 - t2) + sin(3.14159 * t2);
+  a *= 1.0 - quietAt(p) * 0.88 * clamp(moving, 0.0, 1.0);
   vColor = vec4(col, a);
   vSize = size * uDpr;
   gl_PointSize = vSize;
@@ -99,7 +116,8 @@ in float vSize;
 out vec4 outColor;
 void main() {
   float d = length(gl_PointCoord - 0.5);
-  float aa = 1.2 / max(vSize, 1.0);
+  // About one device pixel of softening, never more than a fifth of the dot, so small dots stay solid.
+  float aa = min(0.2, 1.0 / max(vSize, 1.0));
   float m = 1.0 - smoothstep(0.5 - aa, 0.5, d);
   outColor = vec4(vColor.rgb, 1.0) * vColor.a * m;
 }`;
@@ -121,10 +139,22 @@ uniform float uActive;  // t of the place being read, or -1
 uniform vec3 uNote;
 uniform vec3 uInk;
 uniform float uClip;
+uniform vec4 uQuiet[6];
 out vec4 vColor;
 out float vSize;
 flat out float vKind;
 out float vRing;
+
+float quietAt(vec2 p) {
+  float q = 0.0;
+  for (int i = 0; i < 6; i++) {
+    vec4 r = uQuiet[i];
+    if (r.z <= r.x) continue;
+    vec2 d = max(vec2(r.x, r.y) - p, p - vec2(r.z, r.w));
+    q = max(q, 1.0 - smoothstep(0.0, 28.0, max(d.x, d.y)));
+  }
+  return q;
+}
 
 void main() {
   float kind = aInfo.y;
@@ -150,10 +180,11 @@ void main() {
     size = 64.0;
     a *= (1.0 - phase) * (abs(aInfo.x - uActive) < 0.0001 ? 0.9 : 0.25);
   } else {
-    size = 11.0;
+    size = 16.0;
     a = uVis * step(0.001, uLeg.z) * (1.0 - step(0.999, uLeg.z));
   }
   a *= smoothstep(uClip, uClip + 60.0, p.y);
+  a *= 1.0 - quietAt(p) * 0.9;
   vColor = vec4(col, a);
   vKind = kind;
   vSize = size * uDpr;
@@ -171,14 +202,16 @@ in float vRing;
 out vec4 outColor;
 void main() {
   float d = length(gl_PointCoord - 0.5);
-  float aa = 1.2 / max(vSize, 1.0);
+  float aa = min(0.2, 1.0 / max(vSize, 1.0));
   float m;
   if (vKind > 1.5 && vKind < 2.5) {
     float r = 0.08 + vRing * 0.4;
     m = 1.0 - smoothstep(0.0, aa * 1.5, abs(d - r) - aa * 0.6);
   } else if (vKind > 2.5) {
-    m = 1.0 - smoothstep(0.5 - aa, 0.5, d);
-    m = max(m * step(d, 0.26), (1.0 - smoothstep(0.0, aa * 2.0, abs(d - 0.44) - aa)) * 0.9);
+    // The traveller: a solid core inside a thin ring.
+    float core = 1.0 - smoothstep(0.24 - aa, 0.24, d);
+    float ring = 1.0 - smoothstep(0.0, aa, abs(d - 0.43) - 0.035);
+    m = max(core, ring * 0.9);
   } else {
     m = 1.0 - smoothstep(0.5 - aa, 0.5, d);
   }
@@ -209,6 +242,7 @@ export interface FieldFrame {
   sun: [number, number];
   time: number;
   clip: number;
+  quiet: Float32Array;
 }
 
 export interface Colors {
@@ -262,7 +296,7 @@ export class FieldRenderer {
     put('aName', data.name, 3);
     put('aMap', data.map, 4);
     put('aMeta', data.meta, 4);
-    put('aVisit', data.visit, 3);
+    put('aVisit', data.visit, 4);
     gl.bindVertexArray(null);
     this.dotCount = count;
   }
@@ -271,7 +305,7 @@ export class FieldRenderer {
   setVisit(visit: Float32Array) {
     const gl = this.gl;
     gl.bindVertexArray(this.dotsVao);
-    this.dotBuffers.set('aVisit', attribute(gl, this.dots, 'aVisit', visit, 3, this.dotBuffers.get('aVisit')));
+    this.dotBuffers.set('aVisit', attribute(gl, this.dots, 'aVisit', visit, 4, this.dotBuffers.get('aVisit')));
     gl.bindVertexArray(null);
   }
 
@@ -318,6 +352,7 @@ export class FieldRenderer {
     gl.uniform3f(d.u('uInk'), ...ink);
     gl.uniform3f(d.u('uNote'), ...note);
     gl.uniform1f(d.u('uClip'), f.clip);
+    gl.uniform4fv(d.u('uQuiet'), f.quiet);
     gl.bindVertexArray(this.dotsVao);
     gl.drawArrays(gl.POINTS, 0, this.dotCount);
 
@@ -337,6 +372,7 @@ export class FieldRenderer {
       gl.uniform3f(r.u('uNote'), ...note);
       gl.uniform3f(r.u('uInk'), ...ink);
       gl.uniform1f(r.u('uClip'), f.clip);
+      gl.uniform4fv(r.u('uQuiet'), f.quiet);
       gl.bindVertexArray(this.routeVao);
       gl.drawArrays(gl.POINTS, 0, this.routeCount);
     }

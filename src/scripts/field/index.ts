@@ -75,6 +75,16 @@ export async function startField(): Promise<FieldHandle | null> {
 
   document.body.prepend(canvas);
   root.classList.add('field-on');
+  // If the GPU drops the context, fall back to the plain page: HTML name, static bands, no scenes.
+  let lost = false;
+  canvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    lost = true;
+    root.classList.remove('field-on', 'field', 'in-scene');
+    canvas.remove();
+    document.querySelector('.field-labels')?.remove();
+    import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => ScrollTrigger.refresh());
+  });
 
   // ---------- The world ----------
   const raw = new Int16Array(bin);
@@ -163,7 +173,7 @@ export async function startField(): Promise<FieldHandle | null> {
     el.querySelector<HTMLElement>('.field-label__time')!.textContent = clockFormat(p.tz).format(new Date());
     labelLayer.append(el);
     const [x, y] = equalEarth(p.lon, p.lat);
-    return { el, x, y, t: placeT.get(p.id)!, id: p.id };
+    return { el, x, y, t: placeT.get(p.id)!, id: p.id, w: 0 };
   });
   document.body.prepend(labelLayer);
 
@@ -203,7 +213,7 @@ export async function startField(): Promise<FieldHandle | null> {
     const spacing = Math.min(5.2, Math.max(2.3, size / 52));
     const name = sampleName(heading!, spacing);
     nameCount = name.count;
-    renderer.sizes.name = spacing * 0.94;
+    renderer.sizes.name = spacing * (narrow ? 1.08 : 0.94);
     renderer.sizes.map = narrow ? 2.3 : 2.1;
     renderer.sizes.visit = narrow ? 2.4 : 3.2;
 
@@ -212,7 +222,7 @@ export async function startField(): Promise<FieldHandle | null> {
     const nameArr = new Float32Array(N * 3);
     const mapArr = new Float32Array(N * 4);
     const meta = new Float32Array(N * 4);
-    const visit = new Float32Array(N * 3);
+    const visit = new Float32Array(N * 4);
     const nameW = heading!.getBoundingClientRect().width || 1;
     let lastN = -1;
     let lastM = -1;
@@ -226,7 +236,7 @@ export async function startField(): Promise<FieldHandle | null> {
       const ny = name.points[ni * 2 + 1];
       const band = (Math.sin(ny * 0.045 + nx * 0.004) + 1) / 2; // neighbouring dots share a bend
       meta.set([clamp01(0.62 * (nx / nameW) + 0.38 * Math.random()), (narrow ? 8 : 14) + Math.random() * (narrow ? 26 : 52), clamp01(band * 0.8 + Math.random() * 0.2), mi !== lastM ? 1 : 0], i * 4);
-      visit.set([nx, name.points[ni * 2 + 1], 0], i * 3);
+      visit.set([nx, name.points[ni * 2 + 1], 0, Math.random()], i * 4);
       lastN = ni;
       lastM = mi;
     }
@@ -324,20 +334,24 @@ export async function startField(): Promise<FieldHandle | null> {
       unitEl.textContent = `Each dot is ${phrase} of your visit.`;
     }
     // Dots that are not part of the portrait head for where the world would be, fading as they go.
-    const visit = new Float32Array(dotTotal * 3);
+    const visit = new Float32Array(dotTotal * 4);
     const scale = renderer.scale * worldCam.z;
     const topAtEnd = visitDoc.y - visitEndY;
     for (let i = 0; i < dotTotal; i++) {
-      visit[i * 3] = vw / 2 + (mapXY[i * 2] - worldCam.x) * scale - visitDoc.x;
-      visit[i * 3 + 1] = vh / 2 + (worldCam.y - mapXY[i * 2 + 1]) * scale - topAtEnd;
+      visit[i * 4] = vw / 2 + (mapXY[i * 2] - worldCam.x) * scale - visitDoc.x;
+      visit[i * 4 + 1] = vh / 2 + (worldCam.y - mapXY[i * 2 + 1]) * scale - topAtEnd;
+      visit[i * 4 + 3] = (i * 0.618) % 1; // the rest of the world evaporates in no particular order
     }
     let k = 0;
+    const rows = visitRows.length;
     visitRows.forEach((row, ri) => {
-      for (let j = 0; j < counts[ri] && k < visitOrder.length; j++) {
+      const n = counts[ri];
+      for (let j = 0; j < n && k < visitOrder.length; j++) {
         const idx = visitOrder[k++];
         const col = Math.floor(j / row.lines);
         const line = j % row.lines;
-        visit.set([row.x + (col + 0.5) * visitSpacing, row.y + (line + 0.5) * visitSpacing * 0.9, row.id === 'outside' ? 0.45 : 1], idx * 3);
+        const order = (ri + j / Math.max(1, n)) / rows; // row by row, left to right
+        visit.set([row.x + (col + 0.5) * visitSpacing, row.y + (line + 0.5) * visitSpacing * 0.9, row.id === 'outside' ? 0.45 : 1, order], idx * 4);
       }
     });
     renderer.setVisit(visit);
@@ -423,10 +437,30 @@ export async function startField(): Promise<FieldHandle | null> {
   const frame: FieldFrame = {
     stage: 0, mapIn: 1, mapVis: 0, nameVis: 1, visitVis: 0,
     cam: { ...worldCam }, route: 1, routeVis: 0, leg: [0, 0, 0], traveller: [0, 0], active: -1,
-    nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, clip: -1e5,
+    nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, clip: -1e5, quiet: new Float32Array(24),
   };
   const t0 = performance.now();
   let idle = false;
+
+  // ---------- Quiet zones: text that must stay readable over the map ----------
+  const QUIET = 6;
+  const quiet = new Float32Array(QUIET * 4);
+  frame.quiet = quiet;
+  let quietEls: HTMLElement[] = [];
+  const collectQuiet = () => (quietEls = [...document.querySelectorAll<HTMLElement>('[data-quiet]')]);
+  collectQuiet();
+  const quietRects: DOMRect[] = [];
+  const fillQuiet = () => {
+    quiet.fill(0);
+    quietRects.length = 0;
+    for (const el of quietEls) {
+      if (quietRects.length === QUIET) break;
+      const r = el.getBoundingClientRect();
+      if (r.bottom < -40 || r.top > vh + 40 || r.width === 0) continue;
+      quiet.set([r.left - 10, r.top - 10, r.right + 10, r.bottom + 10], quietRects.length * 4);
+      quietRects.push(r);
+    }
+  };
 
   const compute = () => {
     const y = scrollY;
@@ -488,24 +522,35 @@ export async function startField(): Promise<FieldHandle | null> {
 
   const placeLabels = () => {
     const show = frame.routeVis;
-    for (const l of labels) {
+    const leg = frame.leg[2] > 0 ? [frame.leg[0], frame.leg[1]] : [];
+    // Most important first: the place being read, then the two ends of the current leg, then the rest.
+    const rank = (t: number) => (Math.abs(frame.active - t) < 0.0001 ? 0 : leg.some((v) => Math.abs(v - t) < 0.0001) ? 1 : 2);
+    const placed: { x0: number; y0: number; x1: number; y1: number }[] = [];
+    const ordered = [...labels].sort((a, b) => rank(a.t) - rank(b.t));
+    for (const l of ordered) {
       const x = vw / 2 + (l.x - frame.cam.x) * renderer.scale * frame.cam.z;
       const y = vh / 2 + (frame.cam.y - l.y) * renderer.scale * frame.cam.z;
-      const revealed = frame.route >= l.t - 0.0001 ? 1 : 0;
-      const isActive = Math.abs(frame.active - l.t) < 0.0001;
-      // Plano and Richardson are a few miles apart: Richardson is labelled only while it is the place being read.
-      const crowded = l.id === 'texas-education' && !isActive;
+      const revealed = frame.route >= l.t - 0.0001;
+      const isActive = rank(l.t) === 0;
+      const left = x > vw - 150;
+      const w = l.w || (l.w = l.el.offsetWidth || 110);
+      const box = { x0: left ? x - w - 4 : x - 4, y0: y - 9, x1: left ? x + 4 : x + w + 4, y1: y + 9 };
+      const hits = (r: { x0: number; y0: number; x1: number; y1: number }) => !(box.x1 < r.x0 || box.x0 > r.x1 || box.y1 < r.y0 || box.y0 > r.y1);
+      const overText = quietRects.some((q) => hits({ x0: q.left - 8, y0: q.top - 8, x1: q.right + 8, y1: q.bottom + 8 }));
+      const blocked = placed.some(hits);
       const clipped = y < frame.clip + 30;
-      const o = crowded || clipped ? 0 : show * revealed * (isActive || frame.active === -1 ? 1 : 0.55);
+      const visible = revealed && !overText && !blocked && !clipped && show > 0.02;
+      if (visible) placed.push(box);
+      const o = visible ? show * (isActive || frame.active === -1 ? 1 : 0.6) : 0;
       l.el.style.opacity = o.toFixed(3);
       l.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
       l.el.classList.toggle('is-active', isActive);
-      l.el.classList.toggle('is-left', x > vw - 150);
+      l.el.classList.toggle('is-left', left);
     }
   };
 
   gsap.ticker.add(() => {
-    if (document.hidden) return;
+    if (document.hidden || lost) return;
     compute();
     const inHero = scrollY < heroBottom || frame.stage < 0.999;
     if (!inHero && frame.mapVis < 0.002) {
@@ -522,6 +567,7 @@ export async function startField(): Promise<FieldHandle | null> {
     frame.time = (now - t0) / 1000;
     frame.sun = sun;
     fillTrail(now);
+    fillQuiet();
     renderer.draw(frame);
     placeLabels();
   });
@@ -539,6 +585,8 @@ export async function startField(): Promise<FieldHandle | null> {
   addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(() => {
+      labels.forEach((l) => (l.w = 0));
+      collectQuiet();
       measure();
       buildDots();
       updateVisit();
