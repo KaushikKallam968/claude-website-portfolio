@@ -1,1 +1,3 @@
 poc/model_cache/
+# impeccable engine binary is platform-specific; the launcher downloads the right one on demand
+.claude/skills/impeccable/scripts/bin/
