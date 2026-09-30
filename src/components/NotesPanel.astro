@@ -1,0 +1,53 @@
+---
+/**
+ * The observation layer. Notes are written by src/scripts/notes.ts from what the visitor does.
+ * Not a live region: a screen reader user can read the list when they choose, instead of being interrupted.
+ */
+---
+
+<aside class="notes" aria-labelledby="notes-title" data-notes>
+  <div class="notes__head">
+    <h2 id="notes-title" class="notes__title mono">Notes on this visit <span class="notes__count num" data-notes-count>0</span></h2>
+    <button class="notes__toggle mono" type="button" aria-pressed="false" data-notes-toggle>Hide</button>
+  </div>
+  <p class="notes__about">This page keeps notes on what you do here, and on what each note can’t explain. They stay in your browser.</p>
+  <ol class="notes__list" data-notes-list>
+    <noscript><li class="notes__empty">With scripts off, there’s nothing to note. That’s an honest dataset too.</li></noscript>
+  </ol>
+</aside>
+
+<style>
+  .notes {
+    color: var(--note);
+    font-size: var(--t-small);
+    line-height: 1.45;
+  }
+  .notes__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-top: 1px solid currentColor;
+    padding-top: 10px;
+  }
+  .notes__title { font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; }
+  .notes__count { display: inline-block; min-width: 2ch; }
+  .notes__toggle { text-transform: uppercase; letter-spacing: 0.06em; }
+  .notes__toggle:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .notes__about { margin: 10px 0 18px; color: var(--ink-2); max-width: 34ch; }
+  .notes__list { display: grid; gap: 14px; }
+  :global(.note) {
+    display: grid;
+    grid-template-columns: 5.2em 1fr;
+    column-gap: 10px;
+    padding-top: 10px;
+    border-top: 1px dotted color-mix(in oklab, var(--note) 50%, transparent);
+  }
+  :global(.note__t) { font-family: var(--mono); font-size: 0.6875rem; padding-top: 2px; }
+  :global(.note__shows) { color: var(--ink); }
+  :global(.note__cannot) { grid-column: 2; font-family: var(--mono); font-size: 0.6875rem; margin-top: 3px; }
+  :global(.note__cannot::before) { content: 'can’t tell: '; opacity: 0.7; }
+  :global(.note--untagged .note__t::after) { content: ' gap'; }
+  .notes__empty { color: var(--ink-2); }
+  :global(html.notes-off) .notes__list,
+  :global(html.notes-off) .notes__about { display: none; }
+</style>

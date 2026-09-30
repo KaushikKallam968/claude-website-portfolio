@@ -1,0 +1,201 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import CaseFigure from '../../components/CaseFigure.astro';
+import NotesPanel from '../../components/NotesPanel.astro';
+
+export async function getStaticPaths() {
+  const cases = await getCollection('cases');
+  return cases.map((c) => ({ params: { slug: c.id }, props: { entry: c, all: cases } }));
+}
+
+const { entry, all } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const ordered = [...all].sort((a, b) => a.data.order - b.data.order);
+const n = String(d.order).padStart(2, '0');
+const related = d.related ? all.find((c) => c.id === d.related) : undefined;
+---
+
+<Base title={`${d.title} · Kaushik Kallam`} description={d.question} current="work">
+  <main id="main" class="case" data-case={entry.id} data-chapter={d.chapterId} data-chapter-title={d.chapterTitle}>
+    <div class="case__layout">
+      <article class="case__article" aria-labelledby="case-title">
+        <header class="case__head">
+          <p class="case__crumbs mono">
+            <span>Case {n} / {String(ordered.length).padStart(2, '0')}</span>
+            <span>{d.context}</span>
+            {d.draft && <span class="draft-marker" title="Draft copy awaiting the owner's confirmation">DRAFT</span>}
+          </p>
+          <h1 id="case-title" class="case__title" style={`view-transition-name: case-${entry.id}`}>{d.title}</h1>
+          <p class="case__question">{d.question}</p>
+        </header>
+
+        <dl class="tldr" aria-label="Summary">
+          <div><dt>Role</dt><dd>{d.role}</dd></div>
+          {d.team && <div><dt>Team</dt><dd>{d.team}</dd></div>}
+          <div><dt>Timeline</dt><dd>{d.timeline}</dd></div>
+          <div><dt>Methods</dt><dd><ul>{d.methods.map((m) => <li>{m}</li>)}</ul></dd></div>
+          <div class="tldr__outcome"><dt>Outcome <span class="tldr__type mono">{d.outcomeType}</span></dt><dd>{d.outcome}</dd></div>
+        </dl>
+
+        <div class="case__figure">
+          <CaseFigure kind={d.figure} />
+        </div>
+
+        <div class="prose">
+          <Content />
+        </div>
+
+        <section class="limits" aria-labelledby="limits-title">
+          <h2 id="limits-title" class="limits__title">What the evidence shows, and what it can’t</h2>
+          <div class="limits__cols">
+            <div>
+              <h3 class="limits__h mono">Shows</h3>
+              <ul>{d.shows.map((s) => <li>{s}</li>)}</ul>
+            </div>
+            <div class="limits__cannot">
+              <h3 class="limits__h mono">Can’t show</h3>
+              <ul>{d.cannotShow.map((s) => <li>{s}</li>)}</ul>
+            </div>
+          </div>
+          <p class="limits__status"><span class="label">Status</span> {d.status}</p>
+        </section>
+
+        <nav class="case__next" aria-label="Where next">
+          <a class="case__return" href={`/#${d.chapterId}`} data-return data-case-id={entry.id} data-chapter-id={d.chapterId} data-chapter-title={d.chapterTitle}>
+            <span class="mono">Return</span>
+            <span class="case__return-label" data-return-label>Explore {d.chapterTitle}</span>
+          </a>
+          <ul class="case__more">
+            <li><a class="link link--under" href="/work/">All selected work <span aria-hidden="true">→</span></a></li>
+            {related && (
+              <li>
+                <a class="link link--under" href={`/work/${related.id}/`} data-case-link={related.id} data-observe-label={related.data.title}>
+                  Related: {related.data.title} <span aria-hidden="true">→</span>
+                </a>
+              </li>
+            )}
+            <li><a class="link link--under" href="/#contact">Get in touch <span aria-hidden="true">→</span></a></li>
+          </ul>
+        </nav>
+      </article>
+      <aside class="case__rail" aria-label="Notes">
+        <div class="case__rail-sticky"><NotesPanel /></div>
+      </aside>
+    </div>
+  </main>
+</Base>
+
+<script>
+  import { returnTargetFor } from '../../lib/origin';
+  import { storedOrigin } from '../../scripts/navigation';
+
+  // Return goes back to the reader's Origin. When the Origin is the page right behind us, use real history,
+  // so the browser restores scroll and state exactly; otherwise navigate and restore on arrival.
+  const a = document.querySelector<HTMLAnchorElement>('[data-return]');
+  if (a) {
+    const caseRef = { id: a.dataset.caseId!, chapterId: a.dataset.chapterId!, chapterTitle: a.dataset.chapterTitle! };
+    document.body.dataset.caseId = caseRef.id;
+    const origin = storedOrigin(caseRef.id);
+    const target = returnTargetFor(caseRef, origin);
+    a.href = target.href;
+    a.querySelector('[data-return-label]')!.textContent = target.label;
+    const ref = document.referrer ? new URL(document.referrer) : null;
+    const cameFromOrigin =
+      !!origin && origin.kind !== 'case' && !!ref && ref.origin === location.origin && ref.pathname === new URL(target.href, location.href).pathname;
+    a.addEventListener('click', (ev) => {
+      if (cameFromOrigin && history.length > 1) {
+        ev.preventDefault();
+        history.back();
+        return;
+      }
+      try {
+        sessionStorage.setItem('kk:restore', JSON.stringify({ scrollY: target.scrollY, focusId: target.focusId }));
+      } catch {
+        /* the hash still lands on the right Entry or Chapter */
+      }
+    });
+  }
+</script>
+
+<style>
+  .case { padding-top: 64px; }
+  .case__layout { position: relative; --rail: clamp(250px, 22vw, 340px); display: grid; grid-template-columns: minmax(0, 1fr) var(--rail); gap: var(--gutter); padding-inline: var(--margin); }
+  .case__rail-sticky { position: sticky; top: 88px; margin-top: clamp(40px, 8vw, 120px); }
+  .case__article { container-type: inline-size; padding-bottom: clamp(80px, 10vw, 160px); }
+  .case__head { padding-top: clamp(40px, 7vw, 110px); max-width: 1100px; }
+  .case__crumbs { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--ink-3); align-items: center; }
+  .case__crumbs span:first-child { color: var(--note); }
+  .case__title {
+    margin-top: 22px;
+    font-size: clamp(2.8rem, 9.6cqi, 9rem);
+    line-height: 0.88;
+    letter-spacing: -0.055em;
+    font-weight: 530;
+    max-width: 12ch;
+  }
+  .case__question { margin-top: clamp(22px, 3vw, 40px); font-size: var(--t-lede); line-height: 1.32; letter-spacing: -0.015em; max-width: 34ch; }
+
+  .tldr {
+    margin: clamp(40px, 6vw, 80px) 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0 var(--gutter);
+    border-top: 1px solid var(--ink);
+    max-width: 1100px;
+  }
+  .tldr div { padding: 14px 0 18px; border-bottom: 1px solid var(--rule); }
+  .tldr dt { font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-3); margin-bottom: 6px; }
+  .tldr dd { margin: 0; font-size: 0.9375rem; }
+  .tldr ul { display: grid; gap: 4px; }
+  .tldr__outcome { grid-column: 1 / -1; }
+  .tldr__outcome dd { font-size: var(--t-body); max-width: 70ch; }
+  .tldr__type { color: var(--note); border: 1px solid currentColor; padding: 0 5px; margin-left: 8px; }
+
+  .case__figure { margin-top: clamp(40px, 6vw, 80px); max-width: 900px; }
+
+  .prose { margin-top: clamp(48px, 7vw, 100px); max-width: 66ch; }
+  .prose :global(h2) {
+    font-size: var(--t-h3);
+    line-height: 1.1;
+    letter-spacing: -0.028em;
+    font-weight: 520;
+    margin: 2.2em 0 0.6em;
+  }
+  .prose :global(h2:first-child) { margin-top: 0; }
+  .prose :global(p) { margin-bottom: 1em; line-height: 1.62; }
+  .prose :global(strong) { font-weight: 560; }
+
+  .limits { margin-top: clamp(56px, 8vw, 110px); max-width: 1100px; border-top: 1px solid var(--note); padding-top: 18px; }
+  .limits__title { font-size: var(--t-h3); letter-spacing: -0.028em; line-height: 1.1; font-weight: 520; max-width: 22ch; }
+  .limits__cols { margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: var(--gutter); }
+  .limits__h { font-weight: 400; color: var(--ink-3); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .limits ul { display: grid; gap: 10px; }
+  .limits li { border-top: 1px dotted var(--rule); padding-top: 10px; }
+  .limits__cannot { color: var(--note); }
+  .limits__cannot .limits__h { color: var(--note); }
+  .limits__status { margin-top: 26px; font-size: 0.9375rem; }
+
+  .case__next { margin-top: clamp(64px, 9vw, 130px); display: grid; gap: 28px; max-width: 1100px; }
+  .case__return {
+    display: grid;
+    gap: 6px;
+    text-decoration: none;
+    border-top: 1px solid var(--ink);
+    padding-top: 14px;
+  }
+  .case__return .mono { color: var(--note); }
+  .case__return-label { font-size: clamp(2rem, 6cqi, 5rem); letter-spacing: -0.045em; line-height: 0.95; font-weight: 520; transition: translate 0.8s var(--ease-out); }
+  .case__return:hover .case__return-label { translate: 10px 0; }
+  .case__more { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; }
+
+  @media (max-width: 1100px) {
+    .case__layout { grid-template-columns: minmax(0, 1fr); }
+    .case__rail { order: 2; }
+    .case__rail-sticky { position: static; margin-top: 0; }
+  }
+  @media (max-width: 700px) {
+    .limits__cols { grid-template-columns: 1fr; }
+  }
+</style>

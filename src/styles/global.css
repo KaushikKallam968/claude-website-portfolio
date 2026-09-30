@@ -1,0 +1,170 @@
+/* Kaushik Kallam · paper, ink, one annotation blue. */
+@font-face {
+  font-family: 'Switzer';
+  src: url('/fonts/switzer-variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Switzer';
+  src: url('/fonts/switzer-variable-italic.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Fragment Mono';
+  src: url('/fonts/fragment-mono.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --paper: #ecece8;
+  --paper-2: #e3e3de;
+  --ink: #111110;
+  --ink-2: #4a4a46;
+  --ink-3: #7c7c76;
+  --rule: rgb(17 17 16 / 0.16);
+  --note: #2c3be0;
+  --note-soft: rgb(44 59 224 / 0.1);
+
+  --sans: 'Switzer', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'Fragment Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --margin: clamp(16px, 2.3vw, 36px);
+  --gutter: clamp(12px, 1.5vw, 24px);
+  --cols: 12;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-scene: cubic-bezier(0.86, 0, 0.07, 1);
+
+  --t-body: clamp(1rem, 0.94rem + 0.28vw, 1.1875rem);
+  --t-small: 0.8125rem;
+  --t-lede: clamp(1.25rem, 1.05rem + 0.8vw, 1.75rem);
+  --t-h3: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --paper: #121211;
+    --paper-2: #1b1b19;
+    --ink: #ecebe6;
+    --ink-2: #b5b4ad;
+    --ink-3: #85847e;
+    --rule: rgb(236 235 230 / 0.16);
+    --note: #8e98ff;
+    --note-soft: rgb(142 152 255 / 0.12);
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --paper: #121211;
+  --paper-2: #1b1b19;
+  --ink: #ecebe6;
+  --ink-2: #b5b4ad;
+  --ink-3: #85847e;
+  --rule: rgb(236 235 230 / 0.16);
+  --note: #8e98ff;
+  --note-soft: rgb(142 152 255 / 0.12);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--t-body);
+  line-height: 1.55;
+  font-weight: 400;
+  font-feature-settings: 'ss01' on;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+p { margin: 0; }
+h1, h2, h3, h4 { margin: 0; font-weight: 500; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+::selection { background: var(--note); color: var(--paper); }
+
+:focus-visible { outline: 2px solid var(--note); outline-offset: 3px; border-radius: 1px; }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+
+.skip {
+  position: fixed; left: var(--margin); top: 8px; z-index: 100;
+  background: var(--ink); color: var(--paper); padding: 10px 14px; font-size: var(--t-small);
+  transform: translateY(-160%); transition: transform 0.4s var(--ease-out);
+}
+.skip:focus { transform: none; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  column-gap: var(--gutter);
+  padding-inline: var(--margin);
+}
+
+.mono { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.01em; line-height: 1.5; }
+.label { font-size: var(--t-small); color: var(--ink-3); letter-spacing: 0.01em; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Text links: the underline draws on hover, from the left, on the entrance curve. */
+.link {
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 0.6s var(--ease-out);
+  padding-bottom: 2px;
+}
+.link:hover, .link:focus-visible { background-size: 100% 1px; }
+.link--under { background-size: 100% 1px; }
+.link--under:hover { animation: relink 0.9s var(--ease-out); }
+@keyframes relink { 0% { background-position: 100% 100%; background-size: 100% 1px; } 45% { background-position: 100% 100%; background-size: 0 1px; } 46% { background-position: 0 100%; } 100% { background-position: 0 100%; background-size: 100% 1px; } }
+
+.draft-marker {
+  display: inline-block; font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.08em;
+  color: var(--note); border: 1px solid currentColor; padding: 1px 6px; vertical-align: middle;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* Entrance states exist only when scripts run; motion.ts reveals them (with a failsafe). */
+.js .hero__word, .js [data-reveal] { opacity: 0; }
+.js.motion-done .hero__word, .js.motion-done [data-reveal] { opacity: 1; }
+.ch { will-change: transform; }
+@media (prefers-reduced-motion: reduce) {
+  .js .hero__word, .js [data-reveal] { opacity: 1; }
+}
+
+.note { transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out); }
+.note--fresh { opacity: 0; transform: translateY(-10px); }
+.wd { white-space: nowrap; }
+
+/* Cross-document transitions: a Case title travels from its Entry to its page. Navigation stays native. */
+@view-transition { navigation: auto; }
+::view-transition-group(*) { animation-duration: 0.9s; animation-timing-function: cubic-bezier(0.86, 0, 0.07, 1); }
+::view-transition-old(root) { animation: 0.5s cubic-bezier(0.16, 1, 0.3, 1) both vt-out; }
+::view-transition-new(root) { animation: 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both vt-in; }
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(24px); } }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}
+.hero__word .ch { color: color-mix(in oklab, var(--note) calc(var(--heat, 0) * 100%), var(--ink)); }

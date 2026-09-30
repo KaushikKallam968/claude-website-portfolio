@@ -1,3 +1,12 @@
 poc/model_cache/
 # impeccable engine binary is platform-specific; the launcher downloads the right one on demand
 .claude/skills/impeccable/scripts/bin/
+node_modules/
+dist/
+.astro/
+.impeccable/review/
+.impeccable/config.local.json
+# third-party screenshots gathered for research stay local
+docs/research/captures/
+docs/research/teardown/
+.impeccable/questions/

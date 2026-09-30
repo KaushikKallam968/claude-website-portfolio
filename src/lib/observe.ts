@@ -1,0 +1,128 @@
+/**
+ * The observation layer: turns what a visitor does on the page into short, honest notes.
+ * Everything stays in the browser. Each note says what the event shows and what it cannot.
+ */
+export type RawEvent =
+  | { type: 'point'; t: number; tag: string; label: string }
+  | { type: 'press'; t: number; tag: string | null; label?: string }
+  | { type: 'depth'; t: number; fraction: number }
+  | { type: 'idle'; t: number; ms: number }
+  | { type: 'enter'; t: number; id: string; title: string }
+  | { type: 'leave'; t: number; id: string }
+  | { type: 'open'; t: number; id: string; title: string };
+
+export interface Note {
+  t: number;
+  event: RawEvent['type'];
+  tag: string | null;
+  quality: 'tagged' | 'untagged';
+  shows: string;
+  cannotShow: string;
+}
+
+const QUARTERS = [
+  { at: 0.25, shows: 'You scrolled past a quarter of this page.' },
+  { at: 0.5, shows: 'You scrolled past half of this page.' },
+  { at: 0.75, shows: 'You scrolled past three quarters of this page.' },
+  { at: 0.98, shows: 'You reached the end of this page.' },
+];
+
+export interface Readout {
+  totalMs: number;
+  chapters: { id: string; title: string; ms: number }[];
+  casesOpened: { id: string; title: string }[];
+}
+
+/** A pause shorter than this is just reading rhythm, not something worth noting. */
+const IDLE_WORTH_NOTING_MS = 5000;
+
+export function createObservation() {
+  let quartersSeen = 0;
+  const chapters = new Map<string, { title: string; ms: number }>();
+  let current: { id: string; since: number } | null = null;
+  const opened = new Map<string, string>();
+
+  const close = (t: number) => {
+    if (!current) return;
+    const c = chapters.get(current.id);
+    if (c) c.ms += t - current.since;
+    current = null;
+  };
+
+  return {
+    record(e: RawEvent): Note | null {
+      switch (e.type) {
+        case 'point':
+          return {
+            t: e.t,
+            event: 'point',
+            tag: e.tag,
+            quality: 'tagged',
+            shows: `You pointed at ${e.label}.`,
+            cannotShow: 'Whether you meant to open it.',
+          };
+        case 'press':
+          if (e.tag === null) {
+            return {
+              t: e.t,
+              event: 'press',
+              tag: null,
+              quality: 'untagged',
+              shows: 'You clicked something I never tagged.',
+              cannotShow: 'What it was. That is a coverage gap.',
+            };
+          }
+          return null;
+        case 'depth': {
+          const next = QUARTERS[quartersSeen];
+          if (!next || e.fraction < next.at) return null;
+          // Jumps past several quarters at once report the deepest one reached.
+          while (quartersSeen < QUARTERS.length && e.fraction >= QUARTERS[quartersSeen].at) quartersSeen++;
+          return {
+            t: e.t,
+            event: 'depth',
+            tag: null,
+            quality: 'tagged',
+            shows: QUARTERS[quartersSeen - 1].shows,
+            cannotShow: 'Whether you read it or skimmed it.',
+          };
+        }
+        case 'idle':
+          if (e.ms < IDLE_WORTH_NOTING_MS) return null;
+          return {
+            t: e.t,
+            event: 'idle',
+            tag: null,
+            quality: 'tagged',
+            shows: `The page sat still for ${Math.round(e.ms / 1000)} seconds.`,
+            cannotShow: 'Whether you were reading, thinking or away.',
+          };
+        case 'enter':
+          close(e.t);
+          if (!chapters.has(e.id)) chapters.set(e.id, { title: e.title, ms: 0 });
+          current = { id: e.id, since: e.t };
+          return null;
+        case 'leave':
+          if (current?.id === e.id) close(e.t);
+          return null;
+        case 'open':
+          if (!opened.has(e.id)) opened.set(e.id, e.title);
+          return null;
+      }
+    },
+
+    readout(t: number): Readout {
+      const open = current;
+      const chapterList = [...chapters].map(([id, c]) => ({
+        id,
+        title: c.title,
+        ms: c.ms + (open?.id === id ? t - open.since : 0),
+      }));
+      return {
+        totalMs: t,
+        chapters: chapterList,
+        casesOpened: [...opened].map(([id, title]) => ({ id, title })),
+      };
+    },
+  };
+}

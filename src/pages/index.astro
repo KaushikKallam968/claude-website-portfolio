@@ -1,0 +1,221 @@
+---
+import Base from '../layouts/Base.astro';
+import ChapterSection from '../components/ChapterSection.astro';
+import NotesPanel from '../components/NotesPanel.astro';
+import { chapters, closing } from '../data/journey';
+
+const pad = (v: number) => String(v).padStart(2, '0');
+---
+
+<Base title="Kaushik Kallam · Senior Quantitative UX Researcher" current="journey">
+  <main id="main">
+    <div class="layout">
+    <section class="hero" aria-labelledby="name">
+      <h1 id="name" class="hero__name" aria-label="Kaushik Kallam">
+        <span class="hero__line" aria-hidden="true"><span class="hero__word" data-split>Kaushik</span></span>
+        <span class="hero__line hero__line--2" aria-hidden="true"><span class="hero__word" data-split>Kallam</span></span>
+      </h1>
+
+      <div class="hero__id">
+        <p class="hero__role" data-reveal>Senior Quantitative UX Researcher<br /><span>JPMorganChase, New York</span></p>
+        <p class="hero__lede" data-reveal>I’m interested in the gaps between what people need, how products behave, and what the data can explain.</p>
+      </div>
+      <div class="hero__grid grid">
+        <div class="hero__more">
+          <p class="hero__sub" data-reveal>I’ve lived across countries, worked across research disciplines, and co-founded watched. with two longtime friends. New York is my latest stop. This is the journey that brought me here.</p>
+          <ul class="hero__actions" data-reveal>
+            <li><a class="link link--under" href="#journey" data-observe="cta.journey" data-observe-label="Explore the journey">Explore the journey <span aria-hidden="true">↓</span></a></li>
+            <li><a class="link link--under" href="/work/" data-observe="cta.work" data-observe-label="Selected work">Selected work <span aria-hidden="true">→</span></a></li>
+            <li><a class="link link--under" href="/resume/" data-observe="cta.resume" data-observe-label="Résumé">Résumé <span aria-hidden="true">→</span></a></li>
+          </ul>
+        </div>
+      </div>
+
+      <nav class="route grid" aria-label="Chapters of the journey" id="journey-index">
+        <ol class="route__list">
+          {chapters.map((c, i) => (
+            <li>
+              <a href={`#${c.id}`} class="route__item" data-observe={`route.${c.id}`} data-observe-label={c.label}>
+                <span class="route__no mono num">{pad(i + 1)}</span>
+                <span class="route__place">{c.label}</span>
+                <span class="route__meta mono num"><span>{c.period}</span> <span data-clock={c.place.timeZone}>--:--</span></span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </section>
+
+    <div id="journey" class="journey">
+      {chapters.map((c, i) => <ChapterSection chapter={c} n={i + 1} total={chapters.length} previous={chapters[i - 1]} />)}
+    </div>
+    <div class="rail">
+      <div class="rail__sticky"><NotesPanel /></div>
+    </div>
+    </div>
+
+    <section class="close" id="contact" aria-labelledby="close-title" data-chapter-section="contact" data-chapter-title="Contact">
+      <div class="grid">
+        <p class="close__no mono">End of the journey</p>
+        <h2 id="close-title" class="close__title" tabindex="-1">Your visit, as this page saw it</h2>
+        <div class="readout" data-readout>
+          <p class="readout__total mono num"><span data-readout-total>0 min 00 s</span> on this page</p>
+          <ol class="readout__bars" data-readout-bars aria-label="Time spent in each chapter">
+            {chapters.map((c) => (
+              <li data-bar={c.id}>
+                <span class="readout__label">{c.label}</span>
+                <span class="readout__track" aria-hidden="true"><span class="readout__fill"></span></span>
+                <span class="readout__value mono num">0 s</span>
+              </li>
+            ))}
+          </ol>
+          <p class="readout__cases" data-readout-cases>No cases opened yet.</p>
+        </div>
+        <div class="close__text">
+          <p class="close__honest">That’s everything this page could observe. It can’t tell me what you were looking for, so I’d rather ask.</p>
+          <p>{closing.text}</p>
+          <p class="close__email"><a class="link link--under" href={`mailto:${closing.email}`} data-observe="contact.email" data-observe-label="the email address">{closing.email}</a></p>
+          <ul class="close__links">
+            <li><a class="link link--under" href={closing.linkedin} rel="me" data-observe="contact.linkedin" data-observe-label="LinkedIn">LinkedIn <span aria-hidden="true">↗</span></a></li>
+            <li><a class="link link--under" href="/resume/">Résumé <span aria-hidden="true">→</span></a></li>
+            <li><a class="link link--under" href="/work/">Selected work <span aria-hidden="true">→</span></a></li>
+          </ul>
+        </div>
+      </div>
+      <footer class="foot grid">
+        <p class="label">© 2026 Kaushik Kallam</p>
+        <p class="label">Notes on this visit never leave your browser.</p>
+      </footer>
+    </section>
+  </main>
+</Base>
+
+<style>
+  /* ---------- Layout: the story in the main column, notes in the margin ---------- */
+  .layout { position: relative; --rail: clamp(250px, 22vw, 340px); }
+  .rail {
+    position: absolute;
+    right: var(--margin);
+    width: var(--rail);
+    top: calc(64px + 36vw);
+    bottom: 0;
+  }
+  .rail__sticky { position: sticky; top: 88px; }
+  .journey { padding-right: calc(var(--rail) + var(--gutter)); container-type: inline-size; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding-top: 64px; position: relative; }
+  .hero__name {
+    padding-inline: var(--margin);
+    font-size: clamp(4.2rem, 19.4vw, 24rem);
+    line-height: 0.76;
+    letter-spacing: -0.062em;
+    font-weight: 530;
+    margin: clamp(10px, 1.6vw, 28px) 0 0 -0.04em;
+  }
+  .hero__line { display: block; overflow: clip; padding-bottom: 0.05em; margin-bottom: -0.05em; }
+  .hero__line--2 { text-align: right; padding-right: 0.02em; }
+  .hero__word { display: inline-block; }
+
+  /* The identity sits in the negative space beside the second half of the name. */
+  .hero__id {
+    position: absolute;
+    left: var(--margin);
+    top: calc(82px + 16.4vw);
+    width: min(40vw, 600px);
+    display: grid;
+    gap: 14px;
+  }
+  .hero__role { font-size: var(--t-lede); line-height: 1.2; font-weight: 520; letter-spacing: -0.02em; }
+  .hero__role span { font-weight: 400; color: var(--ink-2); }
+  .hero__lede { font-size: var(--t-lede); line-height: 1.28; letter-spacing: -0.015em; max-width: 31ch; }
+
+  .hero__grid { margin-top: clamp(26px, 3vw, 48px); padding-right: calc(var(--margin) + var(--rail) + var(--gutter)); }
+  .hero__more { grid-column: 1 / span 8; display: grid; gap: 16px; }
+  .hero__sub { color: var(--ink-2); max-width: 52ch; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; }
+
+  .route { margin-top: clamp(28px, 3.4vw, 52px); padding-right: calc(var(--margin) + var(--rail) + var(--gutter)); }
+  .route__list {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    border-top: 1px solid var(--ink);
+  }
+  .route__item {
+    display: grid;
+    gap: 2px;
+    padding: 12px 10px 16px 0;
+    text-decoration: none;
+    position: relative;
+    font-size: 0.9375rem;
+  }
+  .route__item::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 10px; top: -1px;
+    height: 3px;
+    background: var(--note);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.7s var(--ease-out);
+  }
+  .route__item:hover::before, .route__item:focus-visible::before, .route__item[aria-current='true']::before { transform: scaleX(1); }
+  .route__no { color: var(--note); }
+  .route__place { font-weight: 520; letter-spacing: -0.01em; line-height: 1.2; }
+  .route__meta { color: var(--ink-3); display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.6875rem; }
+
+  @media (max-width: 1100px) {
+    .rail { position: static; width: auto; }
+    .journey, .hero__grid, .route { padding-right: var(--margin); }
+    .journey { padding-right: 0; }
+  }
+  @media (max-width: 900px) {
+    .hero__id { position: static; width: auto; padding: 28px var(--margin) 0; }
+    .hero__more { grid-column: 1 / -1; }
+    .route__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  /* ---------- Close ---------- */
+  .close { padding-top: clamp(120px, 16vw, 240px); scroll-margin-top: 64px; }
+  .close__no { grid-column: 1 / -1; color: var(--note); margin-bottom: 18px; }
+  .close__title {
+    grid-column: 1 / span 10;
+    font-size: clamp(2.6rem, 7.2vw, 8.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.052em;
+    font-weight: 520;
+    outline: none;
+  }
+  .readout { grid-column: 1 / span 6; margin-top: clamp(40px, 5vw, 72px); color: var(--note); }
+  .readout__total { font-size: 0.8125rem; margin-bottom: 18px; }
+  .readout__bars { display: grid; gap: 10px; }
+  .readout__bars li { display: grid; grid-template-columns: 11em 1fr 5.5em; align-items: center; gap: 14px; }
+  .readout__label { color: var(--ink); font-size: 0.9375rem; }
+  .readout__track { height: 10px; background: var(--note-soft); position: relative; overflow: hidden; }
+  .readout__fill { position: absolute; inset: 0; background: var(--note); transform: scaleX(var(--share, 0)); transform-origin: left; transition: transform 1.2s var(--ease-out); }
+  .readout__value { text-align: right; }
+  .readout__cases { margin-top: 18px; color: var(--ink-2); font-size: 0.9375rem; }
+  .close__text {
+    grid-column: 8 / -1;
+    margin-top: clamp(40px, 5vw, 72px);
+    display: grid;
+    gap: 1em;
+    align-content: start;
+    font-size: var(--t-lede);
+    line-height: 1.35;
+    letter-spacing: -0.012em;
+  }
+  .close__honest { color: var(--note); }
+  .close__email { font-size: clamp(1.5rem, 1rem + 1.8vw, 2.6rem); letter-spacing: -0.03em; font-weight: 520; margin-top: 0.4em; }
+  .close__links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: var(--t-body); }
+  .foot { margin-top: clamp(80px, 10vw, 160px); padding-block: 22px; border-top: 1px solid var(--rule); }
+  .foot p:first-child { grid-column: 1 / span 6; }
+  .foot p:last-child { grid-column: 7 / -1; text-align: right; }
+
+  @media (max-width: 900px) {
+    .readout, .close__text, .close__title { grid-column: 1 / -1; }
+    .readout__bars li { grid-template-columns: 8.5em 1fr 4.5em; }
+    .foot p:first-child, .foot p:last-child { grid-column: 1 / -1; text-align: left; }
+  }
+</style>

@@ -1,0 +1,67 @@
+---
+/**
+ * Between two Chapters: the local time rolls from one place to the next. Computed live in the browser,
+ * so the offset is always true (including daylight saving). Without scripts it states the places plainly.
+ */
+import type { Chapter } from '../data/journey';
+
+interface Props {
+  from: Chapter;
+  to: Chapter;
+}
+const { from, to } = Astro.props;
+const reel = Array.from({ length: 30 }, (_, i) => i % 10);
+---
+
+<div class="shift" data-shift data-from-tz={from.place.timeZone} data-to-tz={to.place.timeZone} data-from={from.place.name.split(',')[0]} data-to={to.place.name.split(',')[0]}>
+  <div class="shift__clock num" aria-hidden="true">
+    {[0, 1].map((i) => (
+      <span class="reel" data-reel={i}><span class="reel__strip">{reel.map((d) => <span>{d}</span>)}</span></span>
+    ))}
+    <span class="shift__colon">:</span>
+    {[2, 3].map((i) => (
+      <span class="reel" data-reel={i}><span class="reel__strip">{reel.map((d) => <span>{d}</span>)}</span></span>
+    ))}
+    <span class="shift__day mono" data-shift-day></span>
+  </div>
+  <p class="shift__text" data-shift-text>From {from.place.name.split(',')[0]} to {to.place.name.split(',')[0]}.</p>
+</div>
+
+<style>
+  .shift {
+    margin: clamp(100px, 14vw, 220px) var(--margin) 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: end;
+    gap: 12px clamp(18px, 3vw, 48px);
+    padding-top: 18px;
+    border-top: 1px solid var(--note);
+    color: var(--note);
+  }
+  .shift__clock {
+    display: flex;
+    align-items: flex-start;
+    font-size: clamp(3.4rem, 13cqi, 11.5rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-weight: 440;
+    font-variant-numeric: tabular-nums;
+    position: relative;
+  }
+  .reel { display: inline-block; height: 1em; overflow: hidden; width: 0.58em; text-align: center; }
+  .reel__strip { display: flex; flex-direction: column; will-change: transform; }
+  .reel__strip span { height: 1em; display: block; }
+  .shift__colon { width: 0.3em; text-align: center; translate: 0 -0.06em; }
+  .shift__day { position: absolute; right: -0.2em; top: 0.35em; translate: 100% 0; font-size: 0.75rem; letter-spacing: 0.02em; white-space: nowrap; }
+  .shift__text {
+    font-size: var(--t-lede);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    max-width: 18ch;
+    padding-bottom: 0.4em;
+  }
+  @media (max-width: 700px) {
+    .shift { grid-template-columns: 1fr; }
+  }
+</style>

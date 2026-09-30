@@ -1,0 +1,82 @@
+import { describe, expect, it } from 'vitest';
+import { createObservation } from './observe';
+
+describe('observation notes', () => {
+  it('says what pointing at a tagged element shows and what it cannot', () => {
+    const obs = createObservation();
+    const note = obs.record({ type: 'point', t: 3800, tag: 'cta.selected-work', label: 'Selected work' });
+    expect(note).toEqual({
+      t: 3800,
+      event: 'point',
+      tag: 'cta.selected-work',
+      quality: 'tagged',
+      shows: 'You pointed at Selected work.',
+      cannotShow: 'Whether you meant to open it.',
+    });
+  });
+
+  it('calls a click on something untagged a coverage gap', () => {
+    const obs = createObservation();
+    expect(obs.record({ type: 'press', t: 5100, tag: null })).toEqual({
+      t: 5100,
+      event: 'press',
+      tag: null,
+      quality: 'untagged',
+      shows: 'You clicked something I never tagged.',
+      cannotShow: 'What it was. That is a coverage gap.',
+    });
+  });
+
+  it('notes each quarter of scroll depth once', () => {
+    const obs = createObservation();
+    const depths = [0.1, 0.26, 0.3, 0.52, 0.49, 0.8, 1].map((fraction, i) => obs.record({ type: 'depth', t: i * 1000, fraction }));
+    expect(depths.map((n) => n?.shows ?? null)).toEqual([
+      null,
+      'You scrolled past a quarter of this page.',
+      null,
+      'You scrolled past half of this page.',
+      null,
+      'You scrolled past three quarters of this page.',
+      'You reached the end of this page.',
+    ]);
+    expect(depths[1]?.cannotShow).toBe('Whether you read it or skimmed it.');
+  });
+
+  it('only notes a pause once it is long enough to mean something', () => {
+    const obs = createObservation();
+    expect(obs.record({ type: 'idle', t: 9000, ms: 2400 })).toBeNull();
+    expect(obs.record({ type: 'idle', t: 20000, ms: 8200 })).toMatchObject({
+      event: 'idle',
+      shows: 'The page sat still for 8 seconds.',
+      cannotShow: 'Whether you were reading, thinking or away.',
+    });
+  });
+});
+
+describe('the visit readout', () => {
+  it('adds up time in each Chapter across return visits, closing the current one at readout time', () => {
+    const obs = createObservation();
+    obs.record({ type: 'enter', t: 1000, id: 'nyc', title: 'New York' });
+    obs.record({ type: 'leave', t: 31000, id: 'nyc' });
+    obs.record({ type: 'enter', t: 31000, id: 'texas-career', title: 'Texas: career' });
+    obs.record({ type: 'leave', t: 41000, id: 'texas-career' });
+    obs.record({ type: 'enter', t: 50000, id: 'nyc', title: 'New York' });
+    const r = obs.readout(62000);
+    expect(r.chapters).toEqual([
+      { id: 'nyc', title: 'New York', ms: 42000 },
+      { id: 'texas-career', title: 'Texas: career', ms: 10000 },
+    ]);
+    expect(r.totalMs).toBe(62000);
+  });
+
+  it('lists the Cases opened, in order, once each', () => {
+    const obs = createObservation();
+    obs.record({ type: 'open', t: 1, id: 'chegg-discord', title: 'Chegg Discord' });
+    obs.record({ type: 'open', t: 2, id: 'watched', title: 'watched.' });
+    obs.record({ type: 'open', t: 3, id: 'chegg-discord', title: 'Chegg Discord' });
+    expect(obs.readout(4).casesOpened).toEqual([
+      { id: 'chegg-discord', title: 'Chegg Discord' },
+      { id: 'watched', title: 'watched.' },
+    ]);
+  });
+});

@@ -1,0 +1,111 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Current section, for aria-current in the navigation. */
+  current?: 'journey' | 'work' | 'resume' | 'contact';
+  /** The page's main content id for the skip link. */
+  mainId?: string;
+}
+
+const {
+  title,
+  description = 'Kaushik Kallam, Senior Quantitative UX Researcher in New York. Research on behavior, instrumentation, AI evaluation and learning products, and the places along the way.',
+  current,
+  mainId = 'main',
+} = Astro.props;
+
+const nav = [
+  { id: 'journey', label: 'Journey', href: '/#journey' },
+  { id: 'work', label: 'Work', href: '/work/' },
+  { id: 'resume', label: 'Résumé', href: '/resume/' },
+  { id: 'contact', label: 'Contact', href: '/#contact' },
+] as const;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#ecece8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121211" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/switzer-variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/fragment-mono.woff2" as="font" type="font/woff2" crossorigin />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <script is:inline>
+      // Scripts are on: allow entrance states that hide text until motion reveals it.
+      document.documentElement.classList.add('js');
+      try {
+        if (sessionStorage.getItem('kk:notes') === 'off') document.documentElement.classList.add('notes-off');
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <a class="skip" href={`#${mainId}`}>Skip to content</a>
+    <header class="top grid" data-top>
+      <a class="top__name" href="/" aria-label="Kaushik Kallam, home">Kaushik Kallam</a>
+      <p class="top__where label num" aria-hidden="true"><span>New York</span> <span data-clock="America/New_York">--:--</span></p>
+      <nav class="top__nav" aria-label="Primary">
+        {nav.map((n) => (
+          <a class="link" href={n.href} aria-current={current === n.id ? 'page' : undefined} data-observe={`nav.${n.id}`} data-observe-label={n.label}>
+            {n.label}
+          </a>
+        ))}
+      </nav>
+    </header>
+    <slot />
+    <slot name="notes" />
+    <script>
+      import '../scripts/site';
+    </script>
+  </body>
+</html>
+
+<style>
+  .top {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 40;
+    height: 64px;
+    align-items: center;
+    font-size: 0.9375rem;
+    background: var(--paper);
+    border-bottom: 1px solid transparent;
+    transition: transform 0.7s var(--ease-out), border-color 0.4s linear;
+  }
+  :global(html.nav-hidden) .top { transform: translateY(-100%); }
+  :global(html.scrolled) .top { border-bottom-color: var(--rule); }
+  .top__name {
+    grid-column: 1 / span 3;
+    text-decoration: none;
+    font-weight: 560;
+    letter-spacing: -0.01em;
+  }
+  .top__where {
+    grid-column: 4 / span 3;
+    margin: 0;
+    display: flex;
+    gap: 0.6em;
+  }
+  .top__nav {
+    grid-column: 7 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: clamp(14px, 2vw, 32px);
+  }
+  .top__nav a { text-decoration: none; }
+  .top__nav a[aria-current='page'] { background-size: 100% 1px; }
+  @media (max-width: 720px) {
+    .top { height: 56px; font-size: 0.875rem; }
+    .top__where { display: none; }
+    .top__name { grid-column: 1 / span 5; }
+    .top__nav { grid-column: 6 / -1; gap: 14px; }
+  }
+</style>
