@@ -20,6 +20,11 @@ const {
   noindex = false,
 } = Astro.props;
 
+// One address per page, for the canonical link and og:url; the 404 has none.
+const canonical = Astro.site && !noindex ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+// What public/og.png shows, for people who cannot see it.
+const ogAlt = 'The name Kaushik Kallam in large black type on two lines, on a pale grey background. Below it: Senior Quantitative UX Researcher, JPMorganChase, New York. At the right, in small blue type: what the data shows and what it can’t.';
+
 const nav = [
   { id: 'journey', label: 'Journey', href: '/#journey-index' },
   { id: 'work', label: 'Work', href: '/work/' },
@@ -48,14 +53,17 @@ const nav = [
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Kaushik Kallam" />
+    {canonical && <meta property="og:url" content={canonical} />}
     {Astro.site && (
       <>
         <meta property="og:image" content={new URL('/og.png', Astro.site).href} />
+        <meta property="og:image:alt" content={ogAlt} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
       </>
     )}
-    {Astro.site && !noindex && <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).href} />}
+    {canonical && <link rel="canonical" href={canonical} />}
     <meta name="twitter:card" content="summary_large_image" />
     <script is:inline>
       // Scripts are on: allow entrance states that hide text until motion reveals it.
