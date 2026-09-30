@@ -47,10 +47,18 @@ void main() {
   float t2 = inout3(clamp((uStage - 1.0 - lag) / 0.55, 0.0, 1.0));
   vec2 p = mix(mix(namePos, mapPos, t1), visitPos, t2);
 
-  // In flight every dot keeps its own small orbit, so the crowd moves like ink in water rather than sliding.
+  // In flight each dot bows off the straight line into an arc (bands of dots bend the same way, so the crowd
+  // pours in streams), with a faint shimmer of its own so it never reads as a mechanical slide.
+  vec2 leg1 = mapPos - namePos;
+  vec2 leg2 = visitPos - mapPos;
+  vec2 perp1 = length(leg1) > 0.001 ? normalize(vec2(-leg1.y, leg1.x)) : vec2(0.0);
+  vec2 perp2 = length(leg2) > 0.001 ? normalize(vec2(-leg2.y, leg2.x)) : vec2(0.0);
+  float bow = (aMeta.z - 0.5) * 0.55;
+  p += perp1 * sin(3.14159 * t1) * length(leg1) * bow;
+  p += perp2 * sin(3.14159 * t2) * length(leg2) * bow * 0.6;
   float flight = sin(3.14159 * t1) + sin(3.14159 * t2);
-  float ang = aMeta.z * 6.28318 + uTime * 0.7;
-  p += vec2(cos(ang), sin(ang * 1.3)) * flight * aMeta.y;
+  float ang = aMeta.z * 6.28318 + uTime * 0.9;
+  p += vec2(cos(ang), sin(ang * 1.3)) * flight * aMeta.y * 0.3;
 
   // The live terminator: night land dims, and the band where the sun is on the horizon turns blue.
   float cosZ = sin(aMap.w) * sin(uSun.x) + cos(aMap.w) * cos(uSun.x) * cos(aMap.z - uSun.y);

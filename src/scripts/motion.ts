@@ -42,10 +42,9 @@ function intro(field: FieldHandle | null) {
   if (field) {
     // The Field draws the name; the words stay as the accessible, selectable text underneath.
     gsap.set(words, { opacity: 1 });
-    // Who this is and what they do is never held back by the arrival: it reads within a third of a second,
-    // while the world is still drawing behind it. The index and the notes follow the name.
+    // Who this is and what they do is never held back by the arrival: that text is part of the first paint
+    // (see global.css), and the world draws behind it. The index and the notes follow the name.
     const tl = gsap.timeline({ defaults: { ease: 'out' }, delay: field.textCue, onComplete: () => root.classList.add('motion-done') });
-    gsap.fromTo('[data-reveal]', { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, stagger: 0.06, ease: 'out', delay: 0.25, clearProps: 'transform' });
     tl.fromTo('.route__list', { '--rule-w': 0 }, { '--rule-w': 1, duration: 1.2, ease: 'scene' }, 0.1);
     tl.fromTo('.route__item', { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 1, stagger: 0.05 }, 0.25);
     tl.fromTo('.rail .notes', { clipPath: 'inset(0 0 100% 0)', opacity: 1 }, { clipPath: 'inset(0 0 0% 0)', opacity: 1, duration: 1.2, ease: 'scene' }, 0.3);

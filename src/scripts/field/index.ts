@@ -223,7 +223,9 @@ export async function startField(): Promise<FieldHandle | null> {
       nameArr.set([nx, name.points[ni * 2 + 1], ni !== lastN ? 1 : 0], i * 3);
       const w = world[mi];
       mapArr.set([w.x, w.y, (w.lon * Math.PI) / 180, (w.lat * Math.PI) / 180], i * 4);
-      meta.set([clamp01(0.62 * (nx / nameW) + 0.38 * Math.random()), (narrow ? 8 : 14) + Math.random() * (narrow ? 26 : 52), Math.random(), mi !== lastM ? 1 : 0], i * 4);
+      const ny = name.points[ni * 2 + 1];
+      const band = (Math.sin(ny * 0.045 + nx * 0.004) + 1) / 2; // neighbouring dots share a bend
+      meta.set([clamp01(0.62 * (nx / nameW) + 0.38 * Math.random()), (narrow ? 8 : 14) + Math.random() * (narrow ? 26 : 52), clamp01(band * 0.8 + Math.random() * 0.2), mi !== lastM ? 1 : 0], i * 4);
       visit.set([nx, name.points[ni * 2 + 1], 0], i * 3);
       lastN = ni;
       lastM = mi;
@@ -255,10 +257,12 @@ export async function startField(): Promise<FieldHandle | null> {
 
     const xs = places.map((_, i) => placeXY(i)[0]);
     const ys = places.map((_, i) => placeXY(i)[1]);
+    const wz = Math.min(1.3, fitZoom(xs, ys, narrow ? 0.84 : 0.56, 0.5));
     worldCam = {
-      x: (Math.min(...xs) + Math.max(...xs)) / 2,
+      // On wide screens the route sits to the right of the introduction's text column.
+      x: (Math.min(...xs) + Math.max(...xs)) / 2 - (narrow ? 0 : (vw * 0.13) / (renderer.scale * wz)),
       y: (Math.min(...ys) + Math.max(...ys)) / 2 + 0.05,
-      z: Math.min(1.3, fitZoom(xs, ys, narrow ? 0.84 : 0.62, 0.5)),
+      z: wz,
     };
 
     const bodyTop = (id: string) => {
@@ -270,7 +274,8 @@ export async function startField(): Promise<FieldHandle | null> {
     const pr = pro?.getBoundingClientRect();
     const proStart = pr ? pr.top + sy : heroBottom;
     const proEnd = pr ? pr.top + sy + pr.height - vh : heroBottom;
-    stageEnd = pr ? proStart + (proEnd - proStart) * 0.22 : heroBottom - vh * 0.3;
+    // The name finishes dissolving as the introduction leaves the screen, so it never sits under other text.
+    stageEnd = Math.max(vh * 0.5, heroBottom - vh * 0.2);
     windows = [{ kind: 'intro', start: proStart, end: Math.max(proEnd, proStart + 1), nextBody: bodyTop(places[0].id), from: 0, to: 0 }];
     document.querySelectorAll<HTMLElement>('[data-shift]').forEach((el) => {
       const r = el.getBoundingClientRect();
@@ -439,8 +444,7 @@ export async function startField(): Promise<FieldHandle | null> {
     frame.stage = Math.max(intro.stage, pStage);
     frame.mapIn = intro.mapIn;
     frame.route = intro.route;
-    // The name is on the canvas, behind the page: it scrolls at half speed, so it lingers while it dissolves.
-    frame.nameAt = [nameDoc.x, nameDoc.y - y * 0.5];
+    frame.nameAt = [nameDoc.x, nameDoc.y - y];
     frame.mapVis = mapVis;
     frame.leg = [0, 0, 0];
 
@@ -479,7 +483,7 @@ export async function startField(): Promise<FieldHandle | null> {
       frame.traveller = [tx, ty];
       frame.active = p < 0.5 ? ta : tb;
     }
-    root.classList.toggle('in-scene', mapVis > 0.3 && frame.stage > 0.6 && frame.stage < 1.5);
+    root.classList.toggle('in-scene', mapVis > 0.3 && frame.stage > 0.25 && frame.stage < 1.5);
   };
 
   const placeLabels = () => {
