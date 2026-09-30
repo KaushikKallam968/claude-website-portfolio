@@ -20,7 +20,7 @@ const { entry: journeyEntry, chapter } = entryFor(entry.id);
 // Cases read in order ("Case 2 of 4"), so each offers the next; the last offers the first again.
 const at = ordered.findIndex((c) => c.id === entry.id);
 const next = ordered[(at + 1) % ordered.length];
-const nextLabel = at + 1 < ordered.length ? 'Next case' : 'First case';
+const last = at + 1 === ordered.length;
 ---
 
 <Base title={`${d.title} · Kaushik Kallam`} description={d.question} current="work">
@@ -77,8 +77,8 @@ const nextLabel = at + 1 < ordered.length ? 'Next case' : 'First case';
             <li><a class="link link--under" href="/work/" data-observe="case.all-work" data-observe-label="All selected work" data-observe-cannot="Whether you are comparing cases.">All selected work <Arrow /></a></li>
             {next.id !== entry.id && (
               <li>
-                <a class="link link--under" href={`/work/${next.id}/`} data-case-link={next.id} data-observe={`case.${next.id}`} data-observe-label={next.data.title} data-observe-cannot="Whether you are reading them all or looking for one.">
-                  {nextLabel}: {next.data.title} <Arrow />
+                <a class="link link--under" href={`/work/${next.id}/`} aria-label={last ? `Back to the first case: ${next.data.title}` : undefined} data-case-link={next.id} data-observe={`case.${next.id}`} data-observe-label={next.data.title} data-observe-cannot="Whether you are reading them all or looking for one.">
+                  {last ? 'Back to the first case' : `Next case: ${next.data.title}`} <Arrow />
                 </a>
               </li>
             )}

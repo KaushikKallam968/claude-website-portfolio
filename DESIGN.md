@@ -362,7 +362,7 @@ The unit of work on the Journey.
 - **Opening a Case:** the clicked row's outline is handed to the next page, which grows out of it (see Motion).
 - **Disclosure:** non-Case entries with more text expand in place; the panel clips open over 0.7s. Any change in the page's height (a disclosure, the notes' explanation folding) re-measures every scroll scene 120ms after it settles, so the Field's bands and Time Shift ranges never lag the layout. Without scripts the text is simply present.
 - **Work index rows** follow the same pattern at page-title scale, with an ink rule that draws across on hover or focus-within. Their meta line says where the work was done (the place of its Role: "Remote from Texas" for the Chegg contract), not which Chapter tells it; work with no Role (watched.) claims no place. Meta and Case crumbs are separated by a dot that ends the part before it, so a wrapped line never starts with one.
-- **Case "Where next":** Return, All selected work, the next Case in reading order ("Next case: Chegg Discord"; the last offers "First case"), and Get in touch, so "Case 2 of 4" always leads somewhere.
+- **Case "Where next":** Return, All selected work, the next Case in reading order ("Next case: Chegg Discord"; the last offers "Back to the first case", its full title in the accessible name, so the link never wraps on a phone), and Get in touch, so "Case 2 of 4" always leads somewhere.
 
 ### The Field (signature, home only)
 One WebGL2 canvas, fixed full-screen and `aria-hidden`, with one crowd of about 16,000 dots in three roles. `stage` moves the crowd: 0 is the name, 1 the world, 2 the visit.
