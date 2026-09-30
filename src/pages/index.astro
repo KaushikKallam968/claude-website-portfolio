@@ -237,6 +237,16 @@ const fieldPlaces = chapters.map((c) => ({
   @media (max-width: 1240px) {
     .hero__id { grid-area: 2 / 1; margin: 0; width: auto; max-width: 44rem; padding: 28px var(--margin) 0; }
   }
+  /* Landscape tablets and small windows: the name is sized by height instead, which leaves room for the identity
+     beside it again, so the actions and the route index (the work) are on the first screen, as on a desktop. */
+  @media (min-width: 901px) and (max-width: 1240px) and (orientation: landscape) {
+    .hero__name { font-size: clamp(4.2rem, min(18.6vw, 22vh), 23rem); margin-top: 4px; }
+    .hero__id { grid-area: 1 / 1; margin: calc(18px + min(16.4vw, 19.36vh)) 0 0 var(--margin); width: min(40vw, 600px); max-width: none; padding: 0; }
+    .hero__grid { margin-top: 22px; }
+    .hero__more { gap: 8px; }
+    .route { margin-top: 14px; }
+    .route__item { padding-block: 8px 10px; }
+  }
   @media (max-width: 900px) {
     .hero__more { grid-column: 1 / -1; }
     .route__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -112,6 +112,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 ::selection { background: var(--note); color: var(--paper); }
 html { scrollbar-color: var(--ink-3) var(--paper); caret-color: var(--note); accent-color: var(--ink); }
+/* Presses show in the site's own terms (rows dim, links draw their rule), never as the browser's blue wash. */
+html { -webkit-tap-highlight-color: transparent; }
 
 :focus-visible { outline: 2px solid var(--note); outline-offset: 3px; border-radius: 1px; }
 

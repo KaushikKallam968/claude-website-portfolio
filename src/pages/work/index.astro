@@ -30,6 +30,7 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
                   id={`work-${c.id}`}
                   href={`/work/${c.id}/`}
                   data-case-link={c.id}
+                  data-case-title={c.data.title}
                   data-observe={`work.${c.id}`}
                   data-observe-label={c.data.title}
                   data-observe-cannot="Whether it was the title or the question that caught your eye."
@@ -58,9 +59,9 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
               <li>
                 <a class="also__item" href={`/#${entry.id}`} data-observe={`work.${entry.id}`} data-observe-label={entry.title} data-observe-cannot="Whether it was the work or the place that caught your eye.">
                   <span class="also__name">{entry.title} <Arrow /></span>
-                  {/* The kind is left out when the status already says it. */}
-                  <span class="also__kind"><span>{entry.status.startsWith(kindLabels[entry.kind]) ? chapter.label : keepDots(`${kindLabels[entry.kind]} · ${chapter.label}`)}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
-                  <span class="also__status">{keepDots(entry.status)}</span>
+                  {/* Every item names its kind and Chapter the same way; the status drops the kind when it opens with it. */}
+                  <span class="also__kind"><span>{keepDots(`${kindLabels[entry.kind]} · ${chapter.label}`)}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
+                  <span class="also__status">{keepDots(entry.status.startsWith(`${kindLabels[entry.kind]} · `) ? entry.status.slice(kindLabels[entry.kind].length + 3) : entry.status)}</span>
                 </a>
               </li>
             ))}

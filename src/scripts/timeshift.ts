@@ -77,12 +77,11 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
       // a real time, and the day marker appears at the moment the count passes midnight.
       let last = 0;
       const hourOf = (d: number[]) => d[0] * 10 + d[1];
-      // A pinned scene counts through most of its pin. A domestic band is scrubbed across its whole passage
-      // (top entering at 90% of the screen to bottom leaving at 10%), and starts counting once its clock, at
-      // the foot of the band, is on screen.
+      // A pinned scene starts counting a little into its pin. A domestic band is scrubbed across its whole
+      // passage (top entering at 90% of the screen to bottom leaving at 10%), and starts counting once its
+      // clock, at the foot of the band, is on screen.
       const near = el.classList.contains('shift--near');
       let count0 = 0.12;
-      const countSpan = 0.66;
       const fit = () => {
         if (!near) return;
         const h = el.offsetHeight / innerHeight;
@@ -132,10 +131,12 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
       const scrub = (p: number, animate = true) => {
         last = p;
         const steps = Math.abs(state.off);
-        const f0 = flight(count0);
-        const k = near ? Math.min(1, Math.max(0, (flight(p) - f0) / Math.max(0.05, 1 - f0))) : Math.min(1, Math.max(0, (p - count0) / countSpan));
-        // A band's hours turn as the traveller covers the distance, the last one as it lands.
-        showHour(Math.min(steps, Math.floor(k * steps + (near ? 0.05 : 0.45))), animate);
+        const f0 = near ? flight(count0) : inOut(count0);
+        // The hours turn as the traveller covers the distance (the Field flies a band over the middle of its
+        // passage and the ocean crossing over its whole pin, on the same curve), the last one as it lands.
+        const travelled = near ? flight(p) : inOut(Math.min(1, Math.max(0, p)));
+        const k = Math.min(1, Math.max(0, (travelled - f0) / Math.max(0.05, 1 - f0)));
+        showHour(Math.min(steps, Math.floor(k * steps + 0.05)), animate);
         [2, 3].forEach((i) => gsap.set(reels[i], { yPercent: y(state.to[i] + DIGITS_PER_TURN) }));
         // The route line fills with the traveller, not ahead of it.
         line?.style.setProperty('--p', (near ? flight(p) : inOut(p)).toFixed(3));

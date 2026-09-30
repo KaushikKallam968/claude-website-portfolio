@@ -28,7 +28,8 @@ export function rememberOrigins() {
     const row = a.closest('.entry, .row') ?? a;
     const r = row.getBoundingClientRect();
     session.set(KEYS.expandFrom, { top: r.top, right: innerWidth - r.right, bottom: innerHeight - r.bottom, left: r.left });
-    record({ type: 'open', t: elapsed(), id: caseId, title: a.dataset.observeLabel ?? a.textContent?.trim() ?? caseId });
+    // The Case's own name, never the words of the link that led to it ("Next case: …").
+    record({ type: 'open', t: elapsed(), id: caseId, title: a.dataset.caseTitle ?? caseId });
   });
 }
 
@@ -130,6 +131,27 @@ export function wireDisclosures() {
       );
     });
   });
+}
+
+/**
+ * A jump within the page (Contact, a route item, Explore the journey) moves focus to where it lands, not only
+ * the scroll: the section's heading takes focus, so the next Tab continues from there. A mouse click shows no
+ * ring; a keyboard jump does.
+ */
+export function wireAnchorFocus() {
+  const focusAt = (id: string) => {
+    const target = document.getElementById(id);
+    if (!target) return;
+    const el = target.matches('[tabindex], a[href], button') ? target : target.querySelector<HTMLElement>('[tabindex="-1"], a[href]');
+    requestAnimationFrame(() => el?.focus({ preventScroll: true }));
+  };
+  document.addEventListener('click', (ev) => {
+    const a = (ev.target as Element).closest<HTMLAnchorElement>('a[href*="#"]');
+    if (!a || ev.defaultPrevented || a.origin !== location.origin || a.pathname !== location.pathname || a.hash.length < 2) return;
+    focusAt(decodeURIComponent(a.hash.slice(1)));
+  });
+  // Arriving from another page with a fragment (Contact from a Case) lands focus there too.
+  if (location.hash.length > 1 && !session.get(KEYS.restore, null)) focusAt(decodeURIComponent(location.hash.slice(1)));
 }
 
 /** The top bar steps aside while reading down and returns when scrolling up. */

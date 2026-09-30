@@ -77,7 +77,7 @@ const last = at + 1 === ordered.length;
             <li><a class="link link--under" href="/work/" data-observe="case.all-work" data-observe-label="All selected work" data-observe-cannot="Whether you are comparing cases.">All selected work <Arrow /></a></li>
             {next.id !== entry.id && (
               <li>
-                <a class="link link--under" href={`/work/${next.id}/`} aria-label={last ? `Back to the first case: ${next.data.title}` : undefined} data-case-link={next.id} data-observe={`case.${next.id}`} data-observe-label={last ? 'Back to the first case' : `Next case: ${next.data.title}`} data-observe-cannot="Whether you are reading them all or looking for one.">
+                <a class="link link--under" href={`/work/${next.id}/`} aria-label={last ? `Back to the first case: ${next.data.title}` : undefined} data-case-link={next.id} data-case-title={next.data.title} data-observe={`case.${next.id}`} data-observe-label={last ? 'Back to the first case' : `Next case: ${next.data.title}`} data-observe-cannot="Whether you are reading them all or looking for one.">
                   {last ? 'Back to the first case' : `Next case: ${next.data.title}`} <Arrow />
                 </a>
               </li>

@@ -428,10 +428,22 @@ export async function startField(): Promise<FieldHandle | null> {
         if (samples.length > TRAIL - 1) samples.pop();
       }
       if (!notedName && scrollY < heroBottom) {
-        const r = heading!.getBoundingClientRect();
-        if (e.clientX > r.left && e.clientX < r.right && e.clientY > r.top && e.clientY < r.bottom) {
+        // Only the words of the name count, not the heading's box around them (which also spans the role,
+        // the lede and empty paper).
+        const over = [...document.querySelectorAll<HTMLElement>('.hero__word')].some((w) => {
+          const r = w.getBoundingClientRect();
+          return e.clientX > r.left && e.clientX < r.right && e.clientY > r.top && e.clientY < r.bottom;
+        });
+        if (over) {
           notedName = true;
-          record({ type: 'point', t: elapsed(), tag: 'hero.name', label: 'my name', cannotShow: 'Whether you were reading it or just passing through.' });
+          record({
+            type: 'point',
+            t: elapsed(),
+            tag: 'hero.name',
+            label: 'my name',
+            pageName: document.querySelector<HTMLElement>('[data-page-name]')?.dataset.pageName,
+            cannotShow: 'Whether you were reading it or just passing through.',
+          });
         }
       }
     },
