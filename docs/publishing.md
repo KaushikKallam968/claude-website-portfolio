@@ -29,3 +29,27 @@ Deployed publicly on September 30, 2026, at the owner's request, with the copy c
 - **Still open, for the owner in the Vercel dashboard:**
   - Set the production branch to `master` (Settings, Environments, Production, Branch Tracking), so a push to `master` deploys the live site by itself. On October 1, 2026, a push to `master` built only a preview.
   - Redirect the old `website-nu-five-41.vercel.app` to `www.kkportfolio.xyz` (Settings, Domains, Edit, Redirect to, 308), so the site has one address. The canonical links already name the new domain, so search engines prefer it either way.
+
+## Search
+
+**In place** (all of it from what the site already says; no portrait, no invented dates):
+
+- **One address per page.** Every page has a canonical link and an `og:url`; `sitemap.xml` lists the Home page, Selected work, each Case and the résumé; `robots.txt` allows everything and names the sitemap. The 404 is `noindex` and left out. `trailingSlash: true` in `vercel.json` makes `/work` redirect to `/work/`.
+- **Titles and descriptions** (`src/lib/seo.ts`). A Case's title reads "Case · Case study · Kaushik Kallam" and drops "Case study" when the whole would pass 65 characters. Its description is its question plus "A case study by Kaushik Kallam." when that stays within 160 characters. The home description is 155.
+- **JSON-LD**, one script per page, built in `src/lib/seo.ts`. The person and the website have stable ids (`https://www.kkportfolio.xyz/#person`, `#website`), defined on the Home page and pointed at by the rest.
+  - Home: WebSite, ProfilePage (its main entity is the Person).
+  - Selected work: CollectionPage, ItemList (the Cases in order), BreadcrumbList.
+  - Each Case: Article, BreadcrumbList.
+  - Résumé: WebPage, BreadcrumbList.
+  - 404: none.
+- **Link previews.** The Home page is an `og:type` of profile and each Case an article, with the author named; the card image is `public/og.png`.
+- **`/favicon.ico`** (16, 32 and 48 px, drawn from `favicon.svg`), which browsers and crawlers ask for whatever the page says.
+- **`/llms.txt`**, a plain-text guide for AI search engines. It lists the Cases from the collection, so a new Case appears without an edit.
+- **IndexNow** (Bing and others share it). `public/fefa50f43588b16143b7a231f06ad4c6.txt` holds the key; it is public by design, since the engines fetch it to check the sender owns the site. After a deploy that adds or changes pages, run `npm run indexnow`: it reads the live `sitemap.xml` and submits its addresses. The domain has to resolve first (open https://www.kkportfolio.xyz/ and check), because the script reads the live sitemap and the engines read the key from it.
+
+**Still open, for the owner:**
+
+1. **Google Search Console.** At search.google.com/search-console choose Add property, then Domain, and enter `kkportfolio.xyz`. It gives a TXT record: in Vercel open Domains, `kkportfolio.xyz`, DNS Records, and add it (type TXT, name `@`). Back in Search Console press Verify, then open Sitemaps and submit `https://www.kkportfolio.xyz/sitemap.xml`.
+2. **Bing Webmaster Tools.** Sign in at bing.com/webmasters and use Import to bring the site over from Search Console.
+3. **LinkedIn.** Open your profile, choose Contact info under your name, then the pencil, and add `https://www.kkportfolio.xyz` as a Website. Also add it as a Featured link (Featured, the plus, Add a link).
+4. **GitHub.** On the repository's page, the gear beside About: set Website to `https://www.kkportfolio.xyz`. On github.com, your profile picture, Your profile, Edit profile: set the Website there too.
