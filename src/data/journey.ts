@@ -167,7 +167,7 @@ export const chapters: Chapter[] = [
     label: 'Silicon Valley',
     work: 'Chegg Discord · Chegg Mexico',
     place: { name: 'Santa Clara County, California', lat: 37.3541, lon: -121.9552, timeZone: 'America/Los_Angeles' },
-    period: 'Summer 2024',
+    period: '2024',
     intro: [
       'After a summer internship at Chegg in Silicon Valley, I returned to Texas and kept working with Chegg remotely until I joined Chase. I was one of two interns who moved into a contractor role.',
       'That work included studying how AI-powered academic support could fit into students’ existing Discord routines.',
