@@ -6,8 +6,8 @@ import { keepCompounds } from './src/lib/format.ts';
 const keepCompoundsInText = {
   name: 'keep-compounds',
   text(node, ctx) {
-    // Code is shown as written.
-    if (ctx.parent(node)?.tagName === 'code') return;
+    // Code is shown as written, however deep the highlighter nests its text.
+    for (let up = ctx.parent(node); up; up = ctx.parent(up)) if (up.tagName === 'code' || up.tagName === 'pre') return;
     const value = keepCompounds(node.value);
     if (value !== node.value) ctx.replaceNode(node, { type: 'text', value });
   },
