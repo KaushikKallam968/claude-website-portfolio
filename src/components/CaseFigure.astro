@@ -181,11 +181,12 @@ const { kind, compact = false, scene = false } = Astro.props;
   /* watched.: real screens */
   .phones { display: flex; justify-content: center; align-items: flex-end; gap: 0; padding-bottom: 0; min-height: 280px; }
   /* Sized by the screen's height too, so the figure's steps stay in view beneath it. */
-  .phone { width: min(34%, 25vh); height: auto; border-radius: 16px; box-shadow: 0 1px 0 var(--rule); }
+  /* A hairline just inside the edge, so a dark screen still has one against a dark stage. */
+  .phone { width: min(34%, 25vh); height: auto; border-radius: 16px; outline: 1px solid var(--rule); outline-offset: -1px; }
   .phone--a { translate: 12% 8%; rotate: -4deg; }
   .phone--b { position: relative; z-index: 2; }
   .phone--c { translate: -12% 8%; rotate: 4deg; }
-  .fig--compact .phone { width: 42%; }
+  .fig--compact .phone { width: min(42%, 11rem); }
 
   /* Motion: each figure plays once when it enters (motion.ts adds .is-in). */
   :global(html.js) .inst__log li, :global(html.js) .trace__row li, :global(html.js) .deck__table tbody tr > * { opacity: 0; translate: 0 8px; }
