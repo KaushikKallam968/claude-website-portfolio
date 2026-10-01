@@ -306,3 +306,64 @@ html.lens-on .lens-bar { display: flex; }
 }
 .lens-exit:hover { background: var(--note-soft); }
 @media (pointer: coarse) { .lens-exit { min-height: 44px; } }
+
+/* ---------- Paper ----------
+   Any page, whichever scheme the screen was in: light tokens, none of the screen's furniture, every
+   entrance and scroll-driven state at its end, and the Journey compact enough to read as a few pages.
+   The résumé keeps its own rules (src/pages/resume/index.astro). */
+@media print {
+  :root, :root:not([data-theme='light']), :root[data-theme='dark'] {
+    --paper: #fff;
+    --paper-2: #e3e3de;
+    --ink: #000;
+    --ink-2: #4a4a46;
+    --ink-3: #656560;
+    --rule: rgb(17 17 16 / 0.16);
+    --note: #2c3be0;
+    --note-soft: rgb(44 59 224 / 0.1);
+    color-scheme: light;
+  }
+  /* The bar, the notes (a ticker or a margin), the Field and the lens are for the screen; the bar and ticker
+     are fixed, so they would reprint over the content of every page. */
+  :is(.top, .skip, .notes, .rail, .case__rail, .work__rail, .field-canvas, .field-labels, .lens-cursor, .lens-layer, .lens-bar) { display: none !important; }
+  body { padding: 0 !important; }
+  /* The screen's display sizes step down to print sizes: every size set in rem follows. */
+  html { font-size: 12px; }
+
+  /* Everything an entrance or a scroll would have revealed is shown, in its end state. */
+  .hero__word, [data-reveal] { opacity: 1 !important; }
+  html.field .hero__word { color: var(--ink) !important; }
+  :is(.chapter__title *, .chapter__meta > div, .close__title *, .route__item) { opacity: 1 !important; transform: none !important; translate: none !important; }
+  .route__list { --rule-w: 1 !important; }
+  .entry { --line: 1 !important; }
+  .scene__stage { --p: 1 !important; }
+  html.js :is(.inst__log li, .trace__row li, .deck__table tbody tr > *, .xl__result, .xl__arrow) { opacity: 1 !important; }
+  .xl__typed { animation: none !important; }
+  html.scenes .scene__step { color: var(--ink) !important; }
+
+  /* The introduction's runway and the Chapters' scenes are scroll distance, not content: they print as
+     bands the height of their words. A clock that stopped when the page was printed, and a link to the
+     next scene, say nothing on paper. */
+  html.field :is(.prologue, .shift, .shift--far, .shift--near) { height: auto !important; }
+  html.field :is(.prologue__stage, .shift__stage) { position: static !important; height: auto !important; padding-bottom: 0 !important; }
+  html.field .shift__stage { border-top: 1px solid var(--note) !important; padding-top: 16px !important; }
+  :is(.shift__route, .shift__clock, .shift__next) { display: none !important; }
+
+  /* Tighter, and an Entry's figure beside its words, as on a wide screen. */
+  .chapter, .chapter:first-of-type { padding-top: 40px !important; }
+  .chapter__title { font-size: 44px !important; }
+  .chapter__body { margin-top: 20px !important; row-gap: 14px !important; }
+  .chapter__text { max-width: 64ch !important; }
+  .group--sub { margin-top: 32px !important; }
+  .entries { margin-top: 20px !important; }
+  .entry { padding-block: 18px !important; }
+  .entry__main { grid-column: 1 / span 7 !important; }
+  .entry__side { grid-column: 8 / -1 !important; margin-top: 0 !important; }
+  html.field :is(.prologue, .shift) { margin-top: 28px !important; }
+  .close { padding-top: 48px !important; }
+  .readout, .close__text { margin-top: 24px !important; }
+  .foot { margin-top: 20px !important; padding-block: 12px !important; }
+
+  .fig, .scene, .entry, .row, .shift, .prologue, .close, .case__next { break-inside: avoid; }
+  h1, h2, h3, .chapter__head { break-after: avoid; }
+}
