@@ -126,6 +126,8 @@ const fieldPlaces = chapters.map((c) => ({
     right: var(--margin);
     width: var(--rail);
     top: calc(64px + 36vw);
+    /* Level with the paragraph beside it; the estimate above stands where anchors are not supported. */
+    top: anchor(--hero-more top, calc(64px + 36vw));
     bottom: 0;
   }
   .rail__sticky { position: sticky; top: 88px; }
@@ -140,10 +142,12 @@ const fieldPlaces = chapters.map((c) => ({
     line-height: 0.76;
     letter-spacing: -0.04em;
     font-weight: 530;
-    margin: clamp(10px, 1.6vw, 28px) 0 0 -0.04em;
+    margin: clamp(10px, 1.6vw, 28px) 0 0 -0.067em;
   }
   .hero__line { display: block; overflow: clip; padding-bottom: 0.05em; margin-bottom: -0.05em; }
-  .hero__line--2 { text-align: right; padding-right: 0.02em; }
+  .hero__line--2 { text-align: right; }
+  /* Without the Field the name is its own letters, and the m ends about 0.02em inside the dots the Field draws at the edge. */
+  :global(html:not(.field)) .hero__line--2 .hero__word { translate: 0.02em 0; }
   .hero__word { display: inline-block; }
 
   /* The identity sits in the negative space beside the second half of the name. The two share one grid cell
@@ -162,12 +166,14 @@ const fieldPlaces = chapters.map((c) => ({
   .hero__role span { font-weight: 400; color: var(--ink-2); }
   .hero__lede { font-size: var(--t-lede); line-height: 1.3; letter-spacing: -0.015em; max-width: 31ch; }
 
-  .hero__grid { margin-top: clamp(26px, 3vw, 48px); padding-right: calc(var(--margin) + var(--rail) + var(--gutter)); }
+  .hero__grid { margin-top: clamp(26px, 3vw, 48px); padding-right: calc(var(--margin) + var(--rail) + var(--gutter)); anchor-name: --hero-more; }
   .hero__more { grid-column: 1 / span 8; display: grid; gap: 16px; }
   .hero__sub { color: var(--ink-2); max-width: 52ch; }
   .hero__actions { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; }
   /* Touch hit areas are 44px tall; wrapped rows sit far enough apart that they never overlap. */
   @media (pointer: coarse) { .hero__actions { row-gap: 22px; } }
+  /* On a phone the three actions stack, one to a row, rather than wrapping two and one. */
+  @media (max-width: 520px) { .hero__actions { flex-direction: column; align-items: flex-start; } }
 
   /* Journey in the top bar lands the index clear of the bar (and, on small screens, the notes ticker). */
   .route { margin-top: clamp(28px, 3.4vw, 52px); padding-right: calc(var(--margin) + var(--rail) + var(--gutter)); scroll-margin-top: 96px; }

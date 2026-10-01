@@ -24,4 +24,5 @@ import Arrow from '../components/Arrow.astro';
   .nf__text { font-size: var(--t-lede); letter-spacing: -0.015em; max-width: 34ch; }
   .nf__links { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; margin-top: 8px; }
   @media (pointer: coarse) { .nf__links { row-gap: 22px; } }
+  @media (max-width: 520px) { .nf__links { flex-direction: column; align-items: flex-start; } }
 </style>

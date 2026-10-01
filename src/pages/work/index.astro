@@ -67,7 +67,7 @@ const intro = 'Each case starts with its question and my part in it, then explai
             {others.map(({ entry, chapter }) => (
               <li>
                 <a class="also__item" href={`/#${entry.id}`} data-observe={`work.${entry.id}`} data-observe-label={entry.title} data-observe-cannot="Whether it was the work or the place that caught your eye.">
-                  <span class="also__name">{entry.title} <Arrow /></span>
+                  <span class="also__name"><span class="link also__text">{entry.title}</span> <Arrow /></span>
                   {/* Every item names its kind and Chapter the same way; the status drops the kind when it opens with it. */}
                   <span class="also__kind"><span>{keepDots(`${kindLabels[entry.kind]} · ${chapter.label}`)}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
                   <span class="also__status">{keepDots(statusAfterKind(entry.status, kindLabels[entry.kind]))}</span>
@@ -94,7 +94,8 @@ const intro = 'Each case starts with its question and my part in it, then explai
   .work { padding-top: 64px; padding-bottom: clamp(80px, 10vw, 160px); }
   .work__layout { --rail: clamp(250px, 22vw, 340px); display: grid; grid-template-columns: minmax(0, 1fr) var(--rail); gap: var(--gutter); padding-inline: var(--margin); }
   .work__main { container-type: inline-size; }
-  .work__rail-sticky { position: sticky; top: 88px; margin-top: clamp(40px, 8vw, 120px); }
+  /* The notes' top rule meets the title's cap line. */
+  .work__rail-sticky { position: sticky; top: 88px; margin-top: clamp(40px, 5vw, 81px); }
   /* A tighter head, so two Case titles share the first screen on a laptop. */
   .work__head { padding-top: clamp(32px, 4.4vw, 72px); max-width: 1000px; }
   .work__title { font-size: clamp(2.8rem, 8cqi, 6rem); line-height: 0.92; letter-spacing: -0.04em; font-weight: 530; }
@@ -157,12 +158,14 @@ const intro = 'Each case starts with its question and my part in it, then explai
   .also__name { font-size: var(--t-h3); line-height: 1.08; letter-spacing: -0.028em; font-weight: 520; }
   .also__kind { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
   .also__status { color: var(--ink-2); font-size: var(--t-meta); }
-  .also__item:hover .also__name { text-decoration: underline; text-decoration-thickness: 1px; }
+  /* The name draws its rule as every link does, and the space and arrow stay clear of it. */
+  .also__item:hover .also__text, .also__item:focus-visible .also__text { background-size: 100% 1px; }
   .also__item:hover .also__name :global(.arrow) { translate: 6px 0; }
 
   .work__next { margin-top: clamp(64px, 9vw, 130px); border-top: 1px solid var(--rule); padding-top: 22px; }
   .work__more { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; }
   @media (pointer: coarse) { .work__more { row-gap: 22px; } }
+  @media (max-width: 520px) { .work__more { flex-direction: column; align-items: flex-start; } }
 
   @media (max-width: 1100px) {
     .work__layout { grid-template-columns: minmax(0, 1fr); }

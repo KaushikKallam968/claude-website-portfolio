@@ -88,19 +88,21 @@ const roles = allRoles();
   .cv__role { margin-top: 18px; font-size: var(--t-lede); letter-spacing: -0.015em; }
   .cv__contact { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 26px; }
   @media (pointer: coarse) { .cv__contact { row-gap: 22px; } }
+  @media (max-width: 520px) { .cv__contact { flex-direction: column; align-items: flex-start; } }
   .cv__block { margin-top: clamp(48px, 6vw, 88px); }
   .cv__h { font-size: var(--t-lede); font-weight: 520; letter-spacing: -0.02em; padding-bottom: 10px; border-bottom: 1px solid var(--ink); }
   .cv__list { display: grid; }
-  .cv__item { display: grid; grid-template-columns: minmax(10em, 1fr) 3fr; gap: var(--gutter); padding: 22px 0; border-bottom: 1px solid var(--rule); }
-  .cv__when { color: var(--ink-3); font-size: var(--t-meta); padding-top: 0.35em; }
+  /* The date and the role title share a first baseline. */
+  .cv__item { display: grid; grid-template-columns: minmax(10em, 1fr) 3fr; align-items: baseline; gap: var(--gutter); padding: 22px 0; border-bottom: 1px solid var(--rule); }
+  .cv__when { color: var(--ink-3); font-size: var(--t-meta); }
   .cv__title { font-size: var(--t-h3); line-height: 1.08; letter-spacing: -0.028em; font-weight: 520; }
   .cv__org { color: var(--ink-2); margin-top: 4px; }
-  .cv__points { margin-top: 10px; display: grid; gap: 6px; max-width: 66ch; }
+  .cv__points { margin-top: 10px; display: grid; gap: 6px; max-width: 58ch; }
   /* The dot hangs in the margin, so every line of a point starts at the same edge. */
   .cv__points li { position: relative; padding-left: 1em; }
   .cv__points li::before { content: '·'; position: absolute; left: 0.2em; color: var(--ink-3); }
   .cv__more { display: inline-block; margin-top: 10px; font-size: var(--t-meta); text-decoration: none; }
-  .cv__skills { display: grid; gap: 12px; padding-top: 18px; max-width: 72ch; }
+  .cv__skills { display: grid; gap: 12px; padding-top: 18px; max-width: 60ch; }
   .cv__skills strong { font-weight: 560; }
   @media (max-width: 700px) { .cv__item { grid-template-columns: 1fr; gap: 6px; } }
   /* Paper: the PDF a recruiter forwards. Two pages at most, starting with the work on page one: roles keep
@@ -119,7 +121,8 @@ const roles = allRoles();
     .cv__item { grid-template-columns: 9em 1fr; padding: 8pt 0; break-inside: avoid; }
     .cv__when, .cv__org { font-size: 9.5pt; }
     .cv__title { font-size: 13pt; }
-    .cv__points { margin-top: 4pt; gap: 2pt; }
-    .cv__skills { padding-top: 8pt; gap: 6pt; }
+    /* The screen's measures are shorter than the page's; on paper the lines keep the longer ones they always had. */
+    .cv__points { margin-top: 4pt; gap: 2pt; max-width: 66ch; }
+    .cv__skills { padding-top: 8pt; gap: 6pt; max-width: 72ch; }
   }
 </style>

@@ -263,11 +263,14 @@ const scores = [1, 2, 3, 4, 5, 6, 7, 8];
   /* watched.: real screens */
   .phones { display: flex; justify-content: center; align-items: flex-end; gap: 0; padding-bottom: 0; min-height: 280px; }
   /* Sized by the screen's height too, so the figure's steps stay in view beneath it. */
-  .phone { width: min(34%, 25vh); height: auto; border-radius: 16px; box-shadow: 0 1px 0 var(--rule); }
+  /* A hairline just inside the edge, so a dark screen still has one against a dark stage. */
+  .phone { width: min(34%, 25vh); height: auto; border-radius: 16px; outline: 1px solid var(--rule); outline-offset: -1px; }
   .phone--a { translate: 12% 8%; rotate: -4deg; }
   .phone--b { position: relative; z-index: 2; }
   .phone--c { translate: -12% 8%; rotate: 4deg; }
   .fig--compact .phone { width: 42%; }
+  /* Where the Entry stacks, the stage runs the full width; the phones stay phone-sized rather than grow with it. */
+  @media (max-width: 900px) { .fig--compact .phone { width: min(42%, 11rem); } }
 
   /* Inspire: a fictional spot, the codebook it is read against, and the table the codes become.
      Stacked on a phone; the container queries at the end add panels across as there is room. */
