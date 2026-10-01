@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { caseDescription, caseSchema, caseTitle, homeDescription, homeSchema, llmsText, personId, resumeSchema, serializeGraph, websiteId, workSchema } from './seo';
+import { caseCardAlt, caseCardPath, caseDescription, caseSchema, caseTitle, homeDescription, homeSchema, llmsText, personId, resumeSchema, serializeGraph, websiteId, workSchema } from './seo';
 
 const site = 'https://www.kkportfolio.xyz';
 const contact = { email: 'kaushik.kallam@gmail.com', linkedin: 'https://www.linkedin.com/in/kaushikkallam/' };
@@ -43,6 +43,41 @@ describe('case descriptions', () => {
     const at161 = `${'a'.repeat(128)}?`;
     expect(caseDescription(at160)).toBe(`${'a'.repeat(127)}? A case study by Kaushik Kallam.`);
     expect(caseDescription(at161)).toBe(at161);
+  });
+});
+
+describe('case share cards', () => {
+  it('sit at /og/ under the Case id, beside the name card', () => {
+    expect(caseCardPath('chegg-discord')).toBe('/og/chegg-discord.png');
+    expect(caseCardPath('inspire-ad-creative')).toBe('/og/inspire-ad-creative.png');
+  });
+
+  it('are described by the title, the byline, the context and the whole question', () => {
+    expect(
+      caseCardAlt({
+        id: 'chegg-discord',
+        title: 'Chegg Discord',
+        context: 'Chegg · Discovery and concept evaluation',
+        question: 'Could academic support fit into the way students already study together on Discord, and which AI-assisted capabilities were ready to develop further?',
+      }),
+    ).toBe(
+      'Chegg Discord, a case study by Kaushik Kallam. Chegg · Discovery and concept evaluation. Could academic support fit into the way students already study together on Discord, and which AI-assisted capabilities were ready to develop further?',
+    );
+  });
+
+  it('starts a new sentence after a title that ends in a full stop (watched.), so no comma follows it', () => {
+    expect(
+      caseCardAlt({
+        id: 'watched',
+        title: 'watched.',
+        context: 'Cofounder · Personal project',
+        question: 'How can people express what they really think of a film or show, without ranking it feeling like work?',
+      }),
+    ).toBe('watched. A case study by Kaushik Kallam. Cofounder · Personal project. How can people express what they really think of a film or show, without ranking it feeling like work?');
+  });
+
+  it('contains no em dash', () => {
+    expect(caseCardAlt({ id: 'chegg-mexico', title: 'Chegg Mexico', context: 'Chegg · Mixed-methods localization research', question: 'Q?' })).not.toContain('\u2014');
   });
 });
 
@@ -161,7 +196,7 @@ describe('the Selected work graph', () => {
 });
 
 describe('a Case graph', () => {
-  it('is an article by the person, about the organisation in its context, and the breadcrumb', () => {
+  it('is an article by the person, about the organisation in its context, with its share card as the image, and the breadcrumb', () => {
     const graph = caseSchema(site, {
       id: 'chegg-mexico',
       title: 'Chegg Mexico',
@@ -179,6 +214,7 @@ describe('a Case graph', () => {
         isPartOf: website,
         inLanguage: 'en',
         about: { '@type': 'Organization', name: 'Chegg' },
+        image: 'https://www.kkportfolio.xyz/og/chegg-mexico.png',
       },
       {
         '@type': 'BreadcrumbList',

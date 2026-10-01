@@ -42,6 +42,15 @@ export function caseDescription(question: string): string {
   return full.length <= 160 ? full : question;
 }
 
+/** Where a Case's share card is served from: public/og/<id>.png, drawn by scripts/build-og.mjs. */
+export const caseCardPath = (id: string) => `/og/${id}.png`;
+
+/** The card in words, for og:image:alt: it shows the title, the context and the question. A title that ends in a full stop (watched.) takes no comma. */
+export function caseCardAlt({ title, context, question }: CaseFacts): string {
+  const lead = /[.!?]$/.test(title) ? `${title} A case study` : `${title}, a case study`;
+  return `${lead} by ${NAME}. ${context}. ${question}`;
+}
+
 const home = (site: Site) => new URL('/', site).href;
 const at = (site: Site, path: string) => new URL(path, site).href;
 
@@ -128,6 +137,7 @@ export function caseSchema(site: Site, c: CaseFacts): Node[] {
       isPartOf: websiteRef(site),
       inLanguage: 'en',
       about: caseAbout(c),
+      image: at(site, caseCardPath(c.id)),
     },
     breadcrumb(site, [['Selected work', '/work/'], [c.title, `/work/${c.id}/`]]),
   ];
