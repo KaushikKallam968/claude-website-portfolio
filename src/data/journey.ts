@@ -1,5 +1,5 @@
 /**
- * The Journey: owner-accepted chapter copy (the earlier handoff's portfolio-reading-draft.md, in git history at 08dc724).
+ * The Journey: owner-accepted chapter copy (the earlier handoff's portfolio-reading-draft.md; the handoff is no longer in the repository).
  * Places carry true coordinates and time zones so the page can show live local time.
  */
 
