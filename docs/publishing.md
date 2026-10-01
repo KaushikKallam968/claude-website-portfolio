@@ -27,7 +27,7 @@ Deployed publicly on September 30, 2026, at the owner's request, with the copy c
 - **Why that project:** the Vercel connection used from Claude sessions may deploy but may not create or change projects (both return 403), so a new `kaushik-kallam` project could not be made from a session.
 - **How it is deployed:** the project is linked to this repository (owner, October 1, 2026). Production is built from `master`: work happens on a branch (each push builds a preview behind Vercel login), is verified, then `master` is moved to it and that commit is deployed to production. The project's production branch is `master` (set by the owner, October 1, 2026), so that push deploys the live site by itself. The build is pinned in the repository (`vercel.json`: framework Astro, `npm ci`, `npm run build`, output `dist`; `package.json` engines: Node 22), so every build matches.
 - **Still open, for the owner in the Vercel dashboard (optional):**
-  - redirect the old `website-nu-five-41.vercel.app` to `www.kkportfolio.xyz` (Settings, Domains, Edit, Redirect to, 308), so the site has one address. A host-matched redirect in `vercel.json` was tried on October 1, 2026 and Vercel did not apply it to the `vercel.app` address, so this stays a dashboard setting. The canonical links already name the new domain, so search engines prefer it either way.
+  - Redirect the old `website-nu-five-41.vercel.app` to `www.kkportfolio.xyz` (Settings, Domains, Edit, Redirect to, 308), so the site has one address. A host-matched redirect in `vercel.json` was tried on October 1, 2026 and Vercel did not apply it to the `vercel.app` address, so this stays a dashboard setting. The canonical links already name the new domain, so search engines prefer it either way.
 
 ## Search
 
