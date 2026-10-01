@@ -1,5 +1,6 @@
 import { gsap } from 'gsap';
 import { equalEarth, greatCircle, subsolarPoint, type LonLat } from '../../lib/geo';
+import { bandFlight, inOut as ease } from '../../lib/shift';
 import { KEYS, session } from '../../lib/store';
 import { clockFormat } from '../clock';
 import { livePaused } from '../navigation';
@@ -51,7 +52,6 @@ const PULSE_REST = 0.3;
  */
 const PULSE_FRAME_MS = 42;
 const PULSE_STILL_MS = 6000;
-const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const smooth = (a: number, b: number, v: number) => {
   const t = clamp01((v - a) / (b - a));
@@ -182,6 +182,8 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
   const labelLayer = document.createElement('div');
   labelLayer.className = 'field-labels';
   labelLayer.setAttribute('aria-hidden', 'true');
+  // Until the first placement every label would sit at the top left; the ticker shows the layer once it has placed them.
+  labelLayer.style.visibility = 'hidden';
   const labels = places.map((p) => {
     const el = document.createElement('p');
     el.className = 'field-label';
@@ -544,7 +546,8 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
     cam: { ...worldCam }, route: 1, routeVis: 0, leg: [0, 0, 0], traveller: [0, 0], active: -1,
     nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, pulse: PULSE_REST, clip: [-1e5, 1e5], quiet: new Float32Array(24),
   };
-  let idle = false;
+  // Nothing is drawn yet, which is what idle means: the first frame that shows the map shows the labels, placed.
+  let idle = true;
 
   // ---------- Quiet zones: text that must stay readable over the map ----------
   const QUIET = 6;
@@ -645,7 +648,7 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
     } else {
       const raw = clamp01((y - active.start) / Math.max(1, active.end - active.start));
       // A band flies in the middle of its passage, while it is most on screen.
-      const p = active.band ? clamp01((raw - 0.2) / 0.6) : raw;
+      const p = active.band ? bandFlight(raw) : raw;
       const e = ease(p);
       const ta = tOf(active.from);
       const tb = tOf(active.to);
@@ -786,6 +789,8 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
         idle = true;
       }
       warm = 0;
+      // Nothing to redraw until the map shows again, and that sets `force` itself: left set, compute() would run every frame.
+      force = false;
       return;
     }
     if (idle) {
@@ -799,7 +804,9 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
       for (let i = 0; i < TRAIL; i++) warm += trail[i * 3 + 2];
     }
     const inFlight = (frame.stage > 0.001 && frame.stage < 0.999) || (frame.stage > 1.001 && frame.stage < 1.999);
-    const pulsing = frame.routeVis > 0.001 && !paused && !rested;
+    // Only the place being read breathes: with none (the introduction before it reaches New York, the close) there is
+    // nothing to draw while the reader stands still.
+    const pulsing = frame.routeVis > 0.001 && frame.active !== -1 && !paused && !rested;
     if (pulsing) {
       const before = cycles;
       cycles += dt * PULSE_HZ;

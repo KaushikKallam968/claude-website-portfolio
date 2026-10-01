@@ -1,29 +1,10 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { bandFlight, inOut, offsetHours, wallClock } from '../lib/shift';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const DIGITS_PER_TURN = 10;
-/** The Field's flight curve (cubic in-out), so a band's clock and its traveller keep time together. */
-const inOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-
-/** Wall-clock hour, minute and calendar date in a time zone. */
-function wallClock(tz: string, at: Date) {
-  const p = new Intl.DateTimeFormat('en-GB', { timeZone: tz, year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(at);
-  const get = (t: string) => Number(p.find((x) => x.type === t)?.value ?? 0);
-  return { y: get('year'), mo: get('month'), d: get('day'), h: get('hour'), m: get('minute') };
-}
-
-/** The zone's offset from UTC in minutes at this moment (daylight saving included). */
-function utcOffsetMinutes(tz: string, at: Date) {
-  const w = wallClock(tz, at);
-  return Math.round((Date.UTC(w.y, w.mo - 1, w.d, w.h, w.m) - Math.floor(at.getTime() / 60000) * 60000) / 60000);
-}
-
-/** Offset in whole hours between two time zones right now (positive: `to` is ahead). */
-function offsetHours(fromTz: string, toTz: string, at: Date) {
-  return Math.round((utcOffsetMinutes(toTz, at) - utcOffsetMinutes(fromTz, at)) / 60);
-}
 
 const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen'];
 const hoursPhrase = (n: number) => `${words[n] ?? n} hour${n === 1 ? '' : 's'}`;
@@ -125,21 +106,21 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
         day.textContent = dayShift > 0 ? '+1 day' : dayShift < 0 ? '−1 day' : '';
         day.style.opacity = dayShift !== 0 ? '1' : '0';
       };
-      // A domestic band's hours count with the flight: from when its clock comes on screen until the traveller
-      // lands, in step with the Field's leg (flown over the middle 60% of the same passage, on the same curve).
-      const flight = (p: number) => inOut(Math.min(1, Math.max(0, (p - 0.2) / 0.6)));
+      // The traveller's progress at a point of the scene, the Field's own mapping: a band is flown over the middle
+      // half of its passage, the ocean crossing over its whole pin, both on the same curve.
+      const traveller = (p: number) => inOut(near ? bandFlight(p) : Math.min(1, Math.max(0, p)));
+      // A domestic band's hours count with the flight: from when its clock comes on screen until the traveller lands.
       const scrub = (p: number, animate = true) => {
         last = p;
         const steps = Math.abs(state.off);
-        const f0 = near ? flight(count0) : inOut(count0);
-        // The hours turn as the traveller covers the distance (the Field flies a band over the middle of its
-        // passage and the ocean crossing over its whole pin, on the same curve), the last one as it lands.
-        const travelled = near ? flight(p) : inOut(Math.min(1, Math.max(0, p)));
-        const k = Math.min(1, Math.max(0, (travelled - f0) / Math.max(0.05, 1 - f0)));
-        showHour(Math.min(steps, Math.floor(k * steps + 0.05)), animate);
+        const along = traveller(p);
+        const f0 = traveller(count0);
+        // The hours turn as the traveller covers the distance, the last one as it lands.
+        const k = Math.min(1, Math.max(0, (along - f0) / Math.max(0.05, 1 - f0)));
+        showHour(Math.min(steps, Math.floor(k * steps)), animate);
         [2, 3].forEach((i) => gsap.set(reels[i], { yPercent: y(state.to[i] + DIGITS_PER_TURN) }));
         // The route line fills with the traveller, not ahead of it.
-        line?.style.setProperty('--p', (near ? flight(p) : inOut(p)).toFixed(3));
+        line?.style.setProperty('--p', along.toFixed(3));
       };
       ScrollTrigger.create({
         trigger: el,

@@ -4,11 +4,13 @@
  * the next while the local time rolls from one clock to the other, computed live so the offset is always
  * true, daylight saving included. Without scripts, or with reduced motion, it is a short static band.
  *
- * Scenes are sized by the distance flown. An ocean crossing is a full pinned scene; a domestic hop is a
- * shorter window onto the map that scrolls with the page (60 to 80vh, longer for longer flights).
+ * Scenes are sized by the hours flown, not the kilometres, and the climax gets the scroll. An ocean crossing is a
+ * full pinned scene (240vh of runway, 200vh on a phone); a domestic hop is a shorter window onto the map that
+ * scrolls with the page: 48vh, and 10vh more for each hour between its two clocks.
  */
 import { shortPlace, type Chapter } from '../data/journey';
 import { distanceKm } from '../lib/geo';
+import { bandRun, offsetHours } from '../lib/shift';
 import Arrow from './Arrow.astro';
 
 interface Props {
@@ -20,12 +22,13 @@ const short = shortPlace;
 const reel = Array.from({ length: 30 }, (_, i) => i % 10);
 const km = distanceKm([from.place.lon, from.place.lat], [to.place.lon, to.place.lat]);
 const far = km > 6000;
-const run = 60 + 20 * Math.min(1, Math.max(0, (km - 1000) / 2500));
+// Offset between the two zones as it stands when the site is built; the page's clocks count it live (see timeshift.ts).
+const run = bandRun(offsetHours(from.place.timeZone, to.place.timeZone, new Date()));
 ---
 
 <div
   class:list={['shift', far ? 'shift--far' : 'shift--near']}
-  style={far ? undefined : `--run: ${run.toFixed(1)}vh`}
+  style={far ? undefined : `--run: ${run}vh`}
   data-shift
   data-from-id={from.id}
   data-to-id={to.id}
@@ -94,7 +97,7 @@ const run = 60 + 20 * Math.min(1, Math.max(0, (km - 1000) / 2500));
 
   /* With the Field running, the band becomes a scene: a tall runway with the clock pinned to the viewport
      while the map flies behind it. */
-  :global(html.field) .shift { height: 150vh; margin-top: 0; }
+  :global(html.field) .shift--far { height: 240vh; margin-top: 0; }
   :global(html.field) .shift__stage {
     position: sticky;
     top: 0;
@@ -126,6 +129,6 @@ const run = 60 + 20 * Math.min(1, Math.max(0, (km - 1000) / 2500));
   @media (max-width: 700px) {
     .shift__stage { grid-template-columns: 1fr; }
     .shift__clock { flex-wrap: wrap; }
-    :global(html.field) .shift--far { height: 140vh; }
+    :global(html.field) .shift--far { height: 200vh; }
   }
 </style>
