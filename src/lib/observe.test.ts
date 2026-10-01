@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createObservation } from './observe';
+import { createObservation, type RawEvent } from './observe';
 
 describe('observation notes', () => {
   it('says what pointing at a tagged element shows and what it cannot', () => {
@@ -137,6 +137,24 @@ describe('observation notes', () => {
 
   it('says a city’s time as it is given, for a zone that is no Journey place', () => {
     expect(createObservation().record({ type: 'clock', t: 2000, kept: 'London time' })?.shows).toBe('Your device keeps London time.');
+  });
+
+  // A tab left open across a deploy replays events saved in the shape before it: the clock event then named a place.
+  it('builds the clock note from the old place field of an event saved before the clock named a time', () => {
+    expect(createObservation().record({ type: 'clock', t: 2000, place: 'Texas' })).toMatchObject({
+      event: 'clock',
+      shows: 'Your device keeps the same time as Texas.',
+      cannotShow: 'Whether you’re there, or only your clock is.',
+    });
+  });
+
+  it('writes no clock note for a stored event that says nothing about what the clock keeps', () => {
+    // What sessionStorage hands back is not checked by the compiler: an event with neither field, or an empty one.
+    const obs = createObservation();
+    expect(obs.record({ type: 'clock', t: 2000 } as unknown as RawEvent)).toBeNull();
+    expect(obs.record({ type: 'clock', t: 2500, kept: '' })).toBeNull();
+    // Nothing was said, so a clock event that does say something still can be.
+    expect(obs.record({ type: 'clock', t: 3000, kept: 'London time' })?.shows).toBe('Your device keeps London time.');
   });
 
   it('only notes a pause once it is long enough to mean something', () => {

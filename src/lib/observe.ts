@@ -11,6 +11,8 @@ export type RawEvent =
   | { type: 'copy'; t: number; page: string; tag: string; label: string; cannotShow?: string }
   /** What the device's clock keeps, in words ("the same time as Texas", "London time"); the zone itself never enters the note. */
   | { type: 'clock'; t: number; kept: string }
+  /** The clock event as it was saved when it named a place; a tab left open across that deploy still replays these. */
+  | { type: 'clock'; t: number; place: string }
   /** Where the visit began; its name, because the note is read on later pages too. */
   | { type: 'arrive'; t: number; page: string; pageName: string }
   | { type: 'depth'; t: number; page: string; pageName?: string; fraction: number }
@@ -42,6 +44,17 @@ export interface Readout {
   totalMs: number;
   chapters: { id: string; title: string; ms: number }[];
   casesOpened: { id: string; title: string }[];
+}
+
+/**
+ * What a replayed clock event says the device keeps, or null when it says nothing. An event saved before the note
+ * named a time carries a place, which reads the same way; sessionStorage can hand back anything, so each field is checked.
+ */
+function deviceKeeps(e: Extract<RawEvent, { type: 'clock' }>): string | null {
+  const { kept, place } = e as { kept?: unknown; place?: unknown };
+  if (typeof kept === 'string' && kept) return kept;
+  if (typeof place === 'string' && place) return `the same time as ${place}`;
+  return null;
 }
 
 /** A pause shorter than this is just reading rhythm, not something worth noting. */
@@ -101,11 +114,13 @@ export function createObservation() {
             cannotShow: e.cannotShow ?? 'What you will do with it.',
           };
         }
-        case 'clock':
+        case 'clock': {
           // Said once per visit: the notes are replayed on every later page, and the clock has not changed.
-          if (clockNoted) return null;
+          const kept = deviceKeeps(e);
+          if (clockNoted || !kept) return null;
           clockNoted = true;
-          return { t: e.t, event: 'clock', tag: null, quality: 'tagged', shows: `Your device keeps ${e.kept}.`, cannotShow: 'Whether you’re there, or only your clock is.' };
+          return { t: e.t, event: 'clock', tag: null, quality: 'tagged', shows: `Your device keeps ${kept}.`, cannotShow: 'Whether you’re there, or only your clock is.' };
+        }
         case 'depth': {
           let seen = quartersSeen.get(e.page) ?? 0;
           const next = QUARTERS[seen];
