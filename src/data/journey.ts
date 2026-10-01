@@ -250,7 +250,7 @@ export const chapters: Chapter[] = [
         where: 'Atlanta, Georgia',
         highlights: [
           'Coded 548 quick-service restaurant TV ads on 21 attributes, modeled their ACE Metrix scores in R and presented the readout.',
-          'Wrote a Python script to screen out automated survey responses.',
+          'Wrote a Python script to preprocess survey responses and check their quality.',
         ],
         more: '/work/inspire-ad-creative/',
       },
@@ -265,7 +265,7 @@ export const chapters: Chapter[] = [
           'Which creative attributes of quick-service restaurant TV ads drive their ACE Metrix scores?',
           'I coded 548 ads on 21 yes-or-no attributes and modeled each score against them in R.',
         ],
-        contribution: 'I defined the attributes with our Demand Gen Analytics lead, coded all 548 ads, ran every regression in R and presented the readout.',
+        contribution: 'I defined the attributes with the head of Demand Gen Analytics, coded all 548 ads, ran every regression in R and presented the readout.',
         status: 'Analysis completed · readout presented and used, August 2023',
         action: 'Explore the Inspire Brands case',
         figure: 'inspire',
