@@ -5,9 +5,11 @@ import { allRoles, closing } from '../../data/journey';
 
 /** Built from the Journey's Roles (the owner's LinkedIn profile, résumé and accepted chapter copy). No metrics are added. */
 const roles = allRoles();
+// There is no notes panel here, so no text is set in the mono face and its preload would go unused. Drop
+// `preloadMono={false}` if mono text is ever added to this page.
 ---
 
-<Base title="Résumé · Kaushik Kallam" current="resume" description="Résumé of Kaushik Kallam, Senior Quantitative UX Researcher at JPMorganChase in New York.">
+<Base title="Résumé · Kaushik Kallam" current="resume" description="Résumé of Kaushik Kallam, Senior Quantitative UX Researcher at JPMorganChase in New York." preloadMono={false}>
   <main id="main" class="cv" data-page-name="the résumé">
     <header class="cv__head">
       <h1 class="cv__name">Kaushik Kallam</h1>

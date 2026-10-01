@@ -8,6 +8,10 @@ interface Props {
   current?: 'journey' | 'work' | 'resume' | 'contact';
   /** The page's main content id for the skip link. */
   mainId?: string;
+  /** Keeps the page out of search results and gives it no canonical address (the 404). */
+  noindex?: boolean;
+  /** Preload the mono face (notes, labels, figures). A page that sets no text in it says false, so it is not fetched unused. */
+  preloadMono?: boolean;
 }
 
 const {
@@ -15,7 +19,14 @@ const {
   description = 'Kaushik Kallam, Senior Quantitative UX Researcher in New York. Research on behavior, instrumentation, AI evaluation and learning products, and the places along the way.',
   current,
   mainId = 'main',
+  noindex = false,
+  preloadMono = true,
 } = Astro.props;
+
+// One address per page, for the canonical link and og:url; the 404 has none.
+const canonical = Astro.site && !noindex ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+// What public/og.png shows, for people who cannot see it.
+const ogAlt = 'The name Kaushik Kallam in large black type on two lines, on a pale grey background. Below it: Senior Quantitative UX Researcher, JPMorganChase, New York. At the right, in small blue type: what the data shows and what it can’t.';
 
 const nav = [
   { id: 'journey', label: 'Journey', href: '/#journey-index' },
@@ -32,24 +43,30 @@ const nav = [
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#ecece8" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#121211" media="(prefers-color-scheme: dark)" />
     <!-- Both schemes are designed, so a phone in dark mode paints its first frame dark rather than flashing white. -->
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- iOS draws its home-screen icon from a PNG on an opaque background; it ignores the SVG. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/switzer-variable.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/fragment-mono.woff2" as="font" type="font/woff2" crossorigin />
+    {preloadMono && <link rel="preload" href="/fonts/fragment-mono.woff2" as="font" type="font/woff2" crossorigin />}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Kaushik Kallam" />
+    {canonical && <meta property="og:url" content={canonical} />}
     {Astro.site && (
       <>
         <meta property="og:image" content={new URL('/og.png', Astro.site).href} />
+        <meta property="og:image:alt" content={ogAlt} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).href} />
       </>
     )}
+    {canonical && <link rel="canonical" href={canonical} />}
     <meta name="twitter:card" content="summary_large_image" />
     <script is:inline>
       // Scripts are on: allow entrance states that hide text until motion reveals it.

@@ -17,15 +17,17 @@ const cases = (await getCollection('cases'))
   .sort((a, b) => a.data.order - b.data.order)
   .map((c) => ({ ...c, journey: entryFor(c.id) }));
 const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
+/** The page's own description as well as its introduction, so a search result says what the page does. */
+const intro = 'Each case starts with its question and my part in it, then explains the research decisions and ends with what the evidence can and can’t show.';
 ---
 
-<Base title="Selected work · Kaushik Kallam" current="work">
+<Base title="Selected work · Kaushik Kallam" description={intro} current="work">
   <main id="main" class="work" data-page-name="Selected work">
     <div class="work__layout">
       <div class="work__main">
         <header class="work__head">
           <h1 class="work__title">Selected work</h1>
-          <p class="work__intro">Each case starts with its question and my part in it, then explains the research decisions and ends with what the evidence can and can’t show.</p>
+          <p class="work__intro">{intro}</p>
         </header>
 
         <ol class="index" data-work-index aria-label="Cases">
@@ -83,7 +85,7 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
           </ul>
         </nav>
       </div>
-      <aside class="work__rail" aria-label="Notes"><div class="work__rail-sticky"><NotesPanel /></div></aside>
+      <div class="work__rail"><div class="work__rail-sticky"><NotesPanel /></div></div>
     </div>
   </main>
 </Base>
