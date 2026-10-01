@@ -58,6 +58,8 @@ const nav = [
     <meta name="theme-color" content="#121211" media="(prefers-color-scheme: dark)" />
     <!-- Both schemes are designed, so a phone in dark mode paints its first frame dark rather than flashing white. -->
     <meta name="color-scheme" content="light dark" />
+    <!-- Browsers and crawlers ask for /favicon.ico whatever the page says; the SVG is the one drawn for screens, and follows dark mode. -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <!-- iOS draws its home-screen icon from a PNG on an opaque background; it ignores the SVG. -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
