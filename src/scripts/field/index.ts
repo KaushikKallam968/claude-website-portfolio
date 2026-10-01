@@ -550,11 +550,12 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
     addEventListener('scroll', hurry, { passive: true });
   }
 
-  // ---------- The pour after a jump ----------
+  // ---------- The pour on arriving at the close ----------
   // Scrolling into the close pours the world into the readout's rows as the reader goes. A jump has scrolled already
-  // when it lands, so the pour would be over before anyone saw it: it plays on a timer instead, from the world.
+  // when it lands, and so has a page that loads at the close (Get in touch, from a Case), so the pour would be over
+  // before anyone saw it: it plays on a timer instead, from the world.
   const pour = { p: 1, running: false };
-  document.addEventListener('jump:landed', () => {
+  const pourAtClose = () => {
     gsap.killTweensOf(pour);
     pour.p = 1;
     pour.running = false;
@@ -571,7 +572,9 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
         dirty = true;
       },
     });
-  });
+  };
+  document.addEventListener('jump:landed', pourAtClose);
+  if (location.hash) pourAtClose();
 
   // ---------- The frame ----------
   const frame: FieldFrame = {
@@ -614,15 +617,16 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
   };
 
   /**
-   * Where the camera rests while the world and the route draw. On a phone the whole world is fitted into the band
-   * above the identity text, where the name forms next: the world camera puts it behind that text, and the band stays
-   * empty paper until the dots gather. Elsewhere it is the world camera moved right, and drawn smaller if it must be,
-   * until Singapore, where the route starts, clears the identity text beside it.
+   * Where the camera rests while the world and the route draw. On a phone (`narrow`, where the name sits above the
+   * identity text) the whole world is fitted into the band above that text, where the name forms next: the world
+   * camera puts it behind the text, and the band stays empty paper until the dots gather. Elsewhere it is the world
+   * camera moved right, and drawn smaller if it must be, until Singapore, where the route starts, clears the identity
+   * text beside it.
    */
   function placeArrival(): Camera {
     const scale = renderer.scale;
     const text = quietEls.map(tight).filter((r) => r.width > 0 && r.bottom > 0 && r.top < vh);
-    if (vw <= 600 && text.length) {
+    if (narrow && text.length) {
       const top = (document.querySelector('.top')?.getBoundingClientRect().bottom ?? 0) + 8;
       // A quiet zone starts clearing dots 38px above its words (10px of room and its 28px feather).
       const bottom = Math.min(...text.map((r) => r.top)) - 38;
@@ -647,7 +651,9 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
     // New York keeps room beside it for its ring, at the screen's edge.
     const room = vw - 48 - want;
     const z = Math.min(z0, room / ((nx - sx) * scale));
-    if (z < z0 * 0.7) return worldCam;
+    // Down to 0.7 of the world camera's size, or 0.45 at 1100px and below: the identity text runs wider there, and a
+    // map half the size beside it still reads as the world, where giving up leaves Singapore under the text.
+    if (z < z0 * (vw <= 1100 ? 0.45 : 0.7)) return worldCam;
     const here = vw / 2 + (sx - worldCam.x) * scale * z;
     return here >= want ? { ...worldCam, z } : { x: sx - (want - vw / 2) / (scale * z), y: worldCam.y, z };
   }

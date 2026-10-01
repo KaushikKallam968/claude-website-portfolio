@@ -67,10 +67,22 @@ export function startReadout() {
   // the close is in view.
   paint();
   const close = root.closest('section') ?? root;
+  // Whether the close was in view at the last report, so a snapshot is taken once as it comes into view and held.
+  let held = false;
   new IntersectionObserver(
     ([en]) => {
-      if (en.isIntersecting && !livePaused()) paint();
+      if (en.isIntersecting && !held && !livePaused()) paint();
+      held = en.isIntersecting;
     },
     { rootMargin: '0px 0px -40% 0px' },
   ).observe(close);
+  // A jump lands with the close already in view, and the page fades back in within a frame or two: the observer
+  // would only say so a task later, after the heavy frame, and the fade would show the old readout settling. So the
+  // snapshot is taken at the landing (the observer's report then finds it held), under the paper.
+  document.addEventListener('jump:landed', () => {
+    const { top, bottom } = close.getBoundingClientRect();
+    if (held || livePaused() || bottom <= 0 || top >= innerHeight * 0.6) return;
+    held = true;
+    paint();
+  });
 }
