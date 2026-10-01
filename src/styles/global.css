@@ -412,6 +412,8 @@ html.lens-on .lens-bar { display: flex; }
   .readout__unit { display: none !important; }
   .readout__track { height: 14px !important; background: var(--note-soft) !important; border: 0 !important; overflow: hidden !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .readout__fill { display: block !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* A readout that measured nothing (a print before the close) is its one line, not "0.0 s" over a full bar. */
+  .readout[data-unmeasured] :is(.readout__total, .readout__bars) { display: none !important; }
   /* Screenshots that have not loaded would print as empty frames; on white paper their own edges are enough. */
   .phone { outline: none !important; }
   .foot { margin-top: 20px !important; padding-block: 12px !important; }

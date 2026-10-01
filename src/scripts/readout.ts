@@ -41,6 +41,9 @@ export function startReadout() {
     });
     const noChapters = !bars.some((li) => li.dataset.bar !== 'outside' && !li.hidden);
     const noCases = r.casesOpened.length === 0;
+    // The snapshot taken as the page opens has measured nothing yet, only a moment of everywhere else. A print before
+    // the close keeps its one line and leaves the chart out (see Print in global.css).
+    root.toggleAttribute('data-unmeasured', noChapters && noCases && all < 1000);
     // Nothing in a Chapter and no Case opened is one statement, not two lines that say the same thing.
     if (empty) {
       empty.hidden = !noChapters;
