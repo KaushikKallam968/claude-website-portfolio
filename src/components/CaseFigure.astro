@@ -116,15 +116,15 @@ const scores = [1, 2, 3, 4, 5, 6, 7, 8];
       <div class="ad__panel ad__book">
         <p class="ad__label mono">Codebook</p>
         <ul class="ad__rows">
-          <li class="ad__row" style="--i:0"><span class="ad__q">Something shown?</span><span class="ad__chip ad__chip--yes">Yes</span></li>
-          <li class="ad__row" style="--i:1"><span class="ad__q">Something heard?</span><span class="ad__chip">No</span></li>
+          <li class="ad__row" style="--i:0"><span class="ad__chip ad__chip--yes">Yes</span><span class="ad__q">Something shown?</span></li>
+          <li class="ad__row" style="--i:1"><span class="ad__chip">No</span><span class="ad__q">Something heard?</span></li>
           <li class="ad__row" style="--i:2">
-            <span class="ad__q">An editing choice, counted against a rule?
-              <span class="ad__rule"><span class="ad__tally"><i></i><i></i><i></i></span><svg viewBox="0 0 12 12" width="10" height="10" focusable="false"><path d="M2 6.5 5 9.5 10 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" /></svg></span>
-            </span>
             <span class="ad__chip ad__chip--yes">Yes</span>
+            <span class="ad__q">An editing choice, counted against a rule?
+              <span class="ad__rule"><span class="ad__tally"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><svg viewBox="0 0 12 12" width="10" height="10" focusable="false"><path d="M2 6.5 5 9.5 10 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" /></svg></span>
+            </span>
           </li>
-          <li class="ad__row" style="--i:3"><span class="ad__q">How it ends?</span><span class="ad__chip">No</span></li>
+          <li class="ad__row" style="--i:3"><span class="ad__chip">No</span><span class="ad__q">How it ends?</span></li>
         </ul>
       </div>
 
@@ -270,10 +270,11 @@ const scores = [1, 2, 3, 4, 5, 6, 7, 8];
   .fig--compact .phone { width: 42%; }
 
   /* Inspire: a fictional spot, the codebook it is read against, and the table the codes become.
-     Stacked for a phone or a narrow column; the container queries at the end add panels across as there is room. */
+     Stacked on a phone; the container queries at the end add panels across as there is room. */
   .ad { --ad-gap: 20px; --row: 11px; --rgap: 3px; --cgap: 4px; --head: 46px; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ad-gap); align-items: start; }
   .fig--inspire { container-type: inline-size; }
-  /* Beside an Entry's text the figure is smaller: finer rows, so it never stands taller than the words. */
+  /* Beside an Entry's text the figure is smaller: finer rows, and the narrow layout below, so it stands no
+     taller than the words at any width a laptop or a desktop gives it. */
   .fig--compact .ad { --row: 9px; --rgap: 2px; --cgap: 3px; --head: 44px; }
   .fig--compact .ad__row { padding: 5px 8px; }
   .fig--compact .ad__label { margin-bottom: 8px; }
@@ -297,7 +298,8 @@ const scores = [1, 2, 3, 4, 5, 6, 7, 8];
 
   .ad__rows { display: grid; gap: 6px; }
   .ad__row { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 7px 9px; border: 1px solid var(--ink-3); background: var(--paper); font-size: var(--t-small); line-height: 1.3; }
-  .ad__chip { flex: none; min-width: 32px; padding: 1px 6px; border: 1px solid var(--now); color: var(--now); font-family: var(--mono); font-size: var(--t-data-s); line-height: 1.5; text-align: center; }
+  /* The chip comes first in the markup so a narrow row can float it and let the question wrap under it. */
+  .ad__chip { order: 1; flex: none; min-width: 32px; padding: 1px 6px; border: 1px solid var(--now); color: var(--now); font-family: var(--mono); font-size: var(--t-data-s); line-height: 1.5; text-align: center; }
   .ad__chip--yes { background: var(--now); color: var(--paper); }
   .ad__rule { display: flex; gap: 6px; align-items: center; margin-top: 4px; color: var(--ink-3); }
   .ad__tally { display: flex; gap: 2px; }
@@ -448,22 +450,27 @@ const scores = [1, 2, 3, 4, 5, 6, 7, 8];
     :global(.fig.is-in) .xl__typed { animation: none; }
   }
   /* Inspire takes the room it is given. With a little (the Journey's column beside an Entry's text) a strip of
-     the spot's frames runs above the codebook and the table; with plenty the three panels go across. A phone
-     keeps the stack, whatever its figure's width. */
+     the spot's frames runs above the codebook and the table, side by side; with plenty the three panels go
+     across. A phone keeps the stack, whatever its figure's width. */
   @media (min-width: 601px) {
-    @container (min-width: 400px) {
-      .ad { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); }
+    @container (min-width: 320px) and (max-width: 639px) {
+      .ad { grid-template-columns: minmax(0, 1.15fr) minmax(9.5rem, 1fr); }
       .ad__spot { grid-column: 1 / -1; }
       .ad__table::before { left: calc(var(--ad-gap) / -2 - 4px); top: 34px; rotate: none; }
-      .fig--compact .ad { padding: 22px 18px; }
+      /* The table keeps the width its thirteen columns need and the codebook gets the rest. Its chips float, so
+         a long question wraps under one and stays on two lines. */
+      .fig--compact .ad { --ad-gap: 14px; --cgap: 2px; padding: 18px 14px; }
+      .fig--compact .ad__frames { max-width: 22rem; }
+      .fig--compact .ad__row { display: flow-root; padding: 5px 6px; }
+      /* No taller than a line of the question, so its second line runs the row's full width. */
+      .fig--compact .ad__chip { float: right; min-width: 0; margin-left: 6px; padding: 0 4px; line-height: 1.25; }
     }
   }
   @container (min-width: 640px) {
     .ad { --ad-gap: clamp(22px, 3vw, 34px); grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.3fr) minmax(0, 1.3fr); }
-    .ad__spot { grid-column: auto; }
-    .ad__book::before { left: calc(var(--ad-gap) / -2 - 4px); top: 34px; rotate: none; }
-    .ad__table::before { left: calc(var(--ad-gap) / -2 - 4px); }
+    .ad__book::before, .ad__table::before { left: calc(var(--ad-gap) / -2 - 4px); top: 34px; rotate: none; }
     .ad__frames { grid-template-columns: 1fr 1fr; }
     .ad__frame { aspect-ratio: 4 / 3; }
+    .fig--compact .ad { padding: 22px 18px; }
   }
 </style>
