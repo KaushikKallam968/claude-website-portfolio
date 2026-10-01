@@ -5,7 +5,7 @@ import FigureScene from '../../components/FigureScene.astro';
 import NotesPanel from '../../components/NotesPanel.astro';
 import Arrow from '../../components/Arrow.astro';
 import { entryFor } from '../../data/journey';
-import { keepDots, sentence } from '../../lib/format';
+import { keepDots, nobrCompounds, sentence } from '../../lib/format';
 
 export async function getStaticPaths() {
   const cases = await getCollection('cases');
@@ -34,14 +34,14 @@ const last = at + 1 === ordered.length;
             <span>Case {d.order} of {ordered.length}</span>
             {d.draft && <span class="draft-marker" title="Draft copy awaiting Kaushik’s confirmation">Draft</span>}
           </p>
-          <p class="case__question">{d.question}</p>
+          <p class="case__question"><Fragment set:html={nobrCompounds(d.question)} /></p>
         </header>
 
         <dl class="tldr" aria-label="Summary">
           <div><dt>Contribution</dt><dd>{d.contribution}</dd></div>
           {d.team && <div><dt>Team</dt><dd>{d.team}</dd></div>}
           <div><dt>Timeline</dt><dd>{d.timeline}</dd></div>
-          <div><dt>Methods</dt><dd><ul>{d.methods.map((m) => <li>{m}</li>)}</ul></dd></div>
+          {d.methods && <div><dt>Methods</dt><dd><ul>{d.methods.map((m) => <li>{m}</li>)}</ul></dd></div>}
           <div class="tldr__outcome"><dt>Outcome <span class="tldr__type">{d.outcomeType}</span></dt><dd>{d.outcome}</dd></div>
         </dl>
 

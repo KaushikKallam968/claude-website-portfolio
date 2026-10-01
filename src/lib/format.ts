@@ -18,5 +18,17 @@ export function formatElapsed(ms: number): string {
 /** Glue each " · " separator to the words before it, so a wrapped line never starts with a dot. */
 export const keepDots = (s: string) => s.replace(/ · /g, ' · ');
 
+const entities: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+
+/**
+ * Escapes the text for HTML and wraps each hyphenated compound in a span that cannot break (.nobr), so "front-end"
+ * never ends a line on its hyphen. Render it with set:html, for short display text only: a long compound that
+ * cannot break is a long unbreakable word. It adds no character, so the text layer of a printed page stays as written.
+ */
+export function nobrCompounds(s: string): string {
+  const escaped = s.replace(/[&<>"']/g, (c) => entities[c]);
+  return escaped.replace(/\p{L}+(?:-\p{L}+)+/gu, '<span class="nobr">$&</span>');
+}
+
 /** Ends a sentence with a full stop, unless the name that ends it already carries one ("watched."). */
 export const sentence = (s: string) => (/[.!?]$/.test(s) ? s : `${s}.`);

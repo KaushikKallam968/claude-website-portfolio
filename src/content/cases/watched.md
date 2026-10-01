@@ -6,10 +6,6 @@ question: How can people express what they really think of a film or show, witho
 contribution: Cofounder. My contributions span research, product and interaction design, and front-end work.
 team: Two longtime friends as technical cofounders, responsible for substantial backend and recommendation-system work
 timeline: 2025 to 2026
-methods:
-  - Research
-  - Product and interaction design
-  - Front-end development
 outcome: A movie and TV tracking and discovery app that launched on the App Store. Its latest release describes a pause, with tracking and social features offline and users’ data preserved.
 outcomeType: Launched, now paused
 status: Launched project · currently paused

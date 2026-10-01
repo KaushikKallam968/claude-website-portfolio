@@ -2,7 +2,7 @@
 import type { Chapter, Entry } from '../data/journey';
 import CaseFigure from './CaseFigure.astro';
 import Arrow from './Arrow.astro';
-import { keepDots } from '../lib/format';
+import { keepDots, nobrCompounds } from '../lib/format';
 
 interface Props {
   entry: Entry;
@@ -28,10 +28,10 @@ const href = `/work/${entry.id}/`;
           data-observe-label={entry.title}
           data-observe-cannot="Whether it was the title or the problem that caught your eye."
         >
-          <span class="entry__text">{entry.title}</span>
+          <span class="entry__text"><Fragment set:html={nobrCompounds(entry.title)} /></span>
         </a>
       ) : (
-        <span id={`entry-${entry.id}`} tabindex="-1">{entry.title}</span>
+        <span id={`entry-${entry.id}`} tabindex="-1"><Fragment set:html={nobrCompounds(entry.title)} /></span>
       )}
     </h3>
     <p class="entry__context">
@@ -39,7 +39,7 @@ const href = `/work/${entry.id}/`;
       {entry.draft && <span class="draft-marker" title="Draft copy awaiting Kaushik’s confirmation">Draft</span>}
     </p>
     <div class="entry__preview">
-      {entry.preview.map((p) => <p>{p}</p>)}
+      {entry.preview.map((p) => <p><Fragment set:html={nobrCompounds(p)} /></p>)}
     </div>
     {entry.more && (
       <div class="entry__more" id={`more-${entry.id}`} data-more>
