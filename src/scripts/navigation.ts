@@ -283,33 +283,38 @@ export function wireLivePause() {
 export const livePaused = () => document.documentElement.classList.contains('live-paused');
 
 /**
- * The top bar's place and clock follow the Chapter being read, so scrolling back up always shows where in
- * the journey you are. Outside the Chapters it is New York, where Kaushik is now.
+ * The top bar's place and clock follow the scene being read, so scrolling back up always shows where in the journey
+ * you are: a Chapter's place, and inside a Time Shift the place it is flying to. Before the first Chapter and after
+ * the last it is New York, where Kaushik is now.
  */
 export function wireTopWhere() {
   const where = document.querySelector<HTMLElement>('[data-top-where]');
-  const sections = document.querySelectorAll<HTMLElement>('[data-chapter-section][data-tz]');
-  if (!where || !sections.length) return;
+  const scenes = [...document.querySelectorAll<HTMLElement>('[data-chapter-section][data-tz], [data-shift]')];
+  if (!where || !scenes.length) return;
   const place = where.querySelector<HTMLElement>('[data-top-place]')!;
   const clock = where.querySelector<HTMLElement>('[data-clock]')!;
   const home = { name: place.textContent ?? '', tz: clock.dataset.clock! };
-  const inView = new Set<HTMLElement>();
   const show = (name: string, tz: string) => {
     if (clock.dataset.clock === tz && place.textContent === name) return;
     place.textContent = name;
     clock.dataset.clock = tz;
     clock.textContent = clockFormat(tz).format(new Date());
   };
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((en) => (en.isIntersecting ? inView.add(en.target as HTMLElement) : inView.delete(en.target as HTMLElement)));
-      const current = [...inView][0];
-      if (current) show(current.dataset.place!, current.dataset.tz!);
-      else show(home.name, home.tz);
-    },
-    { rootMargin: READING_LINE },
-  );
-  sections.forEach((s) => io.observe(s));
+  // The scene the reading line has reached last is the one being read, so the space between a Chapter and the Time
+  // Shift after it still belongs to the Chapter. The observer says when the line crosses a scene's edge.
+  const last = scenes[scenes.length - 1];
+  const read = (line: number) => {
+    const reached = scenes.filter((s) => s.getBoundingClientRect().top <= line).pop();
+    if (!reached || (reached === last && last.getBoundingClientRect().bottom < line)) {
+      show(home.name, home.tz);
+      return;
+    }
+    // A Chapter names its own place, a Time Shift the place it flies to.
+    const { place: name, tz, to, toTz } = reached.dataset;
+    show(name ?? to!, tz ?? toTz!);
+  };
+  const io = new IntersectionObserver((entries) => read(entries[0].rootBounds!.bottom), { rootMargin: READING_LINE });
+  scenes.forEach((s) => io.observe(s));
   // At the close, the top bar marks Contact as where you are rather than the Journey.
   const contact = document.getElementById('contact');
   if (contact) {
