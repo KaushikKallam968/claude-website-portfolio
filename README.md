@@ -74,7 +74,7 @@ These describe the site as shipped. Keep them current with any change.
 
 ## Editing content
 
-- **A Case:** edit its Markdown in `src/content/cases/`. `order` sets its place in Selected work, in "Case N of 5" and in Next case; it follows the Journey's order. Its figure is a `kind` in `src/components/CaseFigure.astro`, and its scroll steps are in `src/components/FigureScene.astro`.
+- **A Case:** edit its Markdown in `src/content/cases/`. `order` sets its place in Selected work, in "Case N of 5" and in Next case; it follows the Journey's order. Its figure is a `kind` in `src/components/CaseFigure.astro`, and its scroll steps are in `src/components/FigureScene.astro`. After changing its title, context or question, run `npm run og` and commit the redrawn share card in `public/og/` (it needs a Chromium; see `docs/publishing.md`).
 - **The Journey:** edit `src/data/journey.ts`. A Chapter's roles appear newest first, like the Journey itself. An Entry of kind `case` links to a Case, while `summary` and `research-in-development` expand in place.
 - **The résumé** is built from the Journey's Roles, plus a few lines in `src/pages/resume/index.astro`.
 

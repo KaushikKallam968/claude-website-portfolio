@@ -16,7 +16,7 @@ Cloudflare Pages is an equally good choice if you'd rather keep DNS and hosting 
 2. **Buy a domain** such as your name, then set it as the `SITE_URL` environment variable in Vercel (for example `https://yourdomain.com`). The build uses it for the canonical link, `og:url`, the social-image link, `robots.txt` and `sitemap.xml`. When it is not set, the build falls back to the current address in `astro.config.mjs`, so those tags and files are always written.
 3. **Create the Vercel project** from `KaushikKallam968/claude-website-portfolio` (the repository's current name). Framework preset: Astro. Build command `npm run build`, output `dist`.
 4. **Keep preview protection on** (Vercel Authentication for previews), and build production from `master`.
-5. **Keep the social preview image current.** The Open Graph card is `public/og.png` (1200 by 630), already linked from every page. If you redraw it, change its alt text in `src/layouts/Base.astro` to match.
+5. **Keep the social preview image current.** The Open Graph card is `public/og.png` (1200 by 630), already linked from every page except the Cases, which have their own (see Search). If you redraw it, change its alt text in `src/layouts/Base.astro` to match.
 6. **Don't add analytics that contradict the site.** The notes margin says nothing leaves the visitor's browser. If you want traffic numbers, use a privacy-first, cookieless counter and update that sentence to say exactly what is counted.
 
 ## Current deployment
@@ -42,7 +42,8 @@ Deployed publicly on September 30, 2026, at the owner's request, with the copy c
   - Each Case: Article, BreadcrumbList.
   - Résumé: WebPage, BreadcrumbList.
   - 404: none.
-- **Link previews.** The Home page is an `og:type` of profile and each Case an article, with the author named; the card image is `public/og.png`.
+- **Link previews.** The Home page is an `og:type` of profile and each Case an article, with the author named; the card image is `public/og.png`, or a Case's own card (next bullet).
+- **Case share cards.** Each Case has its own 1200 by 630 card at `public/og/<case id>.png`, drawn in the style of `public/og.png` from the Case's context, title and question by `scripts/build-og.mjs`. It is that page's `og:image` and the Article's `image`, and its alt text (`caseCardAlt` in `src/lib/seo.ts`) says in words what the card shows. After changing a Case's title, context or question, run `npm run og` and commit the PNGs. It needs a Chromium (`CHROME_PATH`, default `/opt/pw-browsers/chromium`; `playwright-core` downloads none) and refuses to draw a card whose text would overflow. A Case with no card fails `npm run build`.
 - **`/favicon.ico`** (16, 32 and 48 px, drawn from `favicon.svg`), which browsers and crawlers ask for whatever the page says.
 - **`/llms.txt`**, a plain-text guide for AI search engines. It lists the Cases from the collection, so a new Case appears without an edit.
 - **IndexNow** (Bing and others share it). `public/fefa50f43588b16143b7a231f06ad4c6.txt` holds the key; it is public by design, since the engines fetch it to check the sender owns the site. After a deploy that adds or changes pages, run `npm run indexnow`: it reads the live `sitemap.xml` and submits its addresses. The domain has to resolve first (open https://www.kkportfolio.xyz/ and check), because the script reads the live sitemap and the engines read the key from it.
