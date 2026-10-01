@@ -235,12 +235,12 @@ export const chapters: Chapter[] = [
     id: 'atlanta',
     title: 'Atlanta',
     label: 'Atlanta',
-    work: 'Consumer insights, Inspire Brands',
+    work: 'Ad creative · survey quality',
     place: { name: 'Atlanta, Georgia', lat: 33.749, lon: -84.388, timeZone: 'America/New_York' },
     period: 'Summer 2023',
     intro: [
       'During my master’s degree, I spent a summer in Atlanta with Inspire Brands. I worked with survey data and advertising analysis to understand consumer responses, bringing quantitative research into a different product context.',
-      'The work included checking survey response quality and running a regression analysis of what drives advertising scores.',
+      'The work included checking survey response quality and running a regression analysis of advertising attributes.',
     ],
     roles: [
       {
@@ -262,7 +262,7 @@ export const chapters: Chapter[] = [
         kind: 'case',
         context: 'Inspire Brands · Quantitative advertising research',
         preview: [
-          'Which creative attributes of quick-service restaurant TV ads drive their ACE Metrix scores?',
+          'Which creative attributes of quick-service restaurant TV ads go with higher ACE Metrix scores?',
           'I coded 548 ads on 21 yes-or-no attributes and modeled each score against them in R.',
         ],
         contribution: 'I defined the attributes with the head of Demand Gen Analytics, coded all 548 ads, ran every regression in R and presented the readout.',

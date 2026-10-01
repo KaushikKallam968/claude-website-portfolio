@@ -2,7 +2,7 @@ import { createObservation, type Note, type RawEvent } from '../lib/observe';
 import { formatElapsed } from '../lib/format';
 import { KEYS, session } from '../lib/store';
 import { createHoverIntent } from '../lib/hover';
-import { clockPlace } from '../lib/zone';
+import { clockKept } from '../lib/zone';
 
 /**
  * Wires the observation layer to the page. Events are kept in sessionStorage only and replayed on each
@@ -317,14 +317,14 @@ export function startNotes() {
   // note, so it is still there on the pages that follow.
   if (!savedEvents.length) record({ type: 'arrive', t: elapsed(), page: location.pathname, pageName: pageName() });
   // Once the reader does anything, the one thing the device says about where they are: its clock. Said at arrival it
-  // would stand over "You arrived", the visit's first note. The note names a place, never the zone, and like every
+  // would stand over "You arrived", the visit's first note. The note names a time, never the zone, and like every
   // note it stays here. Later pages replay it rather than say it again.
-  const place = clockPlace(Intl.DateTimeFormat().resolvedOptions().timeZone);
-  if (place) {
+  const kept = clockKept(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  if (kept) {
     const stop = new AbortController();
     const say = () => {
       stop.abort();
-      record({ type: 'clock', t: elapsed(), place });
+      record({ type: 'clock', t: elapsed(), kept });
     };
     for (const type of ACTIVITY) addEventListener(type, say, { passive: true, signal: stop.signal });
   }

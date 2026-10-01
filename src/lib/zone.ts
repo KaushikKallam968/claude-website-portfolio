@@ -30,13 +30,14 @@ const RENAMED: Record<string, string> = {
 };
 
 /**
- * The place a device keeps time for: a Journey place when it keeps that place's clock, otherwise the zone's city.
- * UTC, a fixed offset and a device that will not say have no place to name.
+ * What a device's clock keeps, for the one note about it. A zone is wider than any place (Chicago and Minneapolis keep
+ * Texas's time without being in Texas), so a Journey place is named as the time to match, never as where the reader
+ * is; otherwise the zone's city. UTC, a fixed offset and a device that will not say have nothing to name.
  */
-export function clockPlace(timeZone: string | undefined): string | null {
+export function clockKept(timeZone: string | undefined): string | null {
   if (!timeZone) return null;
   const id = RENAMED[timeZone] ?? timeZone;
-  if (PLACE_CLOCKS[id]) return PLACE_CLOCKS[id];
+  if (PLACE_CLOCKS[id]) return `the same time as ${PLACE_CLOCKS[id]}`;
   if (!id.includes('/') || id.startsWith('Etc/')) return null;
-  return id.slice(id.lastIndexOf('/') + 1).replace(/_/g, ' ');
+  return `${id.slice(id.lastIndexOf('/') + 1).replace(/_/g, ' ')} time`;
 }
