@@ -1,18 +1,16 @@
 import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
 import { CustomEase } from 'gsap/CustomEase';
 import Lenis from 'lenis';
-import { startTimeShifts } from './timeshift';
-import { startField, type FieldHandle } from './field';
+import type { FieldHandle } from './field';
 import { record, elapsed } from './notes';
 import { livePaused, setScroller } from './navigation';
+import { yieldToMain } from './yield';
 
 /**
  * One motion grammar for the whole site: position, opacity and clip only.
  * "out" is the entrance curve, "scene" the in-out used when something changes place.
  */
-gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase);
+gsap.registerPlugin(CustomEase);
 CustomEase.create('out', 'M0,0 C0.16,1 0.3,1 1,1');
 CustomEase.create('scene', 'M0,0 C0.86,0 0.07,1 1,1');
 
@@ -30,17 +28,34 @@ function reveal() {
 function smoothScroll() {
   lenis = new Lenis({ duration: 1.15, easing: (t) => 1 - Math.pow(1 - t, 4), anchors: { offset: -64 }, autoRaf: false });
   setScroller(lenis);
-  lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((time) => lenis?.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
 }
+
+/**
+ * What only the home page's Journey needs: its scroll scenes, the word splits and the Time Shifts. Every other
+ * page skips this code. The Field loads on its own, and only where it is drawn.
+ */
+async function loadJourney() {
+  const [{ ScrollTrigger }, { SplitText }, { startTimeShifts }] = await Promise.all([import('gsap/ScrollTrigger'), import('gsap/SplitText'), import('./timeshift')]);
+  gsap.registerPlugin(ScrollTrigger, SplitText);
+  lenis?.on('scroll', ScrollTrigger.update);
+  return { ScrollTrigger, SplitText, startTimeShifts };
+}
+type Journey = Awaited<ReturnType<typeof loadJourney>>;
+
+/** The Field's dots. No world is an answer too: the page then stays plain. */
+const loadWorld = () =>
+  fetch('/data/world-dots.bin')
+    .then((r) => (r.ok ? r.arrayBuffer() : null))
+    .catch(() => null);
 
 /**
  * Content that opens in place (a Summary, Research in Development) moves everything below it, so the
  * scroll scenes measure again once the page has settled at its new height. The Field listens for the same
  * refresh and re-measures its bands.
  */
-function remeasureOnGrowth() {
+function remeasureOnGrowth({ ScrollTrigger }: Journey) {
   let settled = document.body.scrollHeight;
   let timer = 0;
   ScrollTrigger.addEventListener('refresh', () => (settled = document.body.scrollHeight));
@@ -51,7 +66,7 @@ function remeasureOnGrowth() {
   }).observe(document.body);
 }
 
-function intro(field: FieldHandle | null) {
+function intro(field: FieldHandle | null, { SplitText }: Journey) {
   const words = gsap.utils.toArray<HTMLElement>('.hero__word');
   if (!words.length) return;
   const root = document.documentElement;
@@ -129,8 +144,8 @@ function attentionTrace(chars: HTMLElement[]) {
   });
 }
 
-function chapters() {
-  gsap.utils.toArray<HTMLElement>('.chapter').forEach((ch) => {
+async function chapters({ SplitText }: Journey) {
+  for (const ch of gsap.utils.toArray<HTMLElement>('.chapter')) {
     const word = ch.querySelector<HTMLElement>('.chapter__word');
     const head = ch.querySelector('.chapter__head');
     if (word) {
@@ -152,7 +167,9 @@ function chapters() {
     ch.querySelectorAll<HTMLElement>('.entry').forEach((row) => {
       gsap.from(row, { '--line': 0, duration: 1.2, ease: 'scene', scrollTrigger: { trigger: row, start: 'top 88%', once: true } });
     });
-  });
+    // One chapter a turn: the page stays live while the rest are set up.
+    await yieldToMain();
+  }
 
   const close = document.querySelector('.close__title');
   if (close) {
@@ -250,21 +267,42 @@ function figures() {
 export function startMotion() {
   figures();
   if (!reduced()) figureScenes();
+  // The Journey is the home page: no other page loads its code.
+  const onJourney = document.querySelector('.chapter, [data-shift]') !== null;
   if (reduced()) {
-    startTimeShifts(true, livePaused);
+    if (onJourney) import('./timeshift').then(({ startTimeShifts }) => startTimeShifts(true, livePaused)).catch(() => {});
     reveal();
     return;
   }
   smoothScroll();
+  if (!onJourney) return;
+  const root = document.documentElement;
+  const wantsField = root.classList.contains('field');
+  // The code is fetched while the fonts load; the Field's only when this page is going to draw it. Its world is
+  // asked for beside the code, so on a slow line the two arrive together instead of one after the other.
+  const journeyCode = loadJourney().catch(() => null);
+  const fieldCode = wantsField ? import('./field').catch(() => null) : null;
+  const world = wantsField ? loadWorld() : null;
   document.fonts.ready.then(async () => {
-    const wantsField = document.documentElement.classList.contains('field');
-    const field = wantsField ? await startField().catch(() => null) : null;
-    if (!field) document.documentElement.classList.remove('field');
-    startTimeShifts(false, livePaused);
-    intro(field);
-    chapters();
-    ScrollTrigger.refresh();
-    remeasureOnGrowth();
+    const journey = await journeyCode;
+    const fieldModule = await fieldCode;
+    // Without the Journey's code there is nothing to run: the page stays as it is.
+    if (!journey) {
+      root.classList.remove('field');
+      reveal();
+      return;
+    }
+    const field = fieldModule && world ? await fieldModule.startField(world).catch(() => null) : null;
+    if (!field) root.classList.remove('field');
+    // After a slow load the failsafe has already shown the page; an entrance now would only hide it again.
+    if (!root.classList.contains('motion-done')) intro(field, journey);
+    // The rest is set up a turn at a time, so the arrival's frames never wait on all of it.
+    await yieldToMain();
+    journey.startTimeShifts(false, livePaused);
+    await yieldToMain();
+    await chapters(journey);
+    journey.ScrollTrigger.refresh();
+    remeasureOnGrowth(journey);
   });
   // Failsafe: never leave text hidden if something above throws.
   setTimeout(() => reveal(), 5500);

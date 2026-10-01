@@ -5,6 +5,7 @@ import { clockFormat } from '../clock';
 import { livePaused } from '../navigation';
 import { record, elapsed, readout } from '../notes';
 import { dotUnit } from '../../lib/visit';
+import { yieldToMain } from '../yield';
 import { cssColor } from './gl';
 import { sampleName } from './name';
 import { FieldRenderer, type Camera, type FieldFrame } from './renderer';
@@ -41,6 +42,15 @@ interface Window {
 }
 
 const TRAIL = 20;
+/** The ring of the place being read breathes 0.45 times a second, and rests 0.3 of the way through a breath. */
+const PULSE_HZ = 0.45;
+const PULSE_REST = 0.3;
+/**
+ * With only the ring moving, every third tick of a 60Hz screen (50ms) is enough, so a tick that comes a few ms early
+ * still counts. With no scrolling or pointer for 6s the ring rests.
+ */
+const PULSE_FRAME_MS = 42;
+const PULSE_STILL_MS = 6000;
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const smooth = (a: number, b: number, v: number) => {
@@ -54,7 +64,8 @@ export interface FieldHandle {
   textCue: number;
 }
 
-export async function startField(): Promise<FieldHandle | null> {
+/** `worldFile` is the dots file, asked for by the page as the code loads; null when it could not be had. */
+export async function startField(worldFile: Promise<ArrayBuffer | null>): Promise<FieldHandle | null> {
   const root = document.documentElement;
   const heading = document.querySelector<HTMLElement>('.hero__name');
   const placesEl = document.getElementById('field-places');
@@ -65,17 +76,19 @@ export async function startField(): Promise<FieldHandle | null> {
   canvas.className = 'field-canvas';
   canvas.setAttribute('aria-hidden', 'true');
   try {
-    renderer = new FieldRenderer(canvas);
+    renderer = await FieldRenderer.create(canvas);
   } catch {
     return null;
   }
 
   const places: Place[] = JSON.parse(placesEl.textContent ?? '[]');
-  const [bin] = await Promise.all([
-    fetch('/data/world-dots.bin').then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(r.status))),
-    document.fonts.load(`${getComputedStyle(heading).fontWeight} 100px Switzer`),
-  ]).catch(() => [null]);
-  if (!bin) return null;
+  const [bin] = await Promise.all([worldFile, document.fonts.load(`${getComputedStyle(heading).fontWeight} 100px Switzer`)]).catch(() => [null]);
+  // The page gives up on the Field after five seconds (see Base.astro) and shows the plain name. A world that
+  // arrives after that must not bring a canvas back over it.
+  if (!bin || !root.classList.contains('field')) {
+    renderer.dispose();
+    return null;
+  }
 
   document.body.prepend(canvas);
   root.classList.add('field-on');
@@ -180,6 +193,8 @@ export async function startField(): Promise<FieldHandle | null> {
     return { el, x, y, t: placeT.get(p.id)!, id: p.id, w: 0 };
   });
   document.body.prepend(labelLayer);
+  // The world and the labels are made; building the dots is a task of its own.
+  await yieldToMain();
 
   // ---------- Layout ----------
   let vw = innerWidth;
@@ -198,6 +213,9 @@ export async function startField(): Promise<FieldHandle | null> {
   let visitSpacing = 4.4;
   let visitEndY = 0;
   let closeDocTop = Infinity;
+  // Set when something compute() reads has changed: the layout, a scroll, the pointer, the arrival ending. A tick
+  // at rest does not work all of it out again.
+  let dirty = true;
 
   const fitZoom = (xs: number[], ys: number[], fillW: number, fillH: number) => {
     const w = Math.max(...xs) - Math.min(...xs) || 0.01;
@@ -210,9 +228,13 @@ export async function startField(): Promise<FieldHandle | null> {
     return { x, y, z: cityZoom };
   };
 
+  // What the dots were last built for: the name's dots depend on the screen's width and the name's size only.
+  let builtFor = { width: 0, size: 0 };
+  const nameSize = () => parseFloat(getComputedStyle(heading!).fontSize);
+
   function buildDots() {
-    const cs = getComputedStyle(heading!);
-    const size = parseFloat(cs.fontSize);
+    const size = nameSize();
+    builtFor = { width: innerWidth, size };
     const spacing = Math.min(5.2, Math.max(2.3, size / 52));
     const name = sampleName(heading!, spacing);
     renderer.sizes.name = spacing * (narrow ? 1.08 : 0.94);
@@ -227,24 +249,40 @@ export async function startField(): Promise<FieldHandle | null> {
     const nameW = heading!.getBoundingClientRect().width || 1;
     let lastN = -1;
     let lastM = -1;
+    // Written straight into the typed arrays: an array literal per dot made this loop mostly garbage collection.
     for (let i = 0; i < N; i++) {
       const ni = nIdx[Math.floor((i * name.count) / N)];
       const mi = Math.floor((i * world.length) / N);
       const nx = name.points[ni * 2];
-      nameArr.set([nx, name.points[ni * 2 + 1], ni !== lastN ? 1 : 0], i * 3);
-      const w = world[mi];
-      mapArr.set([w.x, w.y, (w.lon * Math.PI) / 180, (w.lat * Math.PI) / 180], i * 4);
       const ny = name.points[ni * 2 + 1];
+      const w = world[mi];
+      const a3 = i * 3;
+      const a4 = i * 4;
+      nameArr[a3] = nx;
+      nameArr[a3 + 1] = ny;
+      nameArr[a3 + 2] = ni !== lastN ? 1 : 0;
+      mapArr[a4] = w.x;
+      mapArr[a4 + 1] = w.y;
+      mapArr[a4 + 2] = (w.lon * Math.PI) / 180;
+      mapArr[a4 + 3] = (w.lat * Math.PI) / 180;
       const band = (Math.sin(ny * 0.045 + nx * 0.004) + 1) / 2; // neighbouring dots share a bend
-      meta.set([clamp01(0.62 * (nx / nameW) + 0.38 * Math.random()), (narrow ? 8 : 14) + Math.random() * (narrow ? 26 : 52), clamp01(band * 0.8 + Math.random() * 0.2), mi !== lastM ? 1 : 0], i * 4);
-      visit.set([nx, name.points[ni * 2 + 1], 0, Math.random()], i * 4);
+      meta[a4] = clamp01(0.62 * (nx / nameW) + 0.38 * Math.random());
+      meta[a4 + 1] = (narrow ? 8 : 14) + Math.random() * (narrow ? 26 : 52);
+      meta[a4 + 2] = clamp01(band * 0.8 + Math.random() * 0.2);
+      meta[a4 + 3] = mi !== lastM ? 1 : 0;
+      visit[a4] = nx;
+      visit[a4 + 1] = ny;
+      visit[a4 + 3] = Math.random();
       lastN = ni;
       lastM = mi;
     }
     renderer.setDots({ name: nameArr, map: mapArr, meta, visit }, N);
     dotTotal = N;
     mapXY = new Float32Array(N * 2);
-    for (let i = 0; i < N; i++) mapXY.set([mapArr[i * 4], mapArr[i * 4 + 1]], i * 2);
+    for (let i = 0; i < N; i++) {
+      mapXY[i * 2] = mapArr[i * 4];
+      mapXY[i * 2 + 1] = mapArr[i * 4 + 1];
+    }
     // Dots that stand for the visit are drawn from those visible on the map, in a shuffled order.
     visitOrder = [];
     for (let i = 0; i < N; i++) if (meta[i * 4 + 3] > 0) visitOrder.push(i);
@@ -255,6 +293,7 @@ export async function startField(): Promise<FieldHandle | null> {
   }
 
   function measure() {
+    dirty = true;
     vw = innerWidth;
     vh = innerHeight;
     const dpr = Math.min(devicePixelRatio || 1, 2);
@@ -367,6 +406,9 @@ export async function startField(): Promise<FieldHandle | null> {
     }
     let k = 0;
     const rows = visitRows.length;
+    // "Everywhere else" steps back next to the chapters' rows; standing alone (a visit straight to Contact) it is
+    // the whole chart and is drawn at full strength.
+    const outsideAlpha = rows > 1 ? 0.45 : 1;
     visitRows.forEach((row, ri) => {
       const n = counts[ri];
       for (let j = 0; j < n && k < visitOrder.length; j++) {
@@ -374,7 +416,11 @@ export async function startField(): Promise<FieldHandle | null> {
         const col = Math.floor(j / cells[ri].lines);
         const line = j % cells[ri].lines;
         const order = (ri + j / Math.max(1, n)) / rows; // row by row, left to right
-        visit.set([row.x + (col + 0.5) * visitSpacing, row.y + (line + 0.5) * visitSpacing * 0.9, row.id === 'outside' ? 0.45 : 1, order], idx * 4);
+        const at = idx * 4;
+        visit[at] = row.x + (col + 0.5) * visitSpacing;
+        visit[at + 1] = row.y + (line + 0.5) * visitSpacing * 0.9;
+        visit[at + 2] = row.id === 'outside' ? outsideAlpha : 1;
+        visit[at + 3] = order;
       }
     });
     renderer.setVisit(visit);
@@ -382,6 +428,7 @@ export async function startField(): Promise<FieldHandle | null> {
   }
 
   buildDots();
+  await yieldToMain();
   measure();
 
   // Set whenever something changes that scroll position alone would not reveal (colours, the portrait).
@@ -408,6 +455,8 @@ export async function startField(): Promise<FieldHandle | null> {
   const updateSun = () => {
     const s = subsolarPoint(new Date());
     sun = [(s.lat * Math.PI) / 180, (s.lon * Math.PI) / 180];
+    // The line between day and night moves a little each minute, even where nothing else does.
+    force = true;
   };
   updateSun();
   setInterval(updateSun, 60000);
@@ -465,7 +514,13 @@ export async function startField(): Promise<FieldHandle | null> {
   // On a phone the name sits above the identity text rather than beside it, so the world gives way to it
   // sooner: the empty space where the name will be never waits long.
   const q = narrow ? 0.65 : 1;
-  const tl = gsap.timeline({ paused: true, onComplete: () => (intro.running = false) });
+  const tl = gsap.timeline({
+    paused: true,
+    onComplete: () => {
+      intro.running = false;
+      dirty = true;
+    },
+  });
   tl.to(intro, { mapIn: 1, duration: 1.1 * q, ease: 'out' }, 0)
     .to(intro, { push: 1, duration: 3.4 * q, ease: 'out' }, 0)
     .to(intro, { route: 1, duration: 1.7 * q, ease: 'scene' }, 0.3 * q)
@@ -487,7 +542,7 @@ export async function startField(): Promise<FieldHandle | null> {
   const frame: FieldFrame = {
     stage: 0, mapIn: 1, mapVis: 0, nameVis: 1, visitVis: 0,
     cam: { ...worldCam }, route: 1, routeVis: 0, leg: [0, 0, 0], traveller: [0, 0], active: -1,
-    nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, clip: [-1e5, 1e5], quiet: new Float32Array(24),
+    nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, pulse: PULSE_REST, clip: [-1e5, 1e5], quiet: new Float32Array(24),
   };
   let idle = false;
 
@@ -689,24 +744,48 @@ export async function startField(): Promise<FieldHandle | null> {
   };
 
   // Only draw when something changed: scroll, the arrival, the pointer's warmth, dots in flight, or the
-  // pulsing places of a scene (which rest while live motion is paused).
+  // breathing ring of the place being read (which rests while live motion is paused). The ring alone is drawn
+  // every third tick, and comes to rest after a still spell until the reader scrolls or moves the pointer again.
   let clock = 0;
+  let cycles = PULSE_REST;
   let lastTick = performance.now();
+  let lastDraw = 0;
+  let lastFull = 0;
+  let lastInput = lastTick;
+  let rested = false;
   let lastKey = '';
+  let lastY = -1;
+  let warm = 0;
+  const wake = () => {
+    lastInput = performance.now();
+    rested = false;
+    dirty = true;
+  };
+  addEventListener('scroll', wake, { passive: true });
+  addEventListener('pointermove', wake, { passive: true });
   gsap.ticker.add(() => {
     if (document.hidden || lost) return;
     const now = performance.now();
     const paused = livePaused();
-    if (!paused) clock += (now - lastTick) / 1000;
+    const dt = (now - lastTick) / 1000;
+    if (!paused) clock += dt;
     lastTick = now;
-    compute();
-    const inHero = scrollY < heroBottom || frame.stage < 0.999;
+    // Scrolling is read from the page itself, not from its event: Lenis moves the page in this same frame.
+    const y = scrollY;
+    const changing = dirty || force || intro.running || warm >= 0.002 || y !== lastY;
+    if (changing) {
+      dirty = false;
+      lastY = y;
+      compute();
+    }
+    const inHero = y < heroBottom || frame.stage < 0.999;
     if (!inHero && frame.mapVis < 0.002) {
       if (!idle) {
         renderer.clear();
         labelLayer.style.visibility = 'hidden';
         idle = true;
       }
+      warm = 0;
       return;
     }
     if (idle) {
@@ -714,20 +793,42 @@ export async function startField(): Promise<FieldHandle | null> {
       force = true;
     }
     idle = false;
-    fillTrail(now);
-    let warm = 0;
-    for (let i = 0; i < TRAIL; i++) warm += trail[i * 3 + 2];
+    if (changing) {
+      fillTrail(now);
+      warm = 0;
+      for (let i = 0; i < TRAIL; i++) warm += trail[i * 3 + 2];
+    }
     const inFlight = (frame.stage > 0.001 && frame.stage < 0.999) || (frame.stage > 1.001 && frame.stage < 1.999);
-    const pulsing = frame.routeVis > 0.001 && !paused;
-    const key = `${scrollY}|${frame.stage.toFixed(4)}|${frame.mapIn}|${frame.route}|${frame.mapVis.toFixed(3)}|${vw}x${vh}`;
-    if (!force && !intro.running && warm < 0.002 && !(inFlight && !paused) && !pulsing && key === lastKey) return;
+    const pulsing = frame.routeVis > 0.001 && !paused && !rested;
+    if (pulsing) {
+      const before = cycles;
+      cycles += dt * PULSE_HZ;
+      // After a still spell the ring finishes its breath, rests there and draws that last frame.
+      if (now - lastInput > PULSE_STILL_MS && Math.floor(cycles - PULSE_REST) > Math.floor(before - PULSE_REST)) {
+        cycles = Math.floor(cycles - PULSE_REST) + PULSE_REST;
+        rested = true;
+        force = true;
+      }
+    }
+    // What the key is made of only changes with compute(), so a tick that skipped it has the last key.
+    const key = changing ? `${y}|${frame.stage.toFixed(4)}|${frame.mapIn}|${frame.route}|${frame.mapVis.toFixed(3)}|${vw}x${vh}` : lastKey;
+    const moving = force || intro.running || warm >= 0.002 || (inFlight && !paused) || key !== lastKey;
+    if (!moving && !(pulsing && now - lastDraw >= PULSE_FRAME_MS)) return;
     lastKey = key;
+    lastDraw = now;
     force = false;
     frame.time = clock;
+    frame.pulse = cycles - Math.floor(cycles);
     frame.sun = sun;
-    fillQuiet();
+    // A frame that only breathes the ring changes nothing the quiet zones or the labels depend on, so they are
+    // looked at again once a second, to catch the page changing under a reader who stands still.
+    const full = moving || now - lastFull > 1000;
+    if (full) {
+      lastFull = now;
+      fillQuiet();
+    }
     renderer.draw(frame);
-    placeLabels();
+    if (full) placeLabels();
   });
 
   // The portrait is drawn from the readout's snapshot of the visit, taken as the close comes near, so it holds
@@ -741,8 +842,10 @@ export async function startField(): Promise<FieldHandle | null> {
     resizeTimer = window.setTimeout(() => {
       labels.forEach((l) => (l.w = 0));
       collectQuiet();
+      // A phone's URL bar sliding in and out changes only the height: the dots stay as they are.
+      const reshaped = innerWidth !== builtFor.width || nameSize() !== builtFor.size;
       measure();
-      buildDots();
+      if (reshaped) buildDots();
       updateVisit();
     }, 160);
   });
