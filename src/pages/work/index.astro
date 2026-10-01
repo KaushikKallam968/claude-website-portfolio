@@ -11,7 +11,7 @@ const statusAfterKind = (status: string, kind: string) => {
   const rest = status.slice(kind.length + 3);
   return rest.charAt(0).toUpperCase() + rest.slice(1);
 };
-import { joinMethods, keepCompounds, keepDots } from '../../lib/format';
+import { keepCompounds, keepDots } from '../../lib/format';
 
 const cases = (await getCollection('cases'))
   .sort((a, b) => a.data.order - b.data.order)
@@ -52,7 +52,7 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
               </p>
               <dl class="row__facts">
                 <div><dt>Contribution</dt><dd>{keepCompounds(c.journey.entry.contribution)}</dd></div>
-                {c.data.methods && <div><dt>Methods</dt><dd>{keepCompounds(joinMethods(c.data.methods))}</dd></div>}
+                {c.data.methods && <div><dt>Methods</dt><dd>{keepCompounds(c.data.methods.join('; '))}</dd></div>}
                 <div><dt>Status</dt><dd>{keepCompounds(keepDots(c.data.status))}</dd></div>
               </dl>
               <span class="row__arrow" aria-hidden="true"><Arrow /></span>

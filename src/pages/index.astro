@@ -253,6 +253,16 @@ const fieldPlaces = chapters.map((c) => ({
     .hero__more { grid-column: 1 / -1; }
     .route__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
+  /* Short phones: the paragraph runs to six or seven lines, so the gaps tighten as on short laptops and the three
+     actions and the first place stay on the first screen. The 22px row gap between wrapped actions stays: the 44px
+     hit areas need it. */
+  @media (max-width: 600px) and (max-height: 820px) {
+    .hero__id { padding-top: 14px; }
+    .hero__grid { margin-top: 14px; }
+    .hero__more { gap: 8px; }
+    .route { margin-top: 14px; }
+    .route__item { padding-block: 8px 10px; }
+  }
 
   /* ---------- Close ---------- */
   /* Arriving by the Contact link skips the section's opening space, so the email is on the first screen. */

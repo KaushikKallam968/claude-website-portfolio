@@ -41,7 +41,7 @@ const last = at + 1 === ordered.length;
           <div><dt>Contribution</dt><dd>{keepCompounds(d.contribution)}</dd></div>
           {d.team && <div><dt>Team</dt><dd>{keepCompounds(d.team)}</dd></div>}
           <div><dt>Timeline</dt><dd>{keepCompounds(d.timeline)}</dd></div>
-          {d.methods && <div><dt>Methods</dt><dd><ul>{d.methods.map((m) => <li>{keepCompounds(m)}</li>)}</ul></dd></div>}
+          {d.methods && <div class="tldr__methods"><dt>Methods</dt><dd><ul>{d.methods.map((m) => <li>{keepCompounds(m)}</li>)}</ul></dd></div>}
           <div class="tldr__outcome"><dt>Outcome <span class="tldr__type">{d.outcomeType}</span></dt><dd>{keepCompounds(d.outcome)}</dd></div>
         </dl>
 
@@ -162,6 +162,8 @@ const last = at + 1 === ordered.length;
   .tldr dd { margin: 0; font-size: var(--t-meta); }
   .tldr ul { display: grid; gap: 4px; }
   .tldr .tldr__outcome { flex-basis: 100%; }
+  /* Methods are the longest fact, so they take a little more of the row; a compound word that cannot break then leaves the summary no taller. */
+  .tldr .tldr__methods { flex-grow: 1.6; }
   .tldr__outcome dd { font-size: var(--t-body); max-width: 70ch; }
   .tldr__type { color: var(--ink); font-weight: 520; margin-left: 6px; }
   .tldr__type::before { content: '·'; color: var(--ink-3); margin-right: 6px; font-weight: 400; }
