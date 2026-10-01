@@ -92,7 +92,8 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
   .work { padding-top: 64px; padding-bottom: clamp(80px, 10vw, 160px); }
   .work__layout { --rail: clamp(250px, 22vw, 340px); display: grid; grid-template-columns: minmax(0, 1fr) var(--rail); gap: var(--gutter); padding-inline: var(--margin); }
   .work__main { container-type: inline-size; }
-  .work__rail-sticky { position: sticky; top: 88px; margin-top: clamp(40px, 8vw, 120px); }
+  /* The notes' top rule meets the title's cap line. */
+  .work__rail-sticky { position: sticky; top: 88px; margin-top: clamp(40px, 5vw, 81px); }
   /* A tighter head, so two Case titles share the first screen on a laptop. */
   .work__head { padding-top: clamp(32px, 4.4vw, 72px); max-width: 1000px; }
   .work__title { font-size: clamp(2.8rem, 8cqi, 6rem); line-height: 0.92; letter-spacing: -0.04em; font-weight: 530; }
