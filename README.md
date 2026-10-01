@@ -2,7 +2,7 @@
 
 The portfolio of Kaushik Kallam, Senior Quantitative UX Researcher at JPMorganChase in New York.
 
-**Live:** https://website-nu-five-41.vercel.app (a temporary address until a custom domain is set; see [Deployment](#deployment)).
+**Live:** https://www.kkportfolio.xyz
 
 The site is built around two ideas that come from the work itself:
 
@@ -104,7 +104,7 @@ The site is a Vercel project linked to this repository. The build is pinned in [
 
 - **Production** is built from `master`: a push to `master` deploys the live site.
 - **Previews:** every other branch gets a preview deployment, which is behind Vercel login.
-- **Site address:** `SITE_URL` sets the canonical address, used for canonical links, social previews, `robots.txt` and `sitemap.xml`. Until a custom domain is chosen, it falls back to the current address in `astro.config.mjs`.
+- **Site address:** `www.kkportfolio.xyz` is the primary domain (the bare `kkportfolio.xyz` redirects to it). It is the canonical address in `astro.config.mjs`, used for canonical links, social previews, `robots.txt` and `sitemap.xml`; a `SITE_URL` environment variable overrides it.
 
 See [`docs/publishing.md`](docs/publishing.md) for details and open owner items.
 
