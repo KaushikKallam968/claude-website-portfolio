@@ -102,7 +102,7 @@ Pages, motion and layout are checked in a browser. The design critiques in `.imp
 
 The site is a Vercel project linked to this repository. The build is pinned in [`vercel.json`](vercel.json): framework Astro, `npm ci`, `npm run build`, output `dist`.
 
-- **Production** is built from `master`: a push to `master` deploys the live site.
+- **Production** is built from `master`. Once the project's production branch is set to `master` (an open owner item in `docs/publishing.md`), a push to `master` deploys the live site; until then the production build is started by hand from the same commit.
 - **Previews:** every other branch gets a preview deployment, which is behind Vercel login.
 - **Site address:** `www.kkportfolio.xyz` is the primary domain (the bare `kkportfolio.xyz` redirects to it). It is the canonical address in `astro.config.mjs`, used for canonical links, social previews, `robots.txt` and `sitemap.xml`; a `SITE_URL` environment variable overrides it.
 
