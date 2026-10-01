@@ -52,7 +52,7 @@
   --t-h3: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
   /* Display steps */
   --t-page: clamp(2.6rem, 6.4vw, 6rem);            /* close title, résumé name, 404 */
-  --t-page-long: clamp(2.4rem, 6cqi, 4.5rem);      /* Case titles over 25 characters */
+  --t-page-long: clamp(2.2rem, 6cqi, 4.5rem);      /* Case titles over 25 characters */
   --t-row: clamp(2rem, 6cqi, 5rem);                /* Work rows, the Case Return link */
   --t-readout: clamp(1.25rem, 0.8rem + 1vw, 1.9rem); /* visit readout row names */
   --t-email: clamp(1.4rem, 0.9rem + 1.1vw, 2.1rem);  /* the closing email address */
