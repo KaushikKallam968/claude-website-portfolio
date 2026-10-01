@@ -116,6 +116,12 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
   }
   world.sort((a, b) => a.x - b.x);
   const mapWidth = equalEarth(150 + 179.99, 0)[0] * 2;
+  // The land's own extent, for fitting all of it on a phone's screen (the map is sorted by x).
+  const worldBox = { x0: world[0].x, x1: world[world.length - 1].x, y0: Infinity, y1: -Infinity };
+  for (const d of world) {
+    worldBox.y0 = Math.min(worldBox.y0, d.y);
+    worldBox.y1 = Math.max(worldBox.y1, d.y);
+  }
 
   // ---------- The route: chronological, so the page travels it backwards ----------
   const chrono = [...places].reverse();
@@ -206,6 +212,8 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
   let stageEnd = 1;
   let windows: Window[] = [];
   let worldCam: Camera = { x: 0, y: 0, z: 1 };
+  // Where the arrival's camera rests (see placeArrival); worked out when the arrival first needs it after a measure.
+  let arrivalCam: Camera | null = null;
   let cityZoom = 4;
   let dotTotal = 0;
   let visitOrder: number[] = [];
@@ -316,6 +324,7 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
       y: (Math.min(...ys) + Math.max(...ys)) / 2 + 0.05,
       z: wz,
     };
+    arrivalCam = null;
 
     const sectionTop = (id: string) => document.getElementById(id)!.getBoundingClientRect().top + sy;
     const pro = document.querySelector<HTMLElement>('[data-prologue]');
@@ -513,9 +522,10 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
   const intro = { stage: 1, mapIn: 0, route: 0, routeVis: 1, push: 0.92, running: true };
   const skip = Boolean(session.get(KEYS.introSeen, false)) || scrollY > 40 || Boolean(location.hash);
   session.set(KEYS.introSeen, true);
-  // On a phone the name sits above the identity text rather than beside it, so the world gives way to it
-  // sooner: the empty space where the name will be never waits long.
-  const q = narrow ? 0.65 : 1;
+  // On a phone the name sits above the identity text rather than beside it, and the world is drawn small in the
+  // name's own band (see placeArrival): it gives way to the name sooner, but not so soon that the route is not seen
+  // landing and its two ends named.
+  const q = narrow ? 0.7 : 1;
   const tl = gsap.timeline({
     paused: true,
     onComplete: () => {
@@ -525,7 +535,7 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
   });
   tl.to(intro, { mapIn: 1, duration: 1.1 * q, ease: 'out' }, 0)
     .to(intro, { push: 1, duration: 3.4 * q, ease: 'out' }, 0)
-    .to(intro, { route: 1, duration: 1.7 * q, ease: 'scene' }, 0.3 * q)
+    .to(intro, { route: 1, duration: 1.4 * q, ease: 'scene' }, 0.3 * q)
     .to(intro, { routeVis: 0, duration: 0.7 * q, ease: 'out' }, 2.05 * q)
     .to(intro, { stage: 0, duration: 1.55 * q, ease: 'none' }, 1.85 * q);
   if (skip) tl.progress(1);
@@ -539,15 +549,6 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
     };
     addEventListener('scroll', hurry, { passive: true });
   }
-
-  // ---------- The frame ----------
-  const frame: FieldFrame = {
-    stage: 0, mapIn: 1, mapVis: 0, nameVis: 1, visitVis: 0,
-    cam: { ...worldCam }, route: 1, routeVis: 0, leg: [0, 0, 0], traveller: [0, 0], active: -1,
-    nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, pulse: PULSE_REST, clip: [-1e5, 1e5], quiet: new Float32Array(24),
-  };
-  // Nothing is drawn yet, which is what idle means: the first frame that shows the map shows the labels, placed.
-  let idle = true;
 
   // ---------- The pour after a jump ----------
   // Scrolling into the close pours the world into the readout's rows as the reader goes. A jump has scrolled already
@@ -571,6 +572,15 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
       },
     });
   });
+
+  // ---------- The frame ----------
+  const frame: FieldFrame = {
+    stage: 0, mapIn: 1, mapVis: 0, nameVis: 1, visitVis: 0,
+    cam: { ...worldCam }, route: 1, routeVis: 0, leg: [0, 0, 0], traveller: [0, 0], active: -1,
+    nameAt: [0, 0], visitAt: [0, 0], trail, sun, time: 0, pulse: PULSE_REST, clip: [-1e5, 1e5], quiet: new Float32Array(24),
+  };
+  // Nothing is drawn yet, which is what idle means: the first frame that shows the map shows the labels, placed.
+  let idle = true;
 
   // ---------- Quiet zones: text that must stay readable over the map ----------
   const QUIET = 6;
@@ -602,6 +612,45 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
       quietRects.push(r);
     }
   };
+
+  /**
+   * Where the camera rests while the world and the route draw. On a phone the whole world is fitted into the band
+   * above the identity text, where the name forms next: the world camera puts it behind that text, and the band stays
+   * empty paper until the dots gather. Elsewhere it is the world camera moved right, and drawn smaller if it must be,
+   * until Singapore, where the route starts, clears the identity text beside it.
+   */
+  function placeArrival(): Camera {
+    const scale = renderer.scale;
+    const text = quietEls.map(tight).filter((r) => r.width > 0 && r.bottom > 0 && r.top < vh);
+    if (vw <= 600 && text.length) {
+      const top = (document.querySelector('.top')?.getBoundingClientRect().bottom ?? 0) + 8;
+      // A quiet zone starts clearing dots 38px above its words (10px of room and its 28px feather).
+      const bottom = Math.min(...text.map((r) => r.top)) - 38;
+      const side = Math.max(16, vw * 0.04);
+      if (bottom - top > 60) {
+        const w = worldBox.x1 - worldBox.x0;
+        const h = worldBox.y1 - worldBox.y0;
+        const z = Math.min((vw - 2 * side) / (w * scale), (bottom - top) / (h * scale));
+        return { x: (worldBox.x0 + worldBox.x1) / 2, y: (worldBox.y0 + worldBox.y1) / 2 + ((top + bottom) / 2 - vh / 2) / (scale * z), z };
+      }
+    }
+    // Singapore, where the route starts, must clear the text at its own height with room for its label beside it, and
+    // New York, where it ends, must stay on screen. The camera is at its widest as the arrival ends, so that is where
+    // it is fitted: before then the world is smaller and closer to the middle, and clears all the more.
+    const [sx, sy] = placeXY(places.length - 1);
+    const [nx] = placeXY(0);
+    const z0 = worldCam.z;
+    const at = vh / 2 + (worldCam.y - sy) * scale * z0;
+    const beside = text.filter((r) => r.top - 24 < at + 12 && r.bottom + 24 > at - 12);
+    if (!beside.length) return worldCam;
+    const want = Math.max(...beside.map((r) => r.right)) + 38;
+    // New York keeps room beside it for its ring, at the screen's edge.
+    const room = vw - 48 - want;
+    const z = Math.min(z0, room / ((nx - sx) * scale));
+    if (z < z0 * 0.7) return worldCam;
+    const here = vw / 2 + (sx - worldCam.x) * scale * z;
+    return here >= want ? { ...worldCam, z } : { x: sx - (want - vw / 2) / (scale * z), y: worldCam.y, z };
+  }
 
   const compute = () => {
     const y = scrollY;
@@ -660,11 +709,20 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
       const p = clamp01((y - active.start) / (active.end - active.start));
       const k = ease(clamp01((p - 0.18) / 0.82));
       const city = cityCam(0);
-      const z = Math.exp(lerp(Math.log(worldCam.z * intro.push), Math.log(city.z), k));
+      // The camera the Prologue flies from is the world camera. The arrival starts on its own camera and eases into
+      // that one as the dots gather into the name, late enough that the dots still on the map hardly feel it move.
+      let from: Camera = { ...worldCam, z: worldCam.z * intro.push };
+      if (intro.running) {
+        arrivalCam ??= placeArrival();
+        const b = Math.pow(1 - intro.stage, 3);
+        const start = { ...arrivalCam, z: arrivalCam.z * intro.push };
+        from = { x: lerp(start.x, from.x, b), y: lerp(start.y, from.y, b), z: Math.exp(lerp(Math.log(start.z), Math.log(from.z), b)) };
+      }
+      const z = Math.exp(lerp(Math.log(from.z), Math.log(city.z), k));
       const s = renderer.scale * z;
       frame.cam = {
-        x: lerp(worldCam.x, city.x - (narrow ? 0 : vw * 0.14) / s, k),
-        y: lerp(worldCam.y, city.y - (vh * (narrow ? 0.16 : 0.12)) / s, k),
+        x: lerp(from.x, city.x - (narrow ? 0 : vw * 0.14) / s, k),
+        y: lerp(from.y, city.y - (vh * (narrow ? 0.16 : 0.12)) / s, k),
         z,
       };
       frame.routeVis = mapVis * Math.max(intro.running ? intro.routeVis : 0, smooth(0.55, 1, pStage));
@@ -705,7 +763,12 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
   type Box = { x0: number; y0: number; x1: number; y1: number };
   const nameWords = [...document.querySelectorAll<HTMLElement>('.hero__word')];
   const placeLabels = () => {
-    const show = frame.routeVis;
+    // The arrival names only the route's two ends, Singapore and New York, with their live times, and they come in
+    // with the map. The name has not formed where they stand and they are gone before it does, so its words are
+    // not in their way yet.
+    const arriving = intro.running;
+    const isEnd = (t: number) => t < 0.0001 || t > 0.9999;
+    const show = arriving ? frame.routeVis * smooth(0.2, 0.8, intro.mapIn) : frame.routeVis;
     const leg = frame.leg[2] > 0 ? [frame.leg[0], frame.leg[1]] : [];
     // Most important first: the place being read, then the two ends of the current leg, then the rest.
     const rank = (t: number) => (Math.abs(frame.active - t) < 0.0001 ? 0 : leg.some((v) => Math.abs(v - t) < 0.0001) ? 1 : 2);
@@ -725,7 +788,7 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
       const [tx, ty] = toScreen(frame.traveller[0], frame.traveller[1]);
       traveller = { x: tx, y: ty, box: { x0: tx - 14, y0: ty - 14, x1: tx + 14, y1: ty + 14 } };
     }
-    const text: Box[] = [...quietRects, ...nameWords.map((w) => w.getBoundingClientRect())]
+    const text: Box[] = [...quietRects, ...(arriving ? [] : nameWords.map((w) => w.getBoundingClientRect()))]
       .filter((q) => q.bottom > 0 && q.top < vh)
       .map((q) => ({ x0: q.left - 8, y0: q.top - 8, x1: q.right + 8, y1: q.bottom + 8 }));
     const overlaps = (a: Box, b: Box) => !(a.x1 < b.x0 || a.x0 > b.x1 || a.y1 < b.y0 || a.y0 > b.y1);
@@ -744,6 +807,14 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
         { dx: 0, dy: 0, left: true, box: { x0: x - w - 2, y0: y - 8, x1: x - 12, y1: y + 8 } },
         { dx: -14, dy: -18, left: false, box: { x0: x - 2, y0: y - 27, x1: x + w - 12, y1: y - 10 } },
         { dx: -14, dy: 18, left: false, box: { x0: x - 2, y0: y + 10, x1: x + w - 12, y1: y + 27 } },
+        // New York's marker is near the right edge of the world, and a phone's screen has no room beyond it. Above or
+        // below the marker, the label can end at it instead of starting there.
+        ...(arriving
+          ? [
+              { dx: 14, dy: -18, left: true, box: { x0: x - w + 12, y0: y - 27, x1: x + 2, y1: y - 10 } },
+              { dx: 14, dy: 18, left: true, box: { x0: x - w + 12, y0: y + 10, x1: x + 2, y1: y + 27 } },
+            ]
+          : []),
       ].filter((c) => c.box.x0 > 4 && c.box.x1 < vw - 4);
       const atThisPlace = traveller !== null && Math.hypot(traveller.x - x, traveller.y - y) < 30;
       // A spot clear of the traveller is preferred even here; only when it sits on the marker, and every spot
@@ -754,7 +825,10 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
         !markers.some((m) => m.x0 !== own.x0 && overlaps(b, m)) &&
         !(traveller && ofTraveller && overlaps(b, traveller.box));
       // Labels belong to scenes: none while the map is only fading in or out behind reading text.
-      const eligible = !crowded && frame.route >= l.t - 0.0001 && show > 0.45 && y > frame.clip[0] + 30 && y < frame.clip[1] - 30;
+      // The route's head crawls the last stretch to New York; its label comes in a moment before the head lands, which
+      // is the last 2% of the route: a few pixels.
+      const reached = frame.route >= l.t - (arriving ? 0.02 : 0.0001);
+      const eligible = !crowded && (!arriving || isEnd(l.t)) && reached && show > 0.45 && y > frame.clip[0] + 30 && y < frame.clip[1] - 30;
       // A place that could be named claims its spot even when no label fits, so a neighbour never takes its name.
       if (eligible) named.push([x, y]);
       const choice = eligible ? (candidates.find((c) => clear(c.box)) ?? (atThisPlace ? candidates.find((c) => clear(c.box, false)) : undefined)) : undefined;
