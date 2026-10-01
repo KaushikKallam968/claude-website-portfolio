@@ -309,10 +309,10 @@ export function startNotes() {
   // The first note of a visit: arriving is the only thing the page knows for certain. It is kept like any other
   // note, so it is still there on the pages that follow.
   if (!savedEvents.length) record({ type: 'arrive', t: elapsed(), page: location.pathname, pageName: pageName() });
-  // A moment after arriving, the one thing the device says about where the reader is: its clock. The note names a
-  // place, never the zone, and like every note it stays here. Later pages replay it rather than say it again.
+  // Beside it, the one thing the device says about where the reader is: its clock. The note names a place, never
+  // the zone, and like every note it stays here. Later pages replay it rather than say it again.
   const place = clockPlace(Intl.DateTimeFormat().resolvedOptions().timeZone);
-  if (place) setTimeout(() => record({ type: 'clock', t: elapsed(), place }), 2000);
+  if (place) record({ type: 'clock', t: elapsed(), place });
   // A Case reached any way at all (a shared link included) counts as opened, not only one clicked to.
   const caseMain = document.querySelector<HTMLElement>('main[data-case]');
   if (caseMain) record({ type: 'open', t: elapsed(), id: caseMain.dataset.case!, title: caseMain.dataset.pageName ?? caseMain.dataset.case! });
