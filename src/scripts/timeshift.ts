@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { bandFlight, inOut, offsetHours, wallClock } from '../lib/shift';
+import { bandFlight, hoursTurned, offsetHours, travelled, wallClock } from '../lib/shift';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -107,17 +107,14 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
         day.style.opacity = dayShift !== 0 ? '1' : '0';
       };
       // The traveller's progress at a point of the scene, the Field's own mapping: a band is flown over the middle
-      // half of its passage, the ocean crossing over its whole pin, both on the same curve.
-      const traveller = (p: number) => inOut(near ? bandFlight(p) : Math.min(1, Math.max(0, p)));
+      // half of its passage, the ocean crossing over its whole pin, each on its own curve (see shift.ts).
+      const traveller = (p: number) => travelled(near ? bandFlight(p) : Math.min(1, Math.max(0, p)), near);
       // A domestic band's hours count with the flight: from when its clock comes on screen until the traveller lands.
       const scrub = (p: number, animate = true) => {
         last = p;
-        const steps = Math.abs(state.off);
         const along = traveller(p);
-        const f0 = traveller(count0);
         // The hours turn as the traveller covers the distance, the last one as it lands.
-        const k = Math.min(1, Math.max(0, (along - f0) / Math.max(0.05, 1 - f0)));
-        showHour(Math.min(steps, Math.floor(k * steps)), animate);
+        showHour(hoursTurned(along, traveller(count0), Math.abs(state.off)), animate);
         [2, 3].forEach((i) => gsap.set(reels[i], { yPercent: y(state.to[i] + DIGITS_PER_TURN) }));
         // The route line fills with the traveller, not ahead of it.
         line?.style.setProperty('--p', along.toFixed(3));

@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { equalEarth, greatCircle, subsolarPoint, type LonLat } from '../../lib/geo';
-import { bandFlight, inOut as ease } from '../../lib/shift';
+import { bandFlight, inOut as ease, travelled } from '../../lib/shift';
 import { KEYS, session } from '../../lib/store';
 import { clockFormat } from '../clock';
 import { livePaused } from '../navigation';
@@ -649,7 +649,7 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
       const raw = clamp01((y - active.start) / Math.max(1, active.end - active.start));
       // A band flies in the middle of its passage, while it is most on screen.
       const p = active.band ? bandFlight(raw) : raw;
-      const e = ease(p);
+      const e = travelled(p, Boolean(active.band));
       const ta = tOf(active.from);
       const tb = tOf(active.to);
       const [tx, ty] = pointAt(lerp(ta, tb, e));
