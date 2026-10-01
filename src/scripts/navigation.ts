@@ -278,6 +278,16 @@ export function wireAnchorJumps(restored: boolean) {
     const margin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
     return Math.min(smooth!.limit, Math.max(0, target.getBoundingClientRect().top + scrollY - margin + ANCHOR_OFFSET));
   };
+  /**
+   * A route item for a Chapter that follows a Time Shift rests the Chapter's top at the bottom of the chrome as it
+   * will be on arrival, so the scene before it (its clock, its Continue link, the map) is out of sight and the
+   * Chapter's own top padding is the space above its heading. Going down the bar and the ticker step away on the
+   * jump, so that is the top of the screen; going up they are back.
+   */
+  const restChapterAt = (target: HTMLElement) => {
+    const top = target.getBoundingClientRect().top + scrollY;
+    return Math.min(smooth!.limit, Math.max(0, top > scrollY ? top : top - chromeBottom(true)));
+  };
   document.addEventListener('click', (ev) => {
     const a = (ev.target as Element).closest<HTMLAnchorElement>('a[href*="#"]');
     if (!a || ev.defaultPrevented || a.origin !== location.origin || a.pathname !== location.pathname || a.hash.length < 2) return;
@@ -289,8 +299,9 @@ export function wireAnchorJumps(restored: boolean) {
       return;
     }
     const plain = ev.button === 0 && !(ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey);
+    const afterScene = Boolean(a.closest('.route') && target.matches('[data-chapter-section]') && target.previousElementSibling?.matches('[data-shift]'));
     // Where it rests is worked out now, as it is for a flying jump, so a jump lands where the page said it would.
-    const rest = restAt(target);
+    const rest = afterScene ? restChapterAt(target) : restAt(target);
     // A jump asked for while another is fading takes over the fade, so the page is never left half hidden.
     if (plain && !reducedMotion() && (Math.abs(rest - scrollY) > FAR_JUMP * innerHeight || fade?.playState === 'running')) {
       ev.preventDefault();
@@ -306,7 +317,8 @@ export function wireAnchorJumps(restored: boolean) {
       });
       return;
     }
-    smooth.scrollTo(target, { offset: ANCHOR_OFFSET });
+    if (afterScene) smooth.scrollTo(rest);
+    else smooth.scrollTo(target, { offset: ANCHOR_OFFSET });
     focusAt(id);
   });
   // Arriving from another page with a fragment (Contact from a Case) lands focus there too, unless the reader is
@@ -343,7 +355,7 @@ export const setScroller = (lenis: Lenis) => (smooth = lenis);
  * notes ticker (or the open sheet) under it. Read from the layout, not from where the bar is mid-slide. The bar
  * counts even if it is away when `barBack` says it is about to return.
  */
-function chromeBottom(barBack: boolean) {
+export function chromeBottom(barBack: boolean) {
   const root = document.documentElement;
   const away = !barBack && root.classList.contains('nav-hidden');
   const bar = document.querySelector<HTMLElement>('.top');

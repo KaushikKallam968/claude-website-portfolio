@@ -54,7 +54,7 @@ const intro = 'Each case starts with its question and my part in it, then explai
               </p>
               <dl class="row__facts">
                 <div><dt>Contribution</dt><dd>{c.journey.entry.contribution}</dd></div>
-                {c.data.methods && <div><dt>Methods</dt><dd>{c.data.methods.join('; ')}</dd></div>}
+                {c.data.methods && <div><dt>Methods</dt><dd><ul>{c.data.methods.map((m) => <li>{m}</li>)}</ul></dd></div>}
                 <div><dt>Status</dt><dd>{keepDots(c.data.status)}</dd></div>
               </dl>
               <span class="row__arrow" aria-hidden="true"><Arrow /></span>
@@ -150,6 +150,8 @@ const intro = 'Each case starts with its question and my part in it, then explai
   }
   .row__facts dt { font-size: var(--t-small); color: var(--ink-3); }
   .row__facts dd { margin: 2px 0 0; font-size: var(--t-meta); }
+  /* One method to a line, as the Case's summary sets them: joined with semicolons each kept its capital and read as a typo. */
+  .row__facts ul { display: grid; gap: 4px; }
   .row__arrow { grid-column: 2; grid-row: 1; font-size: var(--t-arrow); align-self: start; padding-top: 0.2em; transition: translate 0.8s var(--ease-out); }
   .row:hover .row__text { translate: 12px 0; }
   /* A press shows at once, though a mouse click waits 240ms to open, in case it is the start of a double click. */

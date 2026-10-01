@@ -3,7 +3,7 @@ import { equalEarth, greatCircle, subsolarPoint, type LonLat } from '../../lib/g
 import { bandFlight, inOut as ease, travelled } from '../../lib/shift';
 import { KEYS, session } from '../../lib/store';
 import { clockFormat } from '../clock';
-import { livePaused } from '../navigation';
+import { chromeBottom, livePaused } from '../navigation';
 import { record, elapsed, readout } from '../notes';
 import { dotUnit } from '../../lib/visit';
 import { yieldToMain } from '../yield';
@@ -52,6 +52,12 @@ const PULSE_REST = 0.3;
  */
 const PULSE_FRAME_MS = 42;
 const PULSE_STILL_MS = 6000;
+/**
+ * The map's visibility from which a scene counts as on screen, and the margin of notes gives way to it. A dot's
+ * strength is the visibility itself, so this is where dots first show; any later and an ocean crossing, which draws
+ * across the whole screen, runs its dots behind the margin's paper until it fades.
+ */
+const SCENE_ON = 0.04;
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const smooth = (a: number, b: number, v: number) => {
   const t = clamp01((v - a) / (b - a));
@@ -210,6 +216,8 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
   let nameDoc = { x: 0, y: 0 };
   let heroBottom = 0;
   let stageEnd = 1;
+  // How far down the fixed chrome reaches (see chromeBottom), with the bar in place: what a band slides under.
+  let chrome = 0;
   let windows: Window[] = [];
   let worldCam: Camera = { x: 0, y: 0, z: 1 };
   // Where the arrival's camera rests (see placeArrival); worked out when the arrival first needs it after a measure.
@@ -306,6 +314,8 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
     dirty = true;
     vw = innerWidth;
     vh = innerHeight;
+    // The open sheet is not part of it: the map must not dim because the notes were opened.
+    if (!root.classList.contains('notes-open')) chrome = chromeBottom(true);
     const dpr = Math.min(devicePixelRatio || 1, 2);
     renderer.resize(vw, vh, dpr, mapWidth);
     const sy = scrollY;
@@ -662,20 +672,28 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
     const y = scrollY;
     const pStage = clamp01(y / Math.max(1, stageEnd));
     let mapVis = 0;
+    // What of the map can be seen: the same, but a band that has slid under the top bar counts as gone. The margin of
+    // notes follows this, so a jump that rests a Chapter at the bar's edge leaves it in place.
+    let seen = 0;
     let active: Window = windows[0];
     for (const w of windows) {
       let vis: number;
+      let onScreen: number;
       if (w.band) {
         // A band shows the map while it is on screen; the clip keeps the dots inside it.
-        vis = smooth(vh, vh * 0.8, w.band[0] - y) * smooth(0, vh * 0.2, w.band[1] - y);
+        const entering = smooth(vh, vh * 0.8, w.band[0] - y);
+        vis = entering * smooth(0, vh * 0.2, w.band[1] - y);
+        onScreen = entering * smooth(chrome, chrome + vh * 0.2, w.band[1] - y);
       } else {
         const fadeIn =
           w.kind === 'intro' ? 1 : w.kind === 'visit' ? smooth(closeDocTop - vh, closeDocTop - vh * 0.55, y) : smooth(vh * 0.5, vh * 0.05, w.start - y);
         // Gone by the time the next Chapter's top is three quarters of the way up the screen, so its heading
         // and facts never sit on the map.
         vis = fadeIn * smooth(vh * 0.75, vh * 1.05, w.nextTop - y);
+        onScreen = vis;
       }
       mapVis = Math.max(mapVis, vis);
+      seen = Math.max(seen, onScreen);
       const entered = w.kind === 'visit' ? y >= closeDocTop - vh : w.band ? w.band[0] <= y + vh : w.start <= y + vh * 0.6;
       if (w.kind === 'intro' || entered) active = w;
     }
@@ -763,7 +781,7 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
       frame.traveller = [tx, ty];
       frame.active = p < 0.5 ? ta : tb;
     }
-    root.classList.toggle('in-scene', mapVis > 0.3 && frame.stage > 0.25 && frame.stage < 1.5);
+    root.classList.toggle('in-scene', seen > SCENE_ON && frame.stage > 0.25 && frame.stage < 1.5);
   };
 
   type Box = { x0: number; y0: number; x1: number; y1: number };

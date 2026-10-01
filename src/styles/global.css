@@ -375,7 +375,11 @@ html.lens-on .lens-bar { display: flex; }
   .route__list { --rule-w: 1 !important; }
   .entry { --line: 1 !important; }
   .scene__stage { --p: 1 !important; }
-  html.js :is(.inst__log li, .trace__row li, .deck__table tbody tr > *, .xl__result, .xl__arrow) { opacity: 1 !important; }
+  html.js :is(.inst__log li, .trace__row li, .deck__table tbody tr > *, .xl__result, .xl__arrow) { opacity: 1 !important; translate: none !important; }
+  /* Inspire's parts end at their own faintness (the other ads' cells are fainter than the spot's) and where they
+     stand: the dashed box around the thin attribute is drawn apart from its cells, so they must not sit 8px low. */
+  html.js :is(.ad__frame, .ad__row, .ad__th, .ad__cell, .ad__hide, .ad__note) { opacity: var(--o, 1) !important; translate: none !important; }
+  html.js .ad__col--thin::after { opacity: 1 !important; }
   .xl__typed { animation: none !important; }
   html.scenes .scene__step { color: var(--ink) !important; }
 

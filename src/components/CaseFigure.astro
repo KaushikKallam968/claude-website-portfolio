@@ -475,6 +475,11 @@ const scores = [1, 2, 3, 4, 5, 6, 7, 8];
       /* No taller than a line of the question, so its second line runs the row's full width. */
       .fig--compact .ad__chip { float: right; min-width: 0; margin-left: 4px; padding: 0 4px; line-height: 1.25; }
     }
+    /* Here the table's thirteen columns leave Brand under 26px, and its label would sit against the border. The hatch
+       says it is set aside on its own (the full figure on the Case page keeps the word). */
+    @container (min-width: 312px) and (max-width: 499px) {
+      .fig--compact .ad__hide span { display: none; }
+    }
   }
   @container (min-width: 640px) {
     .ad { --ad-gap: clamp(22px, 3vw, 34px); grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.3fr) minmax(0, 1.3fr); }
