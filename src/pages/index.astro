@@ -89,31 +89,35 @@ const fieldPlaces = chapters.map((c) => ({
             <li><a class="link link--under" href="/work/" data-observe="contact.work" data-observe-label="Selected work" data-observe-cannot="Whether you want to see the evidence again.">Selected work <Arrow /></a></li>
           </ul>
         </div>
-        <div class="readout" data-readout>
-          <p class="readout__total" data-quiet><span class="mono num" data-readout-total>0 s</span> on this site, up to here</p>
-          <p class="readout__empty" data-readout-empty hidden>You haven’t spent a second in any chapter.</p>
-          <ol class="readout__bars" data-readout-bars aria-label="Time spent in each chapter">
-            {chapters.map((c) => (
-              <li data-bar={c.id}>
-                <span class="readout__label">{c.label}</span>
+        <!-- The readout and the note about the site share a column, so the note sits a set space under the readout however
+             tall the hand-off beside them grows. The hand-off is first in the source, so it leads on narrow screens. -->
+        <div class="close__record">
+          <div class="readout" data-readout>
+            <p class="readout__total" data-quiet><span class="mono num" data-readout-total>0 s</span> on this site, up to here</p>
+            <p class="readout__empty" data-readout-empty hidden>You haven’t spent a second in any chapter.</p>
+            <ol class="readout__bars" data-readout-bars aria-label="Time spent in each chapter">
+              {chapters.map((c) => (
+                <li data-bar={c.id}>
+                  <span class="readout__label">{c.label}</span>
+                  <span class="readout__track" aria-hidden="true"><span class="readout__fill"></span></span>
+                  <span class="readout__value mono num">0 s</span>
+                </li>
+              ))}
+              <li data-bar="outside" class="readout__outside">
+                <span class="readout__label">Everywhere else</span>
                 <span class="readout__track" aria-hidden="true"><span class="readout__fill"></span></span>
                 <span class="readout__value mono num">0 s</span>
               </li>
-            ))}
-            <li data-bar="outside" class="readout__outside">
-              <span class="readout__label">Everywhere else</span>
-              <span class="readout__track" aria-hidden="true"><span class="readout__fill"></span></span>
-              <span class="readout__value mono num">0 s</span>
-            </li>
-          </ol>
-          <p class="readout__unit" data-visit-unit hidden data-quiet></p>
-          <p class="readout__cases" data-readout-cases>No cases opened yet.</p>
-          <p class="readout__nojs">With scripts off, this site observed nothing, so there is nothing to chart.</p>
-        </div>
-        <!-- Outside the readout, so it reads with scripts off, where the readout shows only its one line. -->
-        <div class="colophon" data-quiet>
-          <p class="label">About this site</p>
-          <p class="colophon__text">It asks of its visitors the question my instrumentation work asks of products: what can a record show, and what can’t it? The notes and the readout keep to what they can see, say what they can’t tell, and never leave your browser. I directed it and confirmed every claim on it; AI coding tools wrote the code, which is <a class="link link--under colophon__link" href={codeUrl} rel="noopener" data-observe="contact.code" data-observe-label="the site’s code on GitHub" data-observe-cannot="Whether you came to read the code or to check the claims.">public on GitHub <Arrow to="up-right" /></a>.</p>
+            </ol>
+            <p class="readout__unit" data-visit-unit hidden data-quiet></p>
+            <p class="readout__cases" data-readout-cases>No cases opened yet.</p>
+            <p class="readout__nojs">With scripts off, this site observed nothing, so there is nothing to chart.</p>
+          </div>
+          <!-- Outside the readout, so it reads with scripts off, where the readout shows only its one line. -->
+          <div class="colophon" data-quiet>
+            <p class="label">About this site</p>
+            <p class="colophon__text">It asks of its visitors the question my instrumentation work asks of products: what can a record show, and what can’t it? The notes and the readout keep to what they can see and say what they can’t tell. I directed it and confirmed every claim on it; AI coding tools wrote the code, which is <a class="link link--under colophon__link" href={codeUrl} rel="noopener" data-observe="contact.code" data-observe-label="the site’s code on GitHub" data-observe-cannot="Whether you came to read the code or to check the claims.">public on GitHub <Arrow to="up-right" /></a>.</p>
+          </div>
         </div>
       </div>
       <footer class="foot grid">
@@ -293,7 +297,8 @@ const fieldPlaces = chapters.map((c) => ({
   }
   /* The visit is the last image: a chart at display scale, drawn (with the Field) in the dots that drew the
      name and the world. */
-  .readout { grid-column: 1 / span 8; grid-row: 2; margin-top: clamp(40px, 5vw, 72px); color: var(--note); }
+  .close__record { grid-column: 1 / span 8; grid-row: 2; margin-top: clamp(40px, 5vw, 72px); }
+  .readout { color: var(--note); }
   .readout__total { font-size: var(--t-lede); line-height: 1.3; color: var(--ink-2); margin-bottom: 22px; }
   /* A monospace space is a full digit wide; at this size it would split the number from its unit. */
   .readout__total .mono { font-size: 0.92em; color: var(--note); margin-right: 0.3em; word-spacing: -0.35em; }
@@ -346,9 +351,9 @@ const fieldPlaces = chapters.map((c) => ({
     .close__title { font-size: min(var(--t-page), 11vh); }
     .close__text { margin-top: 20px; gap: 0.7em; }
   }
-  /* A quiet note about the site, under the readout in its columns and low, close above the foot: the hand-off and the
-     email stay the close's peak, so it is meta-sized ink-2 and never competes with them. */
-  .colophon { grid-column: 1 / span 8; grid-row: 3; max-width: 60ch; margin-top: clamp(80px, 10vw, 160px); font-size: var(--t-meta); line-height: 1.5; color: var(--ink-2); }
+  /* A quiet note about the site, a set space under the readout whatever the hand-off beside it does: the hand-off and
+     the email stay the close's peak, so it is meta-sized ink-2 and never competes with them. */
+  .colophon { max-width: 60ch; margin-top: clamp(48px, 5vw, 72px); font-size: var(--t-meta); line-height: 1.5; color: var(--ink-2); }
   .colophon__text { margin-top: 6px; }
   /* Kept whole, so the arrow never starts a line and a touch's 44px hit area is one box, not two. */
   .colophon__link { white-space: nowrap; }
@@ -361,7 +366,7 @@ const fieldPlaces = chapters.map((c) => ({
   .foot p:last-child { grid-column: 7 / -1; text-align: right; }
 
   @media (max-width: 900px) {
-    .readout, .close__text, .close__title, .colophon { grid-column: 1 / -1; grid-row: auto; }
+    .close__record, .close__text, .close__title { grid-column: 1 / -1; grid-row: auto; }
     .readout__bars { grid-template-columns: 1fr; }
     /* Stacked, a label's descenders keep clear of the first row of dots beneath it. */
     .readout__bars li { grid-template-columns: 1fr auto; grid-template-areas: 'label value' 'track track'; row-gap: 6px; }

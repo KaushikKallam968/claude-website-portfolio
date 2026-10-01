@@ -406,7 +406,7 @@ html.lens-on .lens-bar { display: flex; }
   .entry__side { grid-column: 8 / -1 !important; margin-top: 0 !important; }
   html.field :is(.prologue, .shift) { margin-top: 28px !important; }
   .close { padding-top: 48px !important; }
-  .readout, .close__text { margin-top: 24px !important; }
+  .close__record, .close__text { margin-top: 24px !important; }
   /* The Field's dots are not printed, so the readout goes back to plain bars, and its unit line (about dots) goes.
      The bars are backgrounds, which a print drops unless the visitor turns Background graphics on; asked for exactly. */
   .readout__unit { display: none !important; }
