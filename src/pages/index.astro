@@ -146,6 +146,8 @@ const fieldPlaces = chapters.map((c) => ({
   }
   .hero__line { display: block; overflow: clip; padding-bottom: 0.05em; margin-bottom: -0.05em; }
   .hero__line--2 { text-align: right; }
+  /* Without the Field the name is its own letters, and the m ends about 0.02em inside the dots the Field draws at the edge. */
+  :global(html:not(.field)) .hero__line--2 .hero__word { translate: 0.02em 0; }
   .hero__word { display: inline-block; }
 
   /* The identity sits in the negative space beside the second half of the name. The two share one grid cell

@@ -362,14 +362,13 @@ html.lens-on .lens-bar { display: flex; }
   html.field :is(.prologue, .shift) { margin-top: 28px !important; }
   .close { padding-top: 48px !important; }
   .readout, .close__text { margin-top: 24px !important; }
-  /* The Field's dots are not printed, so the readout goes back to plain bars, and its unit line (about dots) goes. */
+  /* The Field's dots are not printed, so the readout goes back to plain bars, and its unit line (about dots) goes.
+     The bars are backgrounds, which a print drops unless the visitor turns Background graphics on; asked for exactly. */
   .readout__unit { display: none !important; }
-  .readout__track { height: 14px !important; background: var(--note-soft) !important; border: 0 !important; overflow: hidden !important; }
-  .readout__fill { display: block !important; }
+  .readout__track { height: 14px !important; background: var(--note-soft) !important; border: 0 !important; overflow: hidden !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .readout__fill { display: block !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   /* Screenshots that have not loaded would print as empty frames; on white paper their own edges are enough. */
   .phone { outline: none !important; }
-  /* The résumé's reading measures are for the screen; on paper its column is the full width, as before. */
-  .cv__points, .cv__skills { max-width: none !important; }
   .foot { margin-top: 20px !important; padding-block: 12px !important; }
 
   .fig, .scene, .entry, .row, .shift, .prologue, .close, .case__next { break-inside: avoid; }
