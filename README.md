@@ -1,6 +1,6 @@
 # Kaushik Kallam · portfolio
 
-A static Astro site: the journey home page, four case pages, a selected-work index and an HTML résumé.
+A static Astro site: the journey home page, five case pages, a selected-work index and an HTML résumé.
 
 ## Run it
 
@@ -18,7 +18,7 @@ npm run preview    # serve dist/ locally
 | Path | What |
 |---|---|
 | `src/data/journey.ts` | Chapter and Entry copy (owner-accepted), places with real coordinates and time zones |
-| `src/content/cases/*.md` | The four Cases (draft copy, marked DRAFT on the page) |
+| `src/content/cases/*.md` | The five Cases |
 | `src/lib/origin.ts`, `src/lib/observe.ts` | Tested logic: where Return goes; what the observation notes say |
 | `src/scripts/` | Browser behavior: notes, readout, clocks, time shifts, motion, navigation |
 | `src/components/` | Chapter sections, entries, figures, the notes panel, time shifts |

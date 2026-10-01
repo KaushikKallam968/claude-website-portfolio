@@ -23,7 +23,7 @@ export interface Role {
 
 /** An Entry either opens a Case (its own page) or expands in place as a Summary / Research in Development. */
 export type EntryKind = 'case' | 'summary' | 'research-in-development';
-export type FigureKind = 'instrumentation' | 'ai-evaluation' | 'discord' | 'mexico' | 'watched';
+export type FigureKind = 'instrumentation' | 'ai-evaluation' | 'discord' | 'mexico' | 'inspire' | 'watched';
 
 export interface Entry {
   id: string;
@@ -240,7 +240,7 @@ export const chapters: Chapter[] = [
     period: 'Summer 2023',
     intro: [
       'During my master’s degree, I spent a summer in Atlanta with Inspire Brands. I worked with survey data and advertising analysis to understand consumer responses, bringing quantitative research into a different product context.',
-      'The work included examining response quality and collaborating on regression analysis of advertising attributes.',
+      'The work included checking survey response quality and running a regression analysis of what drives advertising scores.',
     ],
     roles: [
       {
@@ -248,11 +248,29 @@ export const chapters: Chapter[] = [
         org: 'Inspire Brands',
         period: 'June to August 2023',
         where: 'Atlanta, Georgia',
-        highlights: ['Survey data and advertising analysis, including response quality and regression analysis of advertising attributes.'],
-        more: '/#atlanta',
+        highlights: [
+          'Coded 548 quick-service restaurant TV ads on 21 attributes, modeled their ACE Metrix scores in R and presented the readout.',
+          'Wrote a Python script to preprocess consumer survey responses and identify submissions that looked automated.',
+        ],
+        more: '/work/inspire-ad-creative/',
       },
     ],
-    entries: [],
+    entries: [
+      {
+        id: 'inspire-ad-creative',
+        title: 'Inspire Brands Ad Creative',
+        kind: 'case',
+        context: 'Inspire Brands · Quantitative advertising research',
+        preview: [
+          'Which creative attributes of quick-service restaurant TV ads drive their ACE Metrix scores?',
+          'I coded 548 ads on 21 yes-or-no attributes and modeled each score against them in R.',
+        ],
+        contribution: 'I defined the attributes with the head of Demand Gen Analytics, coded all 548 ads, ran every regression in R and presented the readout.',
+        status: 'Analysis completed · readout presented August 2023, used to inform creative guidance',
+        action: 'Explore the Inspire Brands case',
+        figure: 'inspire',
+      },
+    ],
   },
   {
     id: 'texas-education',

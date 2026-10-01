@@ -17,7 +17,7 @@ const cases = defineCollection({
     methods: z.array(z.string()),
     outcome: z.string(),
     /** The kind of outcome, so a recommendation never reads as a measured result. */
-    outcomeType: z.enum(['Delivered capability', 'Recommendations', 'Recommendation, implementation reported', 'Launched, now paused']),
+    outcomeType: z.enum(['Delivered capability', 'Recommendations', 'Recommendations, used', 'Recommendation, implementation reported', 'Launched, now paused']),
     status: z.string(),
     shows: z.array(z.string()),
     cannotShow: z.array(z.string()),
