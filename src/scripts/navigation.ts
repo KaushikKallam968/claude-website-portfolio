@@ -4,6 +4,11 @@ import { originFromState, type Origin } from '../lib/origin';
 import { KEYS, session } from '../lib/store';
 import { record, elapsed, READING_LINE } from './notes';
 
+/** The `out` curve, as CSS (see motion.ts). */
+const OUT = 'cubic-bezier(0.16, 1, 0.3, 1)';
+
+const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 /**
  * Before leaving for a Case, hand its Origin to the Case page. The Case page moves it into its own
  * history entry (see adoptOrigin), so reloading keeps it and a later visit from a shared link does not.
@@ -126,7 +131,6 @@ export function restoreOnPageShow() {
  * opens it, so the address lands on the words, not on a title with its text folded away.
  */
 export function wireDisclosures() {
-  const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   type Disclosure = { btn: HTMLButtonElement; panel: HTMLElement };
   const all = [...document.querySelectorAll<HTMLButtonElement>('[data-more-toggle]')].flatMap((btn): Disclosure[] => {
     const panel = document.getElementById(btn.getAttribute('aria-controls')!);
@@ -135,13 +139,13 @@ export function wireDisclosures() {
   const set = ({ btn, panel }: Disclosure, open: boolean, animate: boolean) => {
     btn.setAttribute('aria-expanded', String(open));
     panel.hidden = !open;
-    if (!open || !animate || reduced()) return;
+    if (!open || !animate || reducedMotion()) return;
     panel.animate(
       [
         { opacity: 0, clipPath: 'inset(0 0 100% 0)' },
         { opacity: 1, clipPath: 'inset(0 0 0% 0)' },
       ],
-      { duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+      { duration: 700, easing: OUT },
     );
   };
   // Entry ids are plain words, so the fragment is compared as it is written.
@@ -163,6 +167,8 @@ export function wireDisclosures() {
   };
   openAtHash();
   addEventListener('hashchange', openAtHash);
+  // A jump that fades makes its address without a hashchange (see fadeJump), and says so when it lands.
+  document.addEventListener('jump:landed', openAtHash);
 }
 
 /** Where a jump rests against its target: above it, clear of the top bar. */
@@ -171,10 +177,6 @@ const ANCHOR_OFFSET = -64;
 const FAR_JUMP = 2.5;
 const FADE_OUT_MS = 180;
 const FADE_IN_MS = 350;
-/** The `out` curve, as CSS (see motion.ts). */
-const OUT = 'cubic-bezier(0.16, 1, 0.3, 1)';
-
-const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let veil: HTMLElement | null = null;
 let fade: Animation | null = null;
@@ -189,8 +191,11 @@ function fadePage(to: 0 | 1, ms: number, done?: () => void) {
     veil = document.createElement('div');
     veil.className = 'veil';
     veil.setAttribute('aria-hidden', 'true');
-    document.body.append(veil);
+    // Inside main, where the notes ticker is: it hides the page but not the ticker (see .veil in global.css).
+    (document.querySelector('main') ?? document.body).append(veil);
   }
+  // What is drawn over the page, not in it (the lens outlines), goes while the page is hidden.
+  document.documentElement.classList.toggle('jumping', to === 1);
   const from = getComputedStyle(veil).opacity;
   veil.style.opacity = String(to);
   fade?.cancel();
@@ -220,7 +225,11 @@ function fadeJump(land: () => void) {
     document.documentElement.style.overflowAnchor = 'none';
     land();
     const landed = fades;
-    requestAnimationFrame(() => fades === landed && fadePage(0, FADE_IN_MS, () => document.documentElement.style.removeProperty('overflow-anchor')));
+    // The frame that lays out the landing is the heavy one, and the next paints it: the fade waits for both, so
+    // nothing that settles is seen settling.
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => fades === landed && fadePage(0, FADE_IN_MS, () => document.documentElement.style.removeProperty('overflow-anchor'))),
+    );
   });
 }
 
@@ -338,6 +347,16 @@ function clearOfChrome(el: HTMLElement, barBack = false) {
 export function wireTopBar() {
   const root = document.documentElement;
   let last = scrollY;
+  // A page that opens part-way down (an address with a fragment, a reload) is arrived at, not read down to: it
+  // starts where it is, with the bar in place.
+  addEventListener(
+    'load',
+    () => {
+      last = scrollY;
+      root.classList.remove('nav-hidden');
+    },
+    { once: true },
+  );
   // A keyboard user tabbing into the bar or the notes brings them back, so focus never lands on something off screen.
   document.addEventListener('focusin', (ev) => {
     const el = ev.target as HTMLElement;
@@ -356,6 +375,9 @@ export function wireTopBar() {
     () => {
       const y = scrollY;
       root.classList.toggle('scrolled', y > 8);
+      // A scroll event where the page already was is no movement (the page measuring itself again puts it back
+      // where it was): it neither shows nor hides the bar.
+      if (y === last) return;
       const focusInBar = Boolean(document.activeElement?.closest('.top, .notes'));
       const notesOpen = root.classList.contains('notes-open');
       root.classList.toggle('nav-hidden', y > last && y > 400 && !focusInBar && !notesOpen);

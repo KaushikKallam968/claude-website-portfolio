@@ -132,7 +132,9 @@ html { -webkit-tap-highlight-color: transparent; }
 .skip:focus { transform: none; }
 
 /* A long jump within the page hides it under paper while it jumps (see navigation.ts): over the page, under the top bar
-   and the notes ticker, so the chrome stays put and the change reads as the page moving, not loading. */
+   and the notes ticker, so the chrome stays put and the change reads as the page moving, not loading. The ticker is
+   inside main, and on the home page main is a stacking context (html.field main), so the veil is appended inside main
+   too: there its z 38 is under the ticker's 39. Appended to the body it would sit over all of main, ticker included. */
 .veil { position: fixed; inset: 0; z-index: 38; background: var(--paper); opacity: 0; pointer-events: none; }
 
 .grid {
@@ -306,8 +308,11 @@ html.field:not(.motion-done) .route__list { --rule-w: 0; }
 .lens-cursor.is-on { opacity: 1; scale: 1; }
 .lens-cursor.is-gap { color: var(--ink-2); border: 1px dashed var(--ink-3); }
 .lens-cursor.is-gap::before { background: none; outline: 1px solid currentColor; outline-offset: -1px; }
-.lens-layer { position: fixed; inset: 0; z-index: 55; pointer-events: none; display: none; }
+.lens-layer { position: fixed; inset: 0; z-index: 55; pointer-events: none; display: none; transition: opacity 0.35s var(--ease-out); }
 html.lens-on .lens-layer { display: block; }
+/* The outlines are over the page, above the veil, so they leave with the page during a long jump (the same times as
+   its fade, in navigation.ts) rather than float on bare paper. */
+html.jumping .lens-layer { opacity: 0; transition-duration: 0.18s; }
 .lens-box { position: absolute; left: 0; top: 0; border: 1px dashed var(--note); background: var(--note-soft); }
 .lens-box span {
   position: absolute; left: -1px; bottom: 100%; padding: 3px 5px; white-space: nowrap;
