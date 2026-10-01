@@ -41,18 +41,18 @@ export function startReadout() {
     });
     const noChapters = !bars.some((li) => li.dataset.bar !== 'outside' && !li.hidden);
     const noCases = r.casesOpened.length === 0;
-    // The portrait is drawn into these rows, so it re-measures when the set of rows changes.
-    const now = bars.map((li) => (li.hidden ? 0 : 1)).join('');
-    if (now !== shown) {
-      shown = now;
-      document.dispatchEvent(new CustomEvent('readout:rows'));
-    }
     // Nothing in a Chapter and no Case opened is one statement, not two lines that say the same thing.
     if (empty) {
       empty.hidden = !noChapters;
       empty.textContent = noCases ? 'You haven’t stopped in a chapter or opened a case. That could mean many things.' : 'You haven’t spent a second in any chapter.';
     }
     cases.hidden = noChapters && noCases;
+    // The portrait is drawn into these rows, so it re-measures once they and the line above them have settled.
+    const now = bars.map((li) => (li.hidden ? 0 : 1)).join('') + (empty && !empty.hidden ? empty.textContent : '');
+    if (now !== shown) {
+      shown = now;
+      document.dispatchEvent(new CustomEvent('readout:rows'));
+    }
     const one = r.casesOpened.length === 1;
     cases.textContent = noCases
       ? 'You didn’t open a case. That could mean many things.'

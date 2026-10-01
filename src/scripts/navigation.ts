@@ -135,16 +135,22 @@ export function wireDisclosures() {
       { duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
     );
   };
+  // Entry ids are plain words, so the fragment is compared as it is written.
+  const atHash = ({ btn }: Disclosure) => btn.closest('.entry')?.id === location.hash.slice(1);
   all.forEach((d) => {
     set(d, false, false);
     d.btn.hidden = false;
-    d.btn.addEventListener('click', () => set(d, d.btn.getAttribute('aria-expanded') !== 'true', true));
+    d.btn.addEventListener('click', () => {
+      const open = d.btn.getAttribute('aria-expanded') !== 'true';
+      set(d, open, true);
+      // Folding what the address opened is kept with this history entry, so coming Back to it does not open it again.
+      if (atHash(d)) history.replaceState({ ...(history.state ?? {}), hashOpen: open }, '');
+    });
   });
-  // An arriving page is not a reader choosing to open something, so it opens without the reveal. Entry ids are
-  // plain words, so the fragment is compared as it is written.
+  // An arriving page is not a reader choosing to open something, so it opens without the reveal.
   const openAtHash = () => {
-    const d = all.find(({ btn }) => btn.closest('.entry')?.id === location.hash.slice(1));
-    if (d) set(d, true, false);
+    const d = all.find(atHash);
+    if (d) set(d, history.state?.hashOpen ?? true, false);
   };
   openAtHash();
   addEventListener('hashchange', openAtHash);
