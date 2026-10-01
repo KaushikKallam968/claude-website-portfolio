@@ -330,7 +330,8 @@ const fieldPlaces = chapters.map((c) => ({
   @media (pointer: coarse) { .close__links { row-gap: 22px; } }
   /* On short screens (a phone on its side, a laptop at 200% zoom) every line counts. The bar hides as the page
      moves down, so the landing no longer keeps its space (smooth scrolling adds 64px of its own, taken back
-     here); the title scales with the height and the hand-off tightens, so the email still fits. */
+     here, and a page opened at the address is moved to the same landing once it has loaded); the title scales
+     with the height and the hand-off tightens, so the email still fits. */
   @media (max-height: 560px) {
     .close { scroll-margin-top: calc(24px - clamp(120px, 16vw, 240px)); }
     :global(html.lenis) .close { scroll-margin-top: calc(24px - 64px - clamp(120px, 16vw, 240px)); }

@@ -14,9 +14,10 @@ startNotes();
 startReadout();
 rememberOrigins();
 wireDisclosures();
+// Before the bar: a page opened at a fragment is moved onto it as it loads, and the bar then takes its place.
+wireAnchorJumps(restored);
 wireTopBar();
 wireTopWhere();
 wireRowLinks();
-wireAnchorJumps(restored);
 startLens();
 startMotion();
