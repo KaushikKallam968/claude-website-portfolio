@@ -286,20 +286,28 @@ export function wireAnchorJumps(restored: boolean) {
    */
   const restChapterAt = (target: HTMLElement) => {
     const top = target.getBoundingClientRect().top + scrollY;
-    return Math.min(smooth!.limit, Math.max(0, top > scrollY ? top : top - chromeBottom(true)));
+    const limit = smooth?.limit ?? document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    return Math.min(limit, Math.max(0, top > scrollY ? top : top - chromeBottom(true)));
   };
   document.addEventListener('click', (ev) => {
     const a = (ev.target as Element).closest<HTMLAnchorElement>('a[href*="#"]');
     if (!a || ev.defaultPrevented || a.origin !== location.origin || a.pathname !== location.pathname || a.hash.length < 2) return;
     const id = fragmentId(a.hash);
     const target = document.getElementById(id);
-    // With no smooth scroller (reduced motion) the browser jumps, as it does for any link.
-    if (!target || !smooth) {
+    if (!target) return;
+    const plain = ev.button === 0 && !(ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey);
+    const afterScene = Boolean(a.closest('.route') && target.matches('[data-chapter-section]') && target.previousElementSibling?.matches('[data-shift]'));
+    // With no smooth scroller (reduced motion) the browser jumps, as it does for any link, except to a Chapter after
+    // a Time Shift: that one rests where the flying jump does, so the band's static scene is not what it lands on.
+    if (!smooth) {
+      if (afterScene && plain) {
+        ev.preventDefault();
+        if (location.hash !== a.hash) history.pushState(null, '', a.hash);
+        scrollTo({ top: restChapterAt(target), behavior: 'instant' as ScrollBehavior });
+      }
       focusAt(id);
       return;
     }
-    const plain = ev.button === 0 && !(ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey);
-    const afterScene = Boolean(a.closest('.route') && target.matches('[data-chapter-section]') && target.previousElementSibling?.matches('[data-shift]'));
     // Where it rests is worked out now, as it is for a flying jump, so a jump lands where the page said it would.
     const rest = afterScene ? restChapterAt(target) : restAt(target);
     // A jump asked for while another is fading takes over the fade, so the page is never left half hidden.
