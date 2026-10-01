@@ -45,11 +45,11 @@ The analysis assumed that brand does not affect the scores, and brand was blinde
 
 Watchability was the most influential component of the Overall ACE Score by a wide margin, with Change and Relevance tied for second. In the readout’s terms, a close-up focus on the product, and action set at the restaurant, were the biggest positive drivers of the overall score and of every component. Real people and testimonials were the attribute most strongly associated with lower values in almost every score, and humor was associated with lower values in many scores. Thirty-second ads were associated with higher scores than fifteen-second ones.
 
-For each score, a chart set every attribute’s impact against its statistical significance and highlighted the attributes most strongly associated with that score, and each score got its own recommendation. For the overall score, it was a 30-second ad focused on the product, with the action at the restaurant. I presented the readout in August, and it was used to inform Inspire’s creative guidance.
+For each score, a chart set every attribute’s estimate against its statistical significance and highlighted the attributes most strongly associated with that score, and each score got its own recommendation. For the overall score, it was a 30-second ad focused on the product, with the action at the restaurant. I presented the readout in August, and it was used to inform Inspire’s creative guidance.
 
 ## Cautions in the readout
 
-I raised two cautions in the readout itself. Attributes that were negative drivers tended to appear in fewer ads, because brands are more likely to use what performs well, so those estimates rest on smaller samples. And humor is subjective and polarizing, so a yes-or-no code may not capture how viewers experienced it. I also named the brand assumption as a limitation, since anecdotal evidence suggests brand does affect scores.
+I raised two cautions in the readout itself. Attributes associated with lower scores tended to appear in fewer ads, because brands are more likely to use what performs well, so those estimates rest on smaller samples. And humor is subjective and polarizing, so a yes-or-no code may not capture how viewers experienced it. I also named the brand assumption as a limitation, since anecdotal evidence suggests brand does affect scores.
 
 The ads were coded as they aired rather than varied in an experiment, so the results describe association, not cause.
 
