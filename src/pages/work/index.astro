@@ -11,7 +11,7 @@ const statusAfterKind = (status: string, kind: string) => {
   const rest = status.slice(kind.length + 3);
   return rest.charAt(0).toUpperCase() + rest.slice(1);
 };
-import { keepCompounds, keepDots } from '../../lib/format';
+import { joinMethods, keepCompounds, keepDots } from '../../lib/format';
 
 const cases = (await getCollection('cases'))
   .sort((a, b) => a.data.order - b.data.order)
@@ -52,7 +52,7 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
               </p>
               <dl class="row__facts">
                 <div><dt>Contribution</dt><dd>{keepCompounds(c.journey.entry.contribution)}</dd></div>
-                {c.data.methods && <div><dt>Methods</dt><dd>{keepCompounds(c.data.methods.join('; '))}</dd></div>}
+                {c.data.methods && <div><dt>Methods</dt><dd>{keepCompounds(joinMethods(c.data.methods))}</dd></div>}
                 <div><dt>Status</dt><dd>{keepCompounds(keepDots(c.data.status))}</dd></div>
               </dl>
               <span class="row__arrow" aria-hidden="true"><Arrow /></span>
@@ -140,6 +140,10 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
   .row__meta > span:has(+ span:not(.draft-marker))::after { content: '·' / ''; padding: 0 0.3em; }
   .row__meta > .draft-marker { margin-left: 14px; }
   .row__facts { margin: 18px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px var(--gutter); max-width: 70ch; }
+  /* With methods named a row has three facts, side by side as on the Case page; two stay as they were. */
+  @media (min-width: 601px) {
+    .row__facts:has(> :nth-child(3)) { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: none; }
+  }
   .row__facts dt { font-size: var(--t-small); color: var(--ink-3); }
   .row__facts dd { margin: 2px 0 0; font-size: var(--t-meta); }
   .row__arrow { grid-column: 2; grid-row: 1; font-size: var(--t-arrow); align-self: start; padding-top: 0.2em; transition: translate 0.8s var(--ease-out); }

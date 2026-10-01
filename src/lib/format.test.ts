@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { keepCompounds } from './format';
+import { joinMethods, keepCompounds } from './format';
 
 const WJ = '⁠';
 
@@ -29,5 +29,21 @@ describe('keeping compound words on one line', () => {
   it('gives the same text back when it is applied twice', () => {
     const once = keepCompounds('cross-language search, front-end work');
     expect(keepCompounds(once)).toBe(once);
+  });
+});
+
+describe('naming a Case\u2019s methods on one line', () => {
+  it('joins them with semicolons and starts each one after the first in lower case', () => {
+    expect(joinMethods(['Comparative survey of 1,000 students', 'Unmoderated interviews with 12 students'])).toBe(
+      'Comparative survey of 1,000 students; unmoderated interviews with 12 students',
+    );
+  });
+
+  it('leaves an acronym or a lone capital as written', () => {
+    expect(joinMethods(['Diary study', 'AI evaluation', 'A/B test'])).toBe('Diary study; AI evaluation; A/B test');
+  });
+
+  it('gives a single method back as it is', () => {
+    expect(joinMethods(['Instrumentation coverage audit'])).toBe('Instrumentation coverage audit');
   });
 });

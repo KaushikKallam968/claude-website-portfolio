@@ -24,5 +24,9 @@ export const keepDots = (s: string) => s.replace(/ · /g, ' · ');
  */
 export const keepCompounds = (s: string) => s.replace(/(?<=\p{L})-(?=\p{L})/gu, '-⁠');
 
+/** A Case's methods on one line. Each one after the first starts in lower case, so a semicolon never reads as a new sentence; an acronym keeps its capitals. */
+export const joinMethods = (items: string[]) =>
+  items.map((m, i) => (i && /^\p{Lu}\p{Ll}/u.test(m) ? m.charAt(0).toLowerCase() + m.slice(1) : m)).join('; ');
+
 /** Ends a sentence with a full stop, unless the name that ends it already carries one ("watched."). */
 export const sentence = (s: string) => (/[.!?]$/.test(s) ? s : `${s}.`);
