@@ -19,7 +19,7 @@ One stop on the Journey, bound to a place and a period of the Owner's life: New 
 _Avoid:_ destination, stop, section.
 
 ## Case
-A full, dedicated reading page for one substantial piece of work, with its own shareable address. There are five: Data Instrumentation Coverage and Quality, Chegg Mexico, Chegg Discord, Inspire Brands Ad Creative, watched.
+A full, dedicated reading page for one substantial piece of work, with its own shareable address. There are five: Data Instrumentation Coverage and Quality, Chegg Discord, Chegg Mexico, Inspire Brands Ad Creative, watched.
 _Avoid:_ project page, case study (fine in prose, but "Case" is canonical), post.
 
 ## Entry

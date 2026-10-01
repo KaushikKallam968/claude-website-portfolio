@@ -1,6 +1,6 @@
 ---
 title: Chegg Discord
-order: 3
+order: 2
 context: Chegg · Discovery and concept evaluation
 question: Could academic support fit into the way students already study together on Discord, and which AI-assisted capabilities were ready to develop further?
 contribution: As UX Researcher II (contractor), I ran the discovery research and the concept tests.
