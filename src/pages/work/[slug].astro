@@ -17,7 +17,7 @@ const { Content } = await render(entry);
 const d = entry.data;
 const ordered = [...all].sort((a, b) => a.data.order - b.data.order);
 const { entry: journeyEntry, chapter } = entryFor(entry.id);
-// Cases read in order ("Case 2 of 4"), so each offers the next; the last offers the first again.
+// Cases read in order ("Case 2 of 5"), so each offers the next; the last offers the first again.
 const at = ordered.findIndex((c) => c.id === entry.id);
 const next = ordered[(at + 1) % ordered.length];
 const last = at + 1 === ordered.length;
