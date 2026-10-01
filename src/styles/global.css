@@ -13,6 +13,18 @@
   font-style: italic;
   font-display: swap;
 }
+/* The styles are inline, so the page paints before Switzer arrives, and the system font that stands in is wider: the
+   swap would re-wrap the hero and move everything under it. Switzer at weight 400 is almost as wide as Arial (100.3
+   against 99.2 em over the hero's paragraph), so Arial scaled to it stands in at the same width. The overrides are
+   Switzer's own metrics (ascent 980, descent 250, line gap 90, of 1000) divided by the scale, so the lines are as tall. */
+@font-face {
+  font-family: 'Switzer fallback';
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('Helvetica Neue'), local('Helvetica'), local('Roboto');
+  size-adjust: 101.07%;
+  ascent-override: 96.96%;
+  descent-override: 24.74%;
+  line-gap-override: 8.9%;
+}
 @font-face {
   font-family: 'Fragment Mono';
   src: url('/fonts/fragment-mono.woff2') format('woff2');
@@ -31,7 +43,7 @@
   --note: #2c3be0;
   --note-soft: rgb(44 59 224 / 0.1);
 
-  --sans: 'Switzer', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sans: 'Switzer', 'Switzer fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'Fragment Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   --margin: clamp(16px, 2.3vw, 36px);
