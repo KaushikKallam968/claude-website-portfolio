@@ -32,7 +32,7 @@ const {
 
 // One address per page, for the canonical link and og:url; the 404 has none.
 const canonical = Astro.site && !noindex ? new URL(Astro.url.pathname, Astro.site).href : undefined;
-// An article names its author by the page that is about him.
+// An article names its author by the home page, which is about the author.
 const authorUrl = Astro.site ? new URL('/', Astro.site).href : undefined;
 // What public/og.png shows, for people who cannot see it.
 const ogAlt = 'The name Kaushik Kallam in large black type on two lines, on a pale grey background. Below it: Senior Quantitative UX Researcher, JPMorganChase, New York. At the right, in small blue type: what the data shows and what it can’t.';
