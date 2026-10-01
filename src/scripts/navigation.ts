@@ -118,11 +118,12 @@ export function restoreOnPageShow() {
  */
 export function wireDisclosures() {
   const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const all = [...document.querySelectorAll<HTMLButtonElement>('[data-more-toggle]')].flatMap((btn) => {
+  type Disclosure = { btn: HTMLButtonElement; panel: HTMLElement };
+  const all = [...document.querySelectorAll<HTMLButtonElement>('[data-more-toggle]')].flatMap((btn): Disclosure[] => {
     const panel = document.getElementById(btn.getAttribute('aria-controls')!);
     return panel ? [{ btn, panel }] : [];
   });
-  const set = ({ btn, panel }: (typeof all)[number], open: boolean, animate: boolean) => {
+  const set = ({ btn, panel }: Disclosure, open: boolean, animate: boolean) => {
     btn.setAttribute('aria-expanded', String(open));
     panel.hidden = !open;
     if (!open || !animate || reduced()) return;
@@ -135,15 +136,14 @@ export function wireDisclosures() {
     );
   };
   all.forEach((d) => {
-    d.panel.hidden = true;
+    set(d, false, false);
     d.btn.hidden = false;
-    d.btn.setAttribute('aria-expanded', 'false');
     d.btn.addEventListener('click', () => set(d, d.btn.getAttribute('aria-expanded') !== 'true', true));
   });
-  // An arriving page is not a reader choosing to open something, so it opens without the reveal.
+  // An arriving page is not a reader choosing to open something, so it opens without the reveal. Entry ids are
+  // plain words, so the fragment is compared as it is written.
   const openAtHash = () => {
-    const id = decodeURIComponent(location.hash.slice(1));
-    const d = id && all.find(({ btn }) => btn.closest('.entry')?.id === id);
+    const d = all.find(({ btn }) => btn.closest('.entry')?.id === location.hash.slice(1));
     if (d) set(d, true, false);
   };
   openAtHash();
@@ -220,7 +220,8 @@ export function wireTopBar() {
     // lands on, and a jump still under way, keep the landing the page gave them.
     if (el.tabIndex < 0 || el.closest('.skip') || !el.matches(':focus-visible')) return;
     requestAnimationFrame(() => {
-      if (smooth?.isScrolling === 'smooth') return;
+      // Focus may have moved on already (tabbing quickly through a slow frame); it is the one that rests that matters.
+      if (document.activeElement !== el || smooth?.isScrolling === 'smooth') return;
       const { top, bottom } = el.getBoundingClientRect();
       const under = chromeBottom();
       if (bottom <= 0 || top >= under) return;
