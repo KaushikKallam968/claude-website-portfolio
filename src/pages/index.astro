@@ -165,6 +165,8 @@ const fieldPlaces = chapters.map((c) => ({
   .hero__grid { margin-top: clamp(26px, 3vw, 48px); padding-right: calc(var(--margin) + var(--rail) + var(--gutter)); }
   .hero__more { grid-column: 1 / span 8; display: grid; gap: 16px; }
   .hero__sub { color: var(--ink-2); max-width: 52ch; }
+  /* Wide screens read the paragraph in four lines, so the actions and the route index stay on the first screen. */
+  @media (min-width: 901px) { .hero__sub { max-width: 60ch; } }
   .hero__actions { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; }
   /* Touch hit areas are 44px tall; wrapped rows sit far enough apart that they never overlap. */
   @media (pointer: coarse) { .hero__actions { row-gap: 22px; } }
