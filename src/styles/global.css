@@ -201,13 +201,16 @@ html:not(.js) [data-clock], html:not(.js) .chapter__meta-live, html:not(.js) .sh
 /* Opening a Case: the clicked row's paper grows into the page while the old page dims and steps back, so the
    new page's edge is seen against it. The Case's words (case-body, and the notes beside or above them) are
    layers of their own and wait until the travelling title is nearly home, so the title never crosses words.
-   The two pages draw over each other, not added together, which the default would do. */
+   The paper's edge starts 0.12s into its curve like the title's flight, so the title is never ahead of it over the
+   old page's words. The two pages draw over each other, not added together, which the default would do. */
 html.vt-expand::view-transition-old(root) { animation: 0.38s cubic-bezier(0.16, 1, 0.3, 1) both vt-dim; mix-blend-mode: normal; }
-html.vt-expand::view-transition-new(root) { animation: 1s cubic-bezier(0.86, 0, 0.07, 1) both vt-expand, 0.18s cubic-bezier(0.16, 1, 0.3, 1) both vt-fade; mix-blend-mode: normal; }
+html.vt-expand::view-transition-new(root) { animation: 1s cubic-bezier(0.86, 0, 0.07, 1) -0.12s both vt-expand, 0.18s cubic-bezier(0.16, 1, 0.3, 1) both vt-fade; mix-blend-mode: normal; }
 html.vt-expand .case__article { view-transition-name: case-body; }
 html.vt-expand .case__rail .notes { view-transition-name: case-notes; }
 html.vt-expand::view-transition-new(case-body), html.vt-expand::view-transition-new(case-notes) { animation: 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.64s both vt-fade; }
 html.vt-expand::view-transition-group(*) { animation-duration: 1s; }
+/* A heading with no partner (the first Case, reached from the last) arrives with the words, not over the old page's. */
+html.vt-expand::view-transition-new(.case-title):only-child { animation-delay: 0.64s; }
 /* Returning, the reverse: the Case steps back, its heading travels alone to its title, and the page fills in
    around it once it is nearly there. */
 html.vt-return::view-transition-old(root) { animation: 0.38s cubic-bezier(0.16, 1, 0.3, 1) both vt-step-back; }
@@ -224,6 +227,9 @@ html.vt-fold::view-transition-old(case-body), html.vt-fold::view-transition-old(
 html.vt-fold::view-transition-old(case-bar) { animation: 0.18s cubic-bezier(0.16, 1, 0.3, 1) 0.52s both vt-out; }
 html.vt-fold::view-transition-old(root) { animation: 0.7s cubic-bezier(0.86, 0, 0.07, 1) both vt-fold, 0.18s cubic-bezier(0.16, 1, 0.3, 1) 0.52s both vt-out; z-index: 1; mix-blend-mode: normal; }
 html.vt-fold::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+/* A Case left read down names these layers whatever link it leaves by, but only a fold wants them apart. With no row
+   to fold into they go with the page like the rest of it, not in the default 0.9s fade over the next page. */
+::view-transition-old(case-body), ::view-transition-old(case-notes), ::view-transition-old(case-bar) { animation: 0.5s cubic-bezier(0.16, 1, 0.3, 1) both vt-out; }
 /* The travelling title is always one solid title: each image keeps its own proportions as it scales with the
    moving box, and they hand over in a short cut early in the flight, so neither a gap nor a double exposure shows.
    The flight starts 0.12s into its curve, which would otherwise hold the title still just as the old page goes.
