@@ -141,6 +141,6 @@ export function resumeSchema(site: Site, title: string): Node[] {
 }
 
 /** One JSON-LD document for a script tag. `<` is escaped so no value can close the tag. */
-export function serializeGraph(nodes: Node[]): string {
+export function serializeGraph(nodes: object[]): string {
   return JSON.stringify({ '@context': 'https://schema.org', '@graph': nodes }).replace(/</g, '\\u003c');
 }

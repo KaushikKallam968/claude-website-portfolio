@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import Arrow from '../../components/Arrow.astro';
 import { allEntries, allRoles, closing, type Role } from '../../data/journey';
 import { nobrCompounds } from '../../lib/format';
+import { resumeSchema } from '../../lib/seo';
 
 const summaries = new Map(allEntries().filter(({ entry }) => entry.kind === 'summary').map(({ entry }) => [`/#${entry.id}`, entry]));
 
@@ -14,13 +15,15 @@ function moreLink(r: Role) {
   return { label: 'On the journey', observe: `more about ${r.title}` };
 }
 
+const title = 'Résumé · Kaushik Kallam, Senior Quantitative UX Researcher';
+
 /** Built from the Journey's Roles (the owner's LinkedIn profile, résumé and accepted chapter copy). No metrics are added. */
 const roles = allRoles().map((r) => ({ ...r, link: moreLink(r) }));
 // There is no notes panel here, so no text is set in the mono face and its preload would go unused. Drop
 // `preloadMono={false}` if mono text is ever added to this page.
 ---
 
-<Base title="Résumé · Kaushik Kallam" current="resume" description="Résumé of Kaushik Kallam, Senior Quantitative UX Researcher at JPMorganChase in New York." preloadMono={false}>
+<Base title={title} current="resume" description="Résumé of Kaushik Kallam, Senior Quantitative UX Researcher at JPMorganChase in New York." preloadMono={false} schema={resumeSchema(Astro.site!, title)}>
   <main id="main" class="cv" data-page-name="the résumé">
     <header class="cv__head">
       <h1 class="cv__name">Kaushik Kallam</h1>

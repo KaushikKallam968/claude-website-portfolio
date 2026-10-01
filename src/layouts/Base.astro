@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { homeDescription, serializeGraph } from '../lib/seo';
 
 interface Props {
   title: string;
@@ -12,19 +13,27 @@ interface Props {
   noindex?: boolean;
   /** Preload the mono face (notes, labels, figures). A page that sets no text in it says false, so it is not fetched unused. */
   preloadMono?: boolean;
+  /** What the page is, for link previews: the home page is a profile and a Case is an article. */
+  ogType?: 'website' | 'profile' | 'article';
+  /** The page's schema.org nodes (see lib/seo.ts), written as one JSON-LD script. */
+  schema?: object[];
 }
 
 const {
   title,
-  description = 'Kaushik Kallam, Senior Quantitative UX Researcher in New York. Research on behavior, instrumentation, AI evaluation and learning products, and the places along the way.',
+  description = homeDescription,
   current,
   mainId = 'main',
   noindex = false,
   preloadMono = true,
+  ogType = 'website',
+  schema,
 } = Astro.props;
 
 // One address per page, for the canonical link and og:url; the 404 has none.
 const canonical = Astro.site && !noindex ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+// An article names its author by the page that is about him.
+const authorUrl = Astro.site ? new URL('/', Astro.site).href : undefined;
 // What public/og.png shows, for people who cannot see it.
 const ogAlt = 'The name Kaushik Kallam in large black type on two lines, on a pale grey background. Below it: Senior Quantitative UX Researcher, JPMorganChase, New York. At the right, in small blue type: what the data shows and what it can’t.';
 
@@ -43,6 +52,7 @@ const nav = [
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="author" content="Kaushik Kallam" />
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#ecece8" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#121211" media="(prefers-color-scheme: dark)" />
@@ -55,7 +65,14 @@ const nav = [
     {preloadMono && <link rel="preload" href="/fonts/fragment-mono.woff2" as="font" type="font/woff2" crossorigin />}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
+    {ogType === 'profile' && (
+      <>
+        <meta property="profile:first_name" content="Kaushik" />
+        <meta property="profile:last_name" content="Kallam" />
+      </>
+    )}
+    {ogType === 'article' && authorUrl && <meta property="article:author" content={authorUrl} />}
     <meta property="og:site_name" content="Kaushik Kallam" />
     {canonical && <meta property="og:url" content={canonical} />}
     {Astro.site && (
@@ -68,6 +85,7 @@ const nav = [
     )}
     {canonical && <link rel="canonical" href={canonical} />}
     <meta name="twitter:card" content="summary_large_image" />
+    {schema && <script type="application/ld+json" set:html={serializeGraph(schema)} />}
     <script is:inline>
       // Scripts are on: allow entrance states that hide text until motion reveals it.
       document.documentElement.classList.add('js');

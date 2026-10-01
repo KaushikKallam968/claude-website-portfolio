@@ -6,7 +6,9 @@ import NotesPanel from '../components/NotesPanel.astro';
 import Arrow from '../components/Arrow.astro';
 import { chapters, closing, shortPlace } from '../data/journey';
 import { keepDots, nobrCompounds } from '../lib/format';
+import { homeSchema } from '../lib/seo';
 
+const title = 'Kaushik Kallam · Senior Quantitative UX Researcher';
 const pad = (v: number) => String(v).padStart(2, '0');
 const codeUrl = 'https://github.com/KaushikKallam968/claude-website-portfolio';
 // The Field draws the world from these: every Chapter's place, in page order.
@@ -20,7 +22,7 @@ const fieldPlaces = chapters.map((c) => ({
 }));
 ---
 
-<Base title="Kaushik Kallam · Senior Quantitative UX Researcher" current="journey">
+<Base title={title} current="journey" ogType="profile" schema={homeSchema(Astro.site!, title, closing)}>
   <script type="application/json" id="field-places" set:html={JSON.stringify(fieldPlaces)} />
   <main id="main" data-page-name="the journey">
     <div class="layout">
