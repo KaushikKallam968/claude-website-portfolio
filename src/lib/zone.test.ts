@@ -21,6 +21,25 @@ describe('the place a device keeps time for', () => {
     expect(clockPlace('America/Indiana/Indianapolis')).toBe('Indianapolis');
   });
 
+  it('names a renamed zone by its current name, though a browser may still report the old id', () => {
+    // Chromium says Asia/Calcutta for a device set to Kolkata; tzdb has long since called every one of these by the name on the right.
+    const old: Record<string, string> = {
+      'Asia/Calcutta': 'Kolkata',
+      'Europe/Kiev': 'Kyiv',
+      'Asia/Saigon': 'Ho Chi Minh',
+      'Asia/Katmandu': 'Kathmandu',
+      'Asia/Rangoon': 'Yangon',
+      'America/Godthab': 'Nuuk',
+      'America/Coral_Harbour': 'Atikokan',
+      'Africa/Asmera': 'Asmara',
+      'Pacific/Truk': 'Chuuk',
+      'Pacific/Ponape': 'Pohnpei',
+      'Atlantic/Faeroe': 'Faroe',
+      'Pacific/Enderbury': 'Kanton',
+    };
+    for (const [id, city] of Object.entries(old)) expect(clockPlace(id)).toBe(city);
+  });
+
   it('has no place to name for UTC, a fixed offset, or a device that will not say', () => {
     for (const zone of ['UTC', 'Etc/UTC', 'Etc/GMT+5', 'GMT', 'EST', '', undefined]) expect(clockPlace(zone)).toBeNull();
   });

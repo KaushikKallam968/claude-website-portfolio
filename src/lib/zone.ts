@@ -11,12 +11,32 @@ export const PLACE_CLOCKS: Record<string, string> = {
 };
 
 /**
+ * Ids a browser's own time zone data may still report for a zone that tzdb has renamed (Chromium says Asia/Calcutta
+ * for a device set to Kolkata). Each maps to the name tzdb uses now; only renames that change the city are listed.
+ */
+const RENAMED: Record<string, string> = {
+  'Asia/Calcutta': 'Asia/Kolkata',
+  'Europe/Kiev': 'Europe/Kyiv',
+  'Asia/Saigon': 'Asia/Ho_Chi_Minh',
+  'Asia/Katmandu': 'Asia/Kathmandu',
+  'Asia/Rangoon': 'Asia/Yangon',
+  'America/Godthab': 'America/Nuuk',
+  'America/Coral_Harbour': 'America/Atikokan',
+  'Africa/Asmera': 'Africa/Asmara',
+  'Pacific/Truk': 'Pacific/Chuuk',
+  'Pacific/Ponape': 'Pacific/Pohnpei',
+  'Atlantic/Faeroe': 'Atlantic/Faroe',
+  'Pacific/Enderbury': 'Pacific/Kanton',
+};
+
+/**
  * The place a device keeps time for: a Journey place when it keeps that place's clock, otherwise the zone's city.
  * UTC, a fixed offset and a device that will not say have no place to name.
  */
 export function clockPlace(timeZone: string | undefined): string | null {
   if (!timeZone) return null;
-  if (PLACE_CLOCKS[timeZone]) return PLACE_CLOCKS[timeZone];
-  if (!timeZone.includes('/') || timeZone.startsWith('Etc/')) return null;
-  return timeZone.slice(timeZone.lastIndexOf('/') + 1).replace(/_/g, ' ');
+  const id = RENAMED[timeZone] ?? timeZone;
+  if (PLACE_CLOCKS[id]) return PLACE_CLOCKS[id];
+  if (!id.includes('/') || id.startsWith('Etc/')) return null;
+  return id.slice(id.lastIndexOf('/') + 1).replace(/_/g, ' ');
 }
