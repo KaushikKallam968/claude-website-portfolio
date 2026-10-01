@@ -8,6 +8,7 @@ import { chapters, closing, shortPlace } from '../data/journey';
 import { keepDots, nobrCompounds } from '../lib/format';
 
 const pad = (v: number) => String(v).padStart(2, '0');
+const codeUrl = 'https://github.com/KaushikKallam968/claude-website-portfolio';
 // The Field draws the world from these: every Chapter's place, in page order.
 const fieldPlaces = chapters.map((c) => ({
   id: c.id,
@@ -106,6 +107,11 @@ const fieldPlaces = chapters.map((c) => ({
           <p class="readout__unit" data-visit-unit hidden data-quiet></p>
           <p class="readout__cases" data-readout-cases>No cases opened yet.</p>
           <p class="readout__nojs">With scripts off, this site observed nothing, so there is nothing to chart.</p>
+        </div>
+        <!-- Outside the readout, so it reads with scripts off, where the readout shows only its one line. -->
+        <div class="colophon" data-quiet>
+          <p class="label">About this site</p>
+          <p class="colophon__text">It asks of its visitors the question my instrumentation work asks of products: what can a record show, and what can’t it? The notes and the readout keep to what they can see, say what they can’t tell, and never leave your browser. I directed it and confirmed every claim on it; AI coding tools wrote the code, which is <a class="link link--under colophon__link" href={codeUrl} rel="noopener" data-observe="contact.code" data-observe-label="the site’s code on GitHub" data-observe-cannot="Whether you came to read the code or to check the claims.">public on GitHub <Arrow to="up-right" /></a>.</p>
         </div>
       </div>
       <footer class="foot grid">
@@ -338,12 +344,22 @@ const fieldPlaces = chapters.map((c) => ({
     .close__title { font-size: min(var(--t-page), 11vh); }
     .close__text { margin-top: 20px; gap: 0.7em; }
   }
-  .foot { margin-top: clamp(80px, 10vw, 160px); padding-block: 22px; border-top: 1px solid var(--rule); }
+  /* A quiet note about the site, under the readout in its columns and low, close above the foot: the hand-off and the
+     email stay the close's peak, so it is meta-sized ink-2 and never competes with them. */
+  .colophon { grid-column: 1 / span 8; grid-row: 3; max-width: 60ch; margin-top: clamp(80px, 10vw, 160px); font-size: var(--t-meta); line-height: 1.5; color: var(--ink-2); }
+  .colophon__text { margin-top: 6px; }
+  /* Kept whole, so the arrow never starts a line and a touch's 44px hit area is one box, not two. */
+  .colophon__link { white-space: nowrap; }
+  /* At this size a link's shared hit area comes to 43px, so it takes a pixel more each way to reach 44. */
+  @media (pointer: coarse) { .colophon__link::after { inset: -12px -6px; } }
+  /* On paper the close is tighter (see Print), and the note keeps pace. */
+  @media print { .colophon { margin-top: 24px !important; } }
+  .foot { margin-top: clamp(32px, 4vw, 56px); padding-block: 22px; border-top: 1px solid var(--rule); }
   .foot p:first-child { grid-column: 1 / span 6; }
   .foot p:last-child { grid-column: 7 / -1; text-align: right; }
 
   @media (max-width: 900px) {
-    .readout, .close__text, .close__title { grid-column: 1 / -1; grid-row: auto; }
+    .readout, .close__text, .close__title, .colophon { grid-column: 1 / -1; grid-row: auto; }
     .readout__bars { grid-template-columns: 1fr; }
     /* Stacked, a label's descenders keep clear of the first row of dots beneath it. */
     .readout__bars li { grid-template-columns: 1fr auto; grid-template-areas: 'label value' 'track track'; row-gap: 6px; }
