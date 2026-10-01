@@ -213,10 +213,15 @@ html.vt-expand::view-transition-group(*) { animation-duration: 1s; }
 html.vt-return::view-transition-old(root) { animation: 0.38s cubic-bezier(0.16, 1, 0.3, 1) both vt-step-back; }
 html.vt-return::view-transition-new(root) { animation: 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both vt-fade; }
 /* Returning with the heading off screen, there is no title to carry: the Case's words go, then its paper stays
-   on top and folds back into its row, the opening run backwards, with the page it came from showing beneath. */
+   on top and folds back into its row, the opening run backwards, with the page it came from showing beneath.
+   The bar is a layer of its own and stays put until the end, since words scrolled under it would show over it
+   while they fade. */
 html.vt-folding .case__article { view-transition-name: case-body; }
 html.vt-folding .case__rail .notes { view-transition-name: case-notes; }
+html.vt-folding .top { view-transition-name: case-bar; }
+html.vt-fold::view-transition-group(case-bar) { z-index: 1; }
 html.vt-fold::view-transition-old(case-body), html.vt-fold::view-transition-old(case-notes) { animation: 0.25s cubic-bezier(0.16, 1, 0.3, 1) both vt-out; }
+html.vt-fold::view-transition-old(case-bar) { animation: 0.18s cubic-bezier(0.16, 1, 0.3, 1) 0.52s both vt-out; }
 html.vt-fold::view-transition-old(root) { animation: 0.7s cubic-bezier(0.86, 0, 0.07, 1) both vt-fold, 0.18s cubic-bezier(0.16, 1, 0.3, 1) 0.52s both vt-out; z-index: 1; mix-blend-mode: normal; }
 html.vt-fold::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 /* The travelling title is always one solid title: each image keeps its own proportions as it scales with the
@@ -394,10 +399,10 @@ html.lens-on .lens-bar { display: flex; }
   .case__head { padding-top: 16px !important; }
   .case__article { padding-bottom: 0 !important; }
   .case__next { margin-top: 40px !important; }
-  /* Tighter gaps, and screens no taller than a page can spare, so the figure (which stays whole) can still end
-     the first page instead of starting the second. */
+  /* Tighter gaps and smaller phones, so a Case's figure (which stays whole) can still end its first page instead of
+     starting its second. */
   .tldr, .case__figure { margin-top: 24px !important; }
-  .fig--watched .phone { width: min(34%, 18vh) !important; }
+  .case__figure .fig--watched .phone { width: min(34%, 18vh) !important; }
 
   /* A Case's scene may break between its figure and its steps (kept whole, they leave a page short and strand
      the Return block); the figure itself, each step and the Return link stay whole. */
