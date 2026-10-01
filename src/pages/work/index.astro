@@ -65,7 +65,7 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
             {others.map(({ entry, chapter }) => (
               <li>
                 <a class="also__item" href={`/#${entry.id}`} data-observe={`work.${entry.id}`} data-observe-label={entry.title} data-observe-cannot="Whether it was the work or the place that caught your eye.">
-                  <span class="also__name">{entry.title} <Arrow /></span>
+                  <span class="also__name"><span class="link also__text">{entry.title}</span> <Arrow /></span>
                   {/* Every item names its kind and Chapter the same way; the status drops the kind when it opens with it. */}
                   <span class="also__kind"><span>{keepDots(`${kindLabels[entry.kind]} · ${chapter.label}`)}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
                   <span class="also__status">{keepDots(statusAfterKind(entry.status, kindLabels[entry.kind]))}</span>
@@ -156,7 +156,8 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
   .also__name { font-size: var(--t-h3); line-height: 1.08; letter-spacing: -0.028em; font-weight: 520; }
   .also__kind { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
   .also__status { color: var(--ink-2); font-size: var(--t-meta); }
-  .also__item:hover .also__name { text-decoration: underline; text-decoration-thickness: 1px; }
+  /* The name draws its rule as every link does, and the space and arrow stay clear of it. */
+  .also__item:hover .also__text, .also__item:focus-visible .also__text { background-size: 100% 1px; }
   .also__item:hover .also__name :global(.arrow) { translate: 6px 0; }
 
   .work__next { margin-top: clamp(64px, 9vw, 130px); border-top: 1px solid var(--rule); padding-top: 22px; }
