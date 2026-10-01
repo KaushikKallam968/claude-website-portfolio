@@ -203,11 +203,9 @@ const last = at + 1 === ordered.length;
   .case__return-label { letter-spacing: -0.04em; line-height: 0.95; font-weight: 520; }
   .case__return:hover :global(.arrow) { translate: -8px 0; }
   .case__more { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; }
-  /* The next Case's title words travel to its heading: they wrap at 18ch and set as tight as an Entry's words
-     (Title role tracking, 0.95 leading), so the flight starts from a box of about the heading's shape. */
-  .case__next-text { display: inline-block; max-width: 18ch; line-height: 0.95; letter-spacing: -0.028em; text-wrap: balance; }
-  /* A title that wraps hangs beside its label, which stays level with the first line. */
-  .case__next-link { display: inline-flex; align-items: baseline; gap: 0.3em; }
+  /* The next Case's title words travel to its heading, so they are a box of their own. The title stays on one line
+     (each image of the flight keeps its own proportions); where it does not fit beside its label it takes the next. */
+  .case__next-text { display: inline-block; white-space: nowrap; }
   @media (pointer: coarse) { .case__more { row-gap: 22px; } }
   @media (max-width: 520px) { .case__more { flex-direction: column; align-items: flex-start; } }
 

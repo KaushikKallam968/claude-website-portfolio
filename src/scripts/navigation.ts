@@ -78,7 +78,7 @@ export function restoreIfPending(): boolean {
   if (r.bottom < 0 || r.top > innerHeight) el.scrollIntoView({ block: 'center' });
   // The bar is back on a new page, though it had stepped away when the Entry was opened: an Entry that was
   // up there now sits under it. A Chapter heading keeps the landing the page gave it.
-  if (el.tabIndex >= 0) clearOfChrome(el);
+  if (el.tabIndex >= 0) clearOfChrome(el, true);
   return true;
 }
 
@@ -102,6 +102,7 @@ export function restoreFocusOnBack() {
       const r = link?.getBoundingClientRect();
       if (!link || !r || r.bottom < 0 || r.top > innerHeight || document.activeElement !== document.body) return;
       link.focus({ preventScroll: true });
+      clearOfChrome(link, true);
       session.remove(KEYS.lastCase);
     });
   if (document.readyState === 'complete') run();
@@ -298,11 +299,12 @@ export const setScroller = (lenis: Lenis) => (smooth = lenis);
 
 /**
  * How far down the screen the fixed chrome reaches once it has settled: the top bar, and on small screens the
- * notes ticker (or the open sheet) under it. Read from the layout, not from where the bar is mid-slide.
+ * notes ticker (or the open sheet) under it. Read from the layout, not from where the bar is mid-slide. The bar
+ * counts even if it is away when `barBack` says it is about to return.
  */
-function chromeBottom() {
+function chromeBottom(barBack: boolean) {
   const root = document.documentElement;
-  const away = root.classList.contains('nav-hidden');
+  const away = !barBack && root.classList.contains('nav-hidden');
   const bar = document.querySelector<HTMLElement>('.top');
   const notes = document.querySelector<HTMLElement>('.notes');
   let bottom = bar && !away ? bar.offsetHeight : 0;
@@ -314,14 +316,17 @@ function chromeBottom() {
 
 /**
  * One frame after focus lands, a control the bar or the ticker would cover is scrolled clear of them, at once.
- * The frame lets the browser finish its own scroll into view first.
+ * The frame lets the browser finish its own scroll into view first. An Entry's or a row's title is measured by
+ * its row, which is what the focus ring is drawn on: the words stand a line above their link's box. On a page just
+ * arrived at the bar is counted whether or not the restored scroll has sent it away yet: it comes back at once.
  */
-function clearOfChrome(el: HTMLElement) {
+function clearOfChrome(el: HTMLElement, barBack = false) {
   requestAnimationFrame(() => {
     // Focus may have moved on already (tabbing quickly through a slow frame); it is the one that rests that matters.
     if (document.activeElement !== el || smooth?.isScrolling === 'smooth') return;
-    const { top, bottom } = el.getBoundingClientRect();
-    const under = chromeBottom();
+    const box = (el.matches('.entry__link, .row__link') && el.closest('.entry, .row')) || el;
+    const { top, bottom } = box.getBoundingClientRect();
+    const under = chromeBottom(barBack);
     if (bottom <= 0 || top >= under) return;
     const by = top - under - 12;
     if (smooth) smooth.scrollTo(smooth.scroll + by, { immediate: true, force: true });

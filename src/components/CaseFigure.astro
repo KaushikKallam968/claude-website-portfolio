@@ -487,10 +487,6 @@ const scores = [1, 2, 3, 4, 5, 6, 7, 8];
 
 <script>
   // The screenshots load as they near the screen, so a page printed before they were scrolled to would carry empty
-  // frames. Once the page has settled they are asked for (a few small files); a print that comes sooner asks too.
-  const loadAll = () => document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach((img) => (img.loading = 'eager'));
-  addEventListener('beforeprint', loadAll);
-  const settle = () => ('requestIdleCallback' in window ? requestIdleCallback(loadAll, { timeout: 3000 }) : setTimeout(loadAll, 3000));
-  if (document.readyState === 'complete') settle();
-  else addEventListener('load', settle, { once: true });
+  // frames. A print asks for them all; nothing else does, so a reader never pays for what they do not scroll to.
+  addEventListener('beforeprint', () => document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach((img) => (img.loading = 'eager')));
 </script>
