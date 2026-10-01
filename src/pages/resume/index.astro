@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import Arrow from '../../components/Arrow.astro';
 import { allEntries, allRoles, closing, type Role } from '../../data/journey';
-import { keepCompounds } from '../../lib/format';
+import { nobrCompounds } from '../../lib/format';
 
 const summaries = new Map(allEntries().filter(({ entry }) => entry.kind === 'summary').map(({ entry }) => [`/#${entry.id}`, entry]));
 
@@ -37,9 +37,9 @@ const roles = allRoles().map((r) => ({ ...r, link: moreLink(r) }));
           <li class="cv__item">
             <p class="cv__when num">{r.period}</p>
             <div>
-              <h3 class="cv__title">{keepCompounds(r.title)}</h3>
-              <p class="cv__org">{keepCompounds(`${r.org} · ${r.where}`)}</p>
-              <ul class="cv__points">{r.highlights.map((p) => <li>{keepCompounds(p)}</li>)}</ul>
+              <h3 class="cv__title">{r.title}</h3>
+              <p class="cv__org">{r.org} · {r.where}</p>
+              <ul class="cv__points">{r.highlights.map((p) => <li><Fragment set:html={nobrCompounds(p)} /></li>)}</ul>
               <a class="cv__more link" href={r.more} data-observe={`resume.more.${r.more.replace(/[^a-z-]/g, '')}`} data-observe-label={r.link.observe} data-observe-cannot="Whether the résumé line was enough.">{r.link.label} <Arrow /></a>
             </div>
           </li>
@@ -55,7 +55,7 @@ const roles = allRoles().map((r) => ({ ...r, link: moreLink(r) }));
           <div>
             <h3 class="cv__title">Cofounder, watched.</h3>
             <p class="cv__org">Movie and TV tracking and discovery app · launched, currently paused</p>
-            <ul class="cv__points"><li>{keepCompounds('Research, product and interaction design, and front-end work, alongside two technical cofounders.')}</li></ul>
+            <ul class="cv__points"><li><Fragment set:html={nobrCompounds('Research, product and interaction design, and front-end work, alongside two technical cofounders.')} /></li></ul>
             <a class="cv__more link" href="/work/watched/" data-observe="resume.more.watched" data-observe-label="more about watched." data-observe-cannot="Whether the résumé line was enough.">Read the case <Arrow /></a>
           </div>
         </li>
@@ -67,7 +67,7 @@ const roles = allRoles().map((r) => ({ ...r, link: moreLink(r) }));
       <ol class="cv__list">
         <li class="cv__item">
           <p class="cv__when num">2022 to 2024</p>
-          <div><h3 class="cv__title">MS, Applied Cognition and Neuroscience</h3><p class="cv__org">{keepCompounds('University of Texas at Dallas · Human-Computer Interaction specialization')}</p></div>
+          <div><h3 class="cv__title">MS, Applied Cognition and Neuroscience</h3><p class="cv__org">University of Texas at Dallas · Human-Computer Interaction specialization</p></div>
         </li>
         <li class="cv__item">
           <p class="cv__when num">2018 to 2022</p>

@@ -5,7 +5,7 @@ import FigureScene from '../../components/FigureScene.astro';
 import NotesPanel from '../../components/NotesPanel.astro';
 import Arrow from '../../components/Arrow.astro';
 import { entryFor } from '../../data/journey';
-import { keepCompounds, keepDots, sentence } from '../../lib/format';
+import { keepDots, nobrCompounds, sentence } from '../../lib/format';
 
 export async function getStaticPaths() {
   const cases = await getCollection('cases');
@@ -28,21 +28,21 @@ const last = at + 1 === ordered.length;
     <div class="case__layout">
       <article class="case__article" aria-labelledby="case-title">
         <header class="case__head">
-          <h1 id="case-title" class:list={['case__title', { 'case__title--long': d.title.length > 25 }]}><span class="case__title-text" style={`view-transition-name: case-${entry.id}`}>{keepCompounds(d.title)}</span></h1>
+          <h1 id="case-title" class:list={['case__title', { 'case__title--long': d.title.length > 25 }]}><span class="case__title-text" style={`view-transition-name: case-${entry.id}`}>{d.title}</span></h1>
           <p class="case__crumbs">
-            <span>{keepCompounds(keepDots(d.context))}</span>
+            <span>{keepDots(d.context)}</span>
             <span>Case {d.order} of {ordered.length}</span>
             {d.draft && <span class="draft-marker" title="Draft copy awaiting Kaushik’s confirmation">Draft</span>}
           </p>
-          <p class="case__question">{keepCompounds(d.question)}</p>
+          <p class="case__question"><Fragment set:html={nobrCompounds(d.question)} /></p>
         </header>
 
         <dl class="tldr" aria-label="Summary">
-          <div><dt>Contribution</dt><dd>{keepCompounds(d.contribution)}</dd></div>
-          {d.team && <div><dt>Team</dt><dd>{keepCompounds(d.team)}</dd></div>}
-          <div><dt>Timeline</dt><dd>{keepCompounds(d.timeline)}</dd></div>
-          {d.methods && <div class="tldr__methods"><dt>Methods</dt><dd><ul>{d.methods.map((m) => <li>{keepCompounds(m)}</li>)}</ul></dd></div>}
-          <div class="tldr__outcome"><dt>Outcome <span class="tldr__type">{d.outcomeType}</span></dt><dd>{keepCompounds(d.outcome)}</dd></div>
+          <div><dt>Contribution</dt><dd>{d.contribution}</dd></div>
+          {d.team && <div><dt>Team</dt><dd>{d.team}</dd></div>}
+          <div><dt>Timeline</dt><dd>{d.timeline}</dd></div>
+          {d.methods && <div><dt>Methods</dt><dd><ul>{d.methods.map((m) => <li>{m}</li>)}</ul></dd></div>}
+          <div class="tldr__outcome"><dt>Outcome <span class="tldr__type">{d.outcomeType}</span></dt><dd>{d.outcome}</dd></div>
         </dl>
 
         <div class="case__figure" data-observe-reach="figure" data-observe-shows={sentence(`You reached the figure in ${d.title}`)} data-observe-cannot="Whether it made the idea clearer than the words.">
@@ -58,14 +58,14 @@ const last = at + 1 === ordered.length;
           <div class="limits__cols">
             <div>
               <h3 class="limits__h">Shows</h3>
-              <ul>{d.shows.map((s) => <li>{keepCompounds(s)}</li>)}</ul>
+              <ul>{d.shows.map((s) => <li>{s}</li>)}</ul>
             </div>
             <div class="limits__cannot">
               <h3 class="limits__h">Can’t show</h3>
-              <ul>{d.cannotShow.map((s) => <li>{keepCompounds(s)}</li>)}</ul>
+              <ul>{d.cannotShow.map((s) => <li>{s}</li>)}</ul>
             </div>
           </div>
-          <p class="limits__status"><span class="label">Status</span> {keepCompounds(keepDots(d.status))}</p>
+          <p class="limits__status"><span class="label">Status</span> {keepDots(d.status)}</p>
         </section>
 
         <nav class="case__next" aria-label="Where next">
@@ -78,7 +78,7 @@ const last = at + 1 === ordered.length;
             {next.id !== entry.id && (
               <li>
                 <a class="link link--under" href={`/work/${next.id}/`} aria-label={last ? `Back to the first case: ${next.data.title}` : undefined} data-case-link={next.id} data-case-title={next.data.title} data-observe={`case.${next.id}`} data-observe-label={last ? 'Back to the first case' : `Next case: ${next.data.title}`} data-observe-cannot="Whether you are reading them all or looking for one.">
-                  {last ? 'Back to the first case' : keepCompounds(`Next case: ${next.data.title}`)} <Arrow />
+                  {last ? 'Back to the first case' : `Next case: ${next.data.title}`} <Arrow />
                 </a>
               </li>
             )}
@@ -162,8 +162,6 @@ const last = at + 1 === ordered.length;
   .tldr dd { margin: 0; font-size: var(--t-meta); }
   .tldr ul { display: grid; gap: 4px; }
   .tldr .tldr__outcome { flex-basis: 100%; }
-  /* Methods are the longest fact, so they take a little more of the row; a compound word that cannot break then leaves the summary no taller. */
-  .tldr .tldr__methods { flex-grow: 1.6; }
   .tldr__outcome dd { font-size: var(--t-body); max-width: 70ch; }
   .tldr__type { color: var(--ink); font-weight: 520; margin-left: 6px; }
   .tldr__type::before { content: '·'; color: var(--ink-3); margin-right: 6px; font-weight: 400; }

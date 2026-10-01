@@ -11,7 +11,7 @@ const statusAfterKind = (status: string, kind: string) => {
   const rest = status.slice(kind.length + 3);
   return rest.charAt(0).toUpperCase() + rest.slice(1);
 };
-import { keepCompounds, keepDots } from '../../lib/format';
+import { keepDots, nobrCompounds } from '../../lib/format';
 
 const cases = (await getCollection('cases'))
   .sort((a, b) => a.data.order - b.data.order)
@@ -41,19 +41,19 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
                   data-observe={`work.${c.id}`}
                   data-observe-label={c.data.title}
                   data-observe-cannot="Whether it was the title or the question that caught your eye."
-                ><span class="row__text">{keepCompounds(c.data.title)}</span></a>
+                ><span class="row__text">{c.data.title}</span></a>
               </h2>
-              <p class="row__q">{keepCompounds(c.data.question)}</p>
+              <p class="row__q"><Fragment set:html={nobrCompounds(c.data.question)} /></p>
               <p class="row__meta">
-                <span>{keepCompounds(keepDots(c.data.context))}</span>
-                {c.journey.where && <span>{keepCompounds(c.journey.where)}</span>}
-                <span>{keepCompounds(c.data.timeline)}</span>
+                <span>{keepDots(c.data.context)}</span>
+                {c.journey.where && <span>{c.journey.where}</span>}
+                <span>{c.data.timeline}</span>
                 {c.data.draft && <span class="draft-marker" title="Draft copy awaiting Kaushik’s confirmation">Draft</span>}
               </p>
               <dl class="row__facts">
-                <div><dt>Contribution</dt><dd>{keepCompounds(c.journey.entry.contribution)}</dd></div>
-                {c.data.methods && <div><dt>Methods</dt><dd>{keepCompounds(c.data.methods.join('; '))}</dd></div>}
-                <div><dt>Status</dt><dd>{keepCompounds(keepDots(c.data.status))}</dd></div>
+                <div><dt>Contribution</dt><dd>{c.journey.entry.contribution}</dd></div>
+                {c.data.methods && <div><dt>Methods</dt><dd>{c.data.methods.join('; ')}</dd></div>}
+                <div><dt>Status</dt><dd>{keepDots(c.data.status)}</dd></div>
               </dl>
               <span class="row__arrow" aria-hidden="true"><Arrow /></span>
             </li>
@@ -66,10 +66,10 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
             {others.map(({ entry, chapter }) => (
               <li>
                 <a class="also__item" href={`/#${entry.id}`} data-observe={`work.${entry.id}`} data-observe-label={entry.title} data-observe-cannot="Whether it was the work or the place that caught your eye.">
-                  <span class="also__name">{keepCompounds(entry.title)} <Arrow /></span>
+                  <span class="also__name">{entry.title} <Arrow /></span>
                   {/* Every item names its kind and Chapter the same way; the status drops the kind when it opens with it. */}
-                  <span class="also__kind"><span>{keepCompounds(keepDots(`${kindLabels[entry.kind]} · ${chapter.label}`))}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
-                  <span class="also__status">{keepCompounds(keepDots(statusAfterKind(entry.status, kindLabels[entry.kind])))}</span>
+                  <span class="also__kind"><span>{keepDots(`${kindLabels[entry.kind]} · ${chapter.label}`)}</span>{entry.draft && <span class="draft-marker">Draft</span>}</span>
+                  <span class="also__status">{keepDots(statusAfterKind(entry.status, kindLabels[entry.kind]))}</span>
                 </a>
               </li>
             ))}
@@ -139,10 +139,11 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
   /* The dot ends the part before it, so a wrapped line never starts with one. */
   .row__meta > span:has(+ span:not(.draft-marker))::after { content: '·' / ''; padding: 0 0.3em; }
   .row__meta > .draft-marker { margin-left: 14px; }
-  .row__facts { margin: 18px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px var(--gutter); max-width: 70ch; }
-  /* With methods named a row has three facts, side by side as on the Case page; two stay as they were. */
+  .row__facts { margin: 18px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px var(--gutter); }
+  /* Every row has the same three columns and Status sits in the last, so Status lines up down the list even where a row names no methods. */
   @media (min-width: 601px) {
-    .row__facts:has(> :nth-child(3)) { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: none; }
+    .row__facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .row__facts > div:last-child { grid-column: -2 / -1; }
   }
   .row__facts dt { font-size: var(--t-small); color: var(--ink-3); }
   .row__facts dd { margin: 2px 0 0; font-size: var(--t-meta); }

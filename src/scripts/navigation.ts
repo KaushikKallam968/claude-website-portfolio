@@ -290,24 +290,3 @@ export function wireRowLinks() {
     pending = window.setTimeout(() => !selecting() && link.click(), 240);
   });
 }
-
-/**
- * Copied text leaves the page without its word joiners (see keepCompounds), so a pasted line still reads and
- * searches as "front-end". Taking over the copy means writing the HTML flavor too: it carries the selection's own
- * markup, with each link and image address made absolute, since a relative one means nothing once pasted elsewhere.
- */
-export function wireCopy() {
-  const joiners = /\u2060/g;
-  document.addEventListener('copy', (ev) => {
-    const sel = getSelection();
-    const text = String(sel ?? '');
-    if (!sel || !ev.clipboardData || !text.includes('\u2060')) return;
-    const box = document.createElement('div');
-    for (let i = 0; i < sel.rangeCount; i++) box.append(sel.getRangeAt(i).cloneContents());
-    box.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((a) => a.setAttribute('href', a.href));
-    box.querySelectorAll<HTMLImageElement>('img[src]').forEach((img) => img.setAttribute('src', img.src));
-    ev.clipboardData.setData('text/plain', text.replace(joiners, ''));
-    ev.clipboardData.setData('text/html', box.innerHTML.replace(joiners, ''));
-    ev.preventDefault();
-  });
-}

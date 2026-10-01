@@ -2,7 +2,7 @@
 import type { Chapter, Entry } from '../data/journey';
 import CaseFigure from './CaseFigure.astro';
 import Arrow from './Arrow.astro';
-import { keepCompounds, keepDots } from '../lib/format';
+import { keepDots, nobrCompounds } from '../lib/format';
 
 interface Props {
   entry: Entry;
@@ -28,31 +28,31 @@ const href = `/work/${entry.id}/`;
           data-observe-label={entry.title}
           data-observe-cannot="Whether it was the title or the problem that caught your eye."
         >
-          <span class="entry__text">{keepCompounds(entry.title)}</span>
+          <span class="entry__text"><Fragment set:html={nobrCompounds(entry.title)} /></span>
         </a>
       ) : (
-        <span id={`entry-${entry.id}`} tabindex="-1">{keepCompounds(entry.title)}</span>
+        <span id={`entry-${entry.id}`} tabindex="-1"><Fragment set:html={nobrCompounds(entry.title)} /></span>
       )}
     </h3>
     <p class="entry__context">
-      <span>{keepCompounds(keepDots(entry.context))}</span>
+      <span>{keepDots(entry.context)}</span>
       {entry.draft && <span class="draft-marker" title="Draft copy awaiting Kaushik’s confirmation">Draft</span>}
     </p>
     <div class="entry__preview">
-      {entry.preview.map((p) => <p>{keepCompounds(p)}</p>)}
+      {entry.preview.map((p) => <p><Fragment set:html={nobrCompounds(p)} /></p>)}
     </div>
     {entry.more && (
       <div class="entry__more" id={`more-${entry.id}`} data-more>
-        {entry.more.map((p) => <p>{keepCompounds(p)}</p>)}
+        {entry.more.map((p) => <p>{p}</p>)}
       </div>
     )}
     <dl class="entry__facts">
-      <div><dt>Contribution</dt><dd>{keepCompounds(entry.contribution)}</dd></div>
-      <div><dt>Status</dt><dd>{keepCompounds(keepDots(entry.status))}</dd></div>
+      <div><dt>Contribution</dt><dd>{entry.contribution}</dd></div>
+      <div><dt>Status</dt><dd>{keepDots(entry.status)}</dd></div>
     </dl>
     {isCase ? (
       <a class="entry__action link link--under" href={href} tabindex="-1" aria-hidden="true" data-case-link={entry.id} data-case-title={entry.title} data-origin-chapter={chapter.id} data-observe={`case.${entry.id}`} data-observe-label={entry.title} data-observe-cannot="Whether it was the title or the problem that caught your eye.">
-        {keepCompounds(entry.action)} <Arrow />
+        {entry.action} <Arrow />
       </a>
     ) : entry.more ? (
       <button
@@ -66,7 +66,7 @@ const href = `/work/${entry.id}/`;
         data-observe-label={entry.action}
         data-observe-cannot="Whether the summary will be enough."
       >
-        {keepCompounds(entry.action)} <Arrow to="down" />
+        {entry.action} <Arrow to="down" />
       </button>
     ) : null}
   </div>

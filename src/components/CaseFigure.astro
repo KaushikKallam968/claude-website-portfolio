@@ -5,7 +5,6 @@
  */
 import { Image } from 'astro:assets';
 import Arrow from './Arrow.astro';
-import { keepCompounds } from '../lib/format';
 import track from '../assets/watched/track.png';
 import rec from '../assets/watched/ai-recommendation.png';
 import search from '../assets/watched/search.png';
@@ -49,7 +48,7 @@ const { kind, compact = false, scene = false } = Astro.props;
         <li style="--i:0">Plan</li><li style="--i:1">Call tool</li><li class="trace__ok" style="--i:2">Correct answer</li>
       </ol>
       <ol class="trace__row trace__row--long">
-        <li style="--i:0">Plan</li><li style="--i:1">Call tool</li><li class="trace__waste" style="--i:2">Call tool again</li><li class="trace__waste" style="--i:3">{keepCompounds('Re-plan')}</li><li class="trace__waste" style="--i:4">Call tool</li><li class="trace__ok" style="--i:5">Correct answer</li>
+        <li style="--i:0">Plan</li><li style="--i:1">Call tool</li><li class="trace__waste" style="--i:2">Call tool again</li><li class="trace__waste" style="--i:3">Re-plan</li><li class="trace__waste" style="--i:4">Call tool</li><li class="trace__ok" style="--i:5">Correct answer</li>
       </ol>
     </div>
     <figcaption class="fig__cap">
@@ -64,7 +63,7 @@ const { kind, compact = false, scene = false } = Astro.props;
         <thead><tr><th scope="col">Concept</th><th scope="col">What students raised</th><th scope="col">Next step</th></tr></thead>
         <tbody>
           <tr style="--i:0"><th scope="row">Homework help</th><td>Wanted detailed answers inside Discord, not a link elsewhere</td><td><span class="deck__go">Toward alpha</span></td></tr>
-          <tr style="--i:1"><th scope="row">Math solving</th><td>{keepCompounds('Entering an equation was friction, and they expected image-to-text')}</td><td><span class="deck__iter">Iterate first</span></td></tr>
+          <tr style="--i:1"><th scope="row">Math solving</th><td>Entering an equation was friction, and they expected image-to-text</td><td><span class="deck__iter">Iterate first</span></td></tr>
           <tr style="--i:2"><th scope="row">Quiz generation</th><td>Wanted explanations for wrong answers, and a timer</td><td><span class="deck__go">Toward alpha</span></td></tr>
         </tbody>
       </table>

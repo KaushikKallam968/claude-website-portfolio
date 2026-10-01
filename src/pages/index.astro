@@ -5,7 +5,7 @@ import Prologue from '../components/Prologue.astro';
 import NotesPanel from '../components/NotesPanel.astro';
 import Arrow from '../components/Arrow.astro';
 import { chapters, closing, shortPlace } from '../data/journey';
-import { keepCompounds, keepDots } from '../lib/format';
+import { keepDots, nobrCompounds } from '../lib/format';
 
 const pad = (v: number) => String(v).padStart(2, '0');
 // The Field draws the world from these: every Chapter's place, in page order.
@@ -37,7 +37,7 @@ const fieldPlaces = chapters.map((c) => ({
       </div>
       <div class="hero__grid grid">
         <div class="hero__more" data-quiet>
-          <p class="hero__sub" data-reveal>{keepCompounds('My research spans instrumentation and behavioral data, surveys, interviews, usability testing and concept testing. I’ve lived across countries and co-founded watched., a movie and TV discovery app, with two longtime friends. This is the journey that brought me here.')}</p>
+          <p class="hero__sub" data-reveal><Fragment set:html={nobrCompounds('My research spans instrumentation and behavioral data, surveys, interviews, usability testing and concept testing. I’ve lived across countries and co-founded watched., a movie and TV discovery app, with two longtime friends. This is the journey that brought me here.')} /></p>
           <ul class="hero__actions" data-reveal>
             <li><a class="link link--under" href="#journey" data-observe="cta.journey" data-observe-label="Explore the journey" data-observe-cannot="Whether you have time for the whole thing.">Explore the journey <Arrow to="down" /></a></li>
             <li><a class="link link--under" href="/work/" data-observe="cta.work" data-observe-label="Selected work" data-observe-cannot="Whether you would rather skip straight to the evidence.">Selected work <Arrow /></a></li>
@@ -53,7 +53,7 @@ const fieldPlaces = chapters.map((c) => ({
               <a href={`#${c.id}`} class="route__item" data-observe={`route.${c.id}`} data-observe-label={c.label} data-observe-cannot="Whether you will jump there or keep scrolling.">
                 <span class="route__no mono num" aria-hidden="true">{pad(i + 1)}</span>
                 <span class="route__place">{c.label}</span>
-                <span class="route__work">{keepCompounds(keepDots(c.work))}</span>
+                <span class="route__work">{keepDots(c.work)}</span>
                 <span class="route__meta mono num"><span>{c.period}</span> <span data-clock={c.place.timeZone} aria-hidden="true">--:--</span></span>
               </a>
             </li>
@@ -78,7 +78,7 @@ const fieldPlaces = chapters.map((c) => ({
         <h2 id="close-title" class="close__title" tabindex="-1" data-quiet>Your visit, as this site saw it</h2>
         <div class="close__text" data-quiet>
           <p class="close__honest">This is everything this site could observe. It can’t tell me what you were looking for, so I’d rather ask.</p>
-          <p>{keepCompounds(closing.text)}</p>
+          <p>{closing.text}</p>
           <p class="close__email"><a class="link link--under" href={`mailto:${closing.email}`} data-observe="contact.email" data-observe-label="my email address" data-observe-cannot="Whether you will write.">{closing.email}</a></p>
           <ul class="close__links">
             <li><a class="link link--under" href={closing.linkedin} rel="me" data-observe="contact.linkedin" data-observe-label="LinkedIn" data-observe-cannot="Whether we are already connected.">LinkedIn <Arrow to="up-right" /></a></li>

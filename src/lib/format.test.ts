@@ -1,33 +1,42 @@
 import { describe, expect, it } from 'vitest';
-import { keepCompounds } from './format';
+import { nobrCompounds } from './format';
 
-const WJ = '\u2060';
+const nobr = (s: string) => `<span class="nobr">${s}</span>`;
 
 describe('keeping compound words on one line', () => {
-  it('glues the part after a hyphen to the hyphen, so a line never ends on it', () => {
-    expect(keepCompounds('co-founded')).toBe(`co-${WJ}founded`);
-    expect(keepCompounds('AI-powered academic support')).toBe(`AI-${WJ}powered academic support`);
+  it('wraps a hyphenated compound so it cannot break at the hyphen', () => {
+    expect(nobrCompounds('front-end work')).toBe(`${nobr('front-end')} work`);
+    expect(nobrCompounds('AI-assisted')).toBe(nobr('AI-assisted'));
   });
 
-  it('glues every hyphen in a longer compound, even one with a single letter between them', () => {
-    expect(keepCompounds('image-to-text')).toBe(`image-${WJ}to-${WJ}text`);
-    expect(keepCompounds('a-b-c')).toBe(`a-${WJ}b-${WJ}c`);
+  it('wraps each compound on its own, and a longer one as a whole', () => {
+    expect(nobrCompounds('cross-language search, front-end work')).toBe(`${nobr('cross-language')} search, ${nobr('front-end')} work`);
+    expect(nobrCompounds('image-to-text')).toBe(nobr('image-to-text'));
   });
 
   it('counts accented letters as letters', () => {
-    expect(keepCompounds('déjà-vu')).toBe(`déjà-${WJ}vu`);
+    expect(nobrCompounds('déjà-vu')).toBe(nobr('déjà-vu'));
   });
 
-  it('leaves a hyphen alone unless a letter stands on both sides', () => {
-    expect(keepCompounds('June 2024-2026')).toBe('June 2024-2026');
-    expect(keepCompounds('a hyphen - set apart')).toBe('a hyphen - set apart');
-    expect(keepCompounds('trailing-')).toBe('trailing-');
-    expect(keepCompounds('-leading')).toBe('-leading');
-    expect(keepCompounds('COVID-19')).toBe('COVID-19');
+  it('gives a string without a compound back unchanged', () => {
+    expect(nobrCompounds('Research and design')).toBe('Research and design');
+    expect(nobrCompounds('June 2024-2026')).toBe('June 2024-2026');
+    expect(nobrCompounds('a hyphen - set apart')).toBe('a hyphen - set apart');
+    expect(nobrCompounds('trailing- and -leading')).toBe('trailing- and -leading');
+    expect(nobrCompounds('COVID-19')).toBe('COVID-19');
   });
 
-  it('gives the same text back when it is applied twice', () => {
-    const once = keepCompounds('cross-language search, front-end work');
-    expect(keepCompounds(once)).toBe(once);
+  it('escapes the characters that mean something in HTML', () => {
+    expect(nobrCompounds(`Tom & "Jerry" <b>'s`)).toBe('Tom &amp; &quot;Jerry&quot; &lt;b&gt;&#39;s');
+    expect(nobrCompounds('<script>alert(1)</script>')).toBe('&lt;script&gt;alert(1)&lt;/script&gt;');
+  });
+
+  it('escapes the text around a compound, and keeps entities out of its way', () => {
+    expect(nobrCompounds('R&D front-end & "co-founded"')).toBe(`R&amp;D ${nobr('front-end')} &amp; &quot;${nobr('co-founded')}&quot;`);
+    expect(nobrCompounds('<i>front-end</i>')).toBe(`&lt;i&gt;${nobr('front-end')}&lt;/i&gt;`);
+  });
+
+  it('escapes once: text that already reads like an entity is shown as written', () => {
+    expect(nobrCompounds('&amp; &lt;')).toBe('&amp;amp; &amp;lt;');
   });
 });
