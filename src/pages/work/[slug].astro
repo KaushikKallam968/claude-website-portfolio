@@ -6,7 +6,7 @@ import NotesPanel from '../../components/NotesPanel.astro';
 import Arrow from '../../components/Arrow.astro';
 import { entryFor } from '../../data/journey';
 import { isLongTitle, keepDots, nobrCompounds, sentence } from '../../lib/format';
-import { caseDescription, caseSchema, caseTitle } from '../../lib/seo';
+import { caseCardAlt, caseCardPath, caseDescription, caseSchema, caseTitle } from '../../lib/seo';
 
 export async function getStaticPaths() {
   const cases = await getCollection('cases');
@@ -16,6 +16,7 @@ export async function getStaticPaths() {
 const { entry, all } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
+const facts = { id: entry.id, title: d.title, context: d.context, question: d.question };
 const ordered = [...all].sort((a, b) => a.data.order - b.data.order);
 const { entry: journeyEntry, chapter } = entryFor(entry.id);
 // Cases read in order ("Case 2 of 5"), so each offers the next; the last offers the first again.
@@ -24,7 +25,7 @@ const next = ordered[(at + 1) % ordered.length];
 const last = at + 1 === ordered.length;
 ---
 
-<Base title={caseTitle(d.title)} description={caseDescription(d.question)} current="work" ogType="article" schema={caseSchema(Astro.site!, { id: entry.id, title: d.title, context: d.context, question: d.question })}>
+<Base title={caseTitle(d.title)} description={caseDescription(d.question)} current="work" ogType="article" ogImage={{ path: caseCardPath(entry.id), alt: caseCardAlt(facts) }} schema={caseSchema(Astro.site!, facts)}>
   <main id="main" class="case" data-page-name={d.title} data-case={entry.id} data-chapter={chapter.id} data-chapter-title={chapter.label}>
     <div class="case__layout">
       <article class="case__article" aria-labelledby="case-title">

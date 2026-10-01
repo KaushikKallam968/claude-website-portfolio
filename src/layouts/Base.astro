@@ -17,6 +17,8 @@ interface Props {
   ogType?: 'website' | 'profile' | 'article';
   /** The page's schema.org nodes (see lib/seo.ts), written as one JSON-LD script. */
   schema?: object[];
+  /** The share card (1200 by 630) and what it shows in words. Without one, a page shows the name card, public/og.png. */
+  ogImage?: { path: string; alt: string };
 }
 
 const {
@@ -28,6 +30,7 @@ const {
   preloadMono = true,
   ogType = 'website',
   schema,
+  ogImage,
 } = Astro.props;
 
 // One address per page, for the canonical link and og:url; the 404 has none.
@@ -35,7 +38,11 @@ const canonical = Astro.site && !noindex ? new URL(Astro.url.pathname, Astro.sit
 // An article names its author by the home page, which is about the author.
 const authorUrl = Astro.site ? new URL('/', Astro.site).href : undefined;
 // What public/og.png shows, for people who cannot see it.
-const ogAlt = 'The name Kaushik Kallam in large black type on two lines, on a pale grey background. Below it: Senior Quantitative UX Researcher, JPMorganChase, New York. At the right, in small blue type: what the data shows and what it can’t.';
+const nameCard = {
+  path: '/og.png',
+  alt: 'The name Kaushik Kallam in large black type on two lines, on a pale grey background. Below it: Senior Quantitative UX Researcher, JPMorganChase, New York. At the right, in small blue type: what the data shows and what it can’t.',
+};
+const card = ogImage ?? nameCard;
 
 const nav = [
   { id: 'journey', label: 'Journey', href: '/#journey-index' },
@@ -79,8 +86,8 @@ const nav = [
     {canonical && <meta property="og:url" content={canonical} />}
     {Astro.site && (
       <>
-        <meta property="og:image" content={new URL('/og.png', Astro.site).href} />
-        <meta property="og:image:alt" content={ogAlt} />
+        <meta property="og:image" content={new URL(card.path, Astro.site).href} />
+        <meta property="og:image:alt" content={card.alt} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
       </>
