@@ -88,7 +88,7 @@ const fieldPlaces = chapters.map((c) => ({
         </div>
         <div class="readout" data-readout>
           <p class="readout__total" data-quiet><span class="mono num" data-readout-total>0 s</span> on this site, up to here</p>
-          <p class="readout__empty" data-readout-empty hidden>You haven’t spent a second in any chapter yet.</p>
+          <p class="readout__empty" data-readout-empty hidden>You haven’t spent a second in any chapter.</p>
           <ol class="readout__bars" data-readout-bars aria-label="Time spent in each chapter">
             {chapters.map((c) => (
               <li data-bar={c.id}>

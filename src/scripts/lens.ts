@@ -136,7 +136,12 @@ export function startLens() {
   exit.dataset.observeLabel = 'Hide tracking';
   exit.dataset.observeCannot = 'Whether you found what you were looking for.';
   bar.append(tally, exit);
-  document.body.append(layer, bar);
+  // The outlines say nothing to a screen reader, so the tally is said once when the lens opens, and cleared when
+  // it closes so the next opening is said again. It is its own line: the visible tally changes as the page moves.
+  const status = document.createElement('p');
+  status.className = 'visually-hidden';
+  status.setAttribute('role', 'status');
+  document.body.append(layer, bar, status);
 
   let marks: Mark[] = [];
   const coarse = matchMedia('(pointer: coarse)');
@@ -171,7 +176,23 @@ export function startLens() {
     });
   };
 
+  // The outlines move only when the page does: scrolling, resizing, a change of height or of the page's state, or
+  // something sliding into place (the bar, an entrance). Between those nothing is read or written, so a page at
+  // rest costs the lens next to nothing.
+  const SETTLE_MS = 1000;
+  let stamp = '';
+  let settled = 0;
+  const stir = () => (settled = performance.now() + SETTLE_MS);
+  document.addEventListener('transitionrun', stir, true);
+  document.addEventListener('animationstart', stir, true);
+
   const place = () => {
+    raf = requestAnimationFrame(place);
+    const now = `${scrollX} ${scrollY} ${innerWidth} ${innerHeight} ${root.scrollHeight} ${root.className}`;
+    if (now !== stamp) {
+      stamp = now;
+      stir();
+    } else if (performance.now() > settled) return;
     let tagged = 0;
     let shared = 0;
     let gaps = 0;
@@ -230,7 +251,6 @@ export function startLens() {
       else gaps++;
     });
     tally.textContent = `On screen: ${tagged} tracked${shared ? ` · ${shared} share a tag` : ''} · ${gaps} not tracked`;
-    raf = requestAnimationFrame(place);
   };
 
   const set = (on: boolean) => {
@@ -239,12 +259,17 @@ export function startLens() {
     btn.textContent = on ? 'Hide tracking' : 'Show tracking';
     if (!on) document.querySelector('.lens-cursor')?.classList.remove('is-on');
     cancelAnimationFrame(raf);
-    if (!on) return;
+    if (!on) {
+      status.textContent = '';
+      return;
+    }
     // On a small screen the lens is switched on from the Notes sheet; the sheet steps aside so the outlines
     // and their labels fall on the page, not on its text.
     document.dispatchEvent(new CustomEvent('lens:on'));
     build();
+    stamp = '';
     place();
+    status.textContent = tally.textContent;
     if (reduce()) return;
     // A scan passes down the screen and the outlines appear as it reaches them.
     gsap.fromTo(scan, { y: 0, opacity: 1 }, { y: innerHeight, duration: 0.9, ease: 'scene', onComplete: () => gsap.set(scan, { opacity: 0, y: 0 }) });

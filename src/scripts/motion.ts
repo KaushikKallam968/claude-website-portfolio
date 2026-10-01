@@ -6,7 +6,7 @@ import Lenis from 'lenis';
 import { startTimeShifts } from './timeshift';
 import { startField, type FieldHandle } from './field';
 import { record, elapsed } from './notes';
-import { livePaused } from './navigation';
+import { livePaused, setScroller } from './navigation';
 
 /**
  * One motion grammar for the whole site: position, opacity and clip only.
@@ -29,6 +29,7 @@ function reveal() {
 
 function smoothScroll() {
   lenis = new Lenis({ duration: 1.15, easing: (t) => 1 - Math.pow(1 - t, 4), anchors: { offset: -64 }, autoRaf: false });
+  setScroller(lenis);
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((time) => lenis?.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
