@@ -183,8 +183,8 @@ export function startLens() {
   let stamp = '';
   let settled = 0;
   const stir = () => (settled = performance.now() + SETTLE_MS);
-  document.addEventListener('transitionrun', stir, { capture: true, passive: true });
-  document.addEventListener('animationstart', stir, { capture: true, passive: true });
+  document.addEventListener('transitionrun', stir, true);
+  document.addEventListener('animationstart', stir, true);
 
   const place = () => {
     raf = requestAnimationFrame(place);
