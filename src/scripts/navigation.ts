@@ -164,18 +164,77 @@ export function wireDisclosures() {
   addEventListener('hashchange', openAtHash);
 }
 
+/** Where a jump rests against its target: above it, clear of the top bar. */
+const ANCHOR_OFFSET = -64;
+/** A jump over more than this many screens fades the page out and in; a shorter one flies over it. */
+const FAR_JUMP = 2.5;
+const FADE_OUT_MS = 180;
+const FADE_IN_MS = 350;
+/** The `out` curve, as CSS (see motion.ts). */
+const OUT = 'cubic-bezier(0.16, 1, 0.3, 1)';
+
+const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let veil: HTMLElement | null = null;
+let fade: Animation | null = null;
+let fades = 0;
+
+/**
+ * Takes the page's paper to `to` (1 hides the page) over `ms`, from wherever it is now, and says when it is there.
+ * Asking again in the middle replaces the fade, so a second jump never stacks on the first.
+ */
+function fadePage(to: 0 | 1, ms: number, done?: () => void) {
+  if (!veil) {
+    veil = document.createElement('div');
+    veil.className = 'veil';
+    veil.setAttribute('aria-hidden', 'true');
+    document.body.append(veil);
+  }
+  const from = getComputedStyle(veil).opacity;
+  veil.style.opacity = String(to);
+  fade?.cancel();
+  fade = veil.animate({ opacity: [from, String(to)] }, { duration: ms, easing: OUT });
+  const mine = ++fades;
+  let over = false;
+  const finish = () => {
+    if (over || mine !== fades) return;
+    over = true;
+    done?.();
+  };
+  fade.onfinish = finish;
+  // The paper never stays up because an animation was cut short.
+  setTimeout(finish, ms + 150);
+}
+
+/**
+ * A jump over many screens would strobe every scene it crosses and spend the page's own arrival at its far end
+ * while the page is still flying. So the page fades to paper, jumps while it is hidden, and fades back in. The
+ * first frames after the jump are the heaviest of the visit; they pass under the paper.
+ */
+function fadeJump(land: () => void) {
+  fadePage(1, FADE_OUT_MS, () => {
+    // The page settles in the frames after a jump (the readout lays out its rows). Scroll anchoring would move the
+    // landing by what it settles by, a pixel at most, which a flying jump never shows, since it sets its last
+    // position after the page has settled.
+    document.documentElement.style.overflowAnchor = 'none';
+    land();
+    const landed = fades;
+    requestAnimationFrame(() => fades === landed && fadePage(0, FADE_IN_MS, () => document.documentElement.style.removeProperty('overflow-anchor')));
+  });
+}
+
 /**
  * A jump within the page (Contact, a route item, Explore the journey) moves focus to where it lands, not only
  * the scroll: the section's heading takes focus, so the next Tab continues from there. A mouse click shows no
- * ring; a keyboard jump does.
+ * ring; a keyboard jump does. A short jump flies there on the smooth scroller; a long one fades (see fadeJump).
  */
-export function wireAnchorFocus(restored: boolean) {
+export function wireAnchorJumps(restored: boolean) {
   // Focus goes where the jump lands: the target itself, or its own heading when that heading opens it (a Chapter,
   // the close). A wrapper without one (the Journey, the route index) takes focus itself, so the next Tab
   // continues from its start rather than skipping ahead to a heading further down.
-  const focusAt = (id: string) => {
+  const focusable = (id: string) => {
     const target = document.getElementById(id);
-    if (!target) return;
+    if (!target) return null;
     let el = target;
     if (!target.matches('[tabindex], a[href], button')) {
       const heading = target.querySelector<HTMLElement>('h1[tabindex], h2[tabindex], h3[tabindex]');
@@ -185,12 +244,47 @@ export function wireAnchorFocus(restored: boolean) {
         target.classList.add('focus-target');
       }
     }
-    requestAnimationFrame(() => el.focus({ preventScroll: true }));
+    return el;
+  };
+  const focusAt = (id: string) => {
+    const el = focusable(id);
+    if (el) requestAnimationFrame(() => el.focus({ preventScroll: true }));
+  };
+  /** Where a jump to this target comes to rest, as the smooth scroller works it out. */
+  const restAt = (target: HTMLElement) => {
+    const margin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+    return Math.min(smooth!.limit, Math.max(0, target.getBoundingClientRect().top + scrollY - margin + ANCHOR_OFFSET));
   };
   document.addEventListener('click', (ev) => {
     const a = (ev.target as Element).closest<HTMLAnchorElement>('a[href*="#"]');
     if (!a || ev.defaultPrevented || a.origin !== location.origin || a.pathname !== location.pathname || a.hash.length < 2) return;
-    focusAt(decodeURIComponent(a.hash.slice(1)));
+    const id = decodeURIComponent(a.hash.slice(1));
+    const target = document.getElementById(id);
+    // With no smooth scroller (reduced motion) the browser jumps, as it does for any link.
+    if (!target || !smooth) {
+      focusAt(id);
+      return;
+    }
+    const plain = ev.button === 0 && !(ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey);
+    // Where it rests is worked out now, as it is for a flying jump, so a jump lands where the page said it would.
+    const rest = restAt(target);
+    // A jump asked for while another is fading takes over the fade, so the page is never left half hidden.
+    if (plain && !reducedMotion() && (Math.abs(rest - scrollY) > FAR_JUMP * innerHeight || fade?.playState === 'running')) {
+      ev.preventDefault();
+      fadeJump(() => {
+        // The address and its history entry are made while the page is still where it was, so Back returns there.
+        // (Setting the hash would jump natively first, and the smooth scroller would then measure from a stale place.)
+        if (location.hash !== a.hash) history.pushState(null, '', a.hash);
+        // Focus before the scroll: the top bar hides as the page moves down unless focus is inside it, and until
+        // now it is on the link that was clicked.
+        focusable(id)?.focus({ preventScroll: true });
+        smooth!.scrollTo(rest, { immediate: true, force: true });
+        document.dispatchEvent(new CustomEvent('jump:landed'));
+      });
+      return;
+    }
+    smooth.scrollTo(target, { offset: ANCHOR_OFFSET });
+    focusAt(id);
   });
   // Arriving from another page with a fragment (Contact from a Case) lands focus there too, unless the reader is
   // being put back where they were (Return, or Back through history), where focus belongs to the Entry.

@@ -1,11 +1,30 @@
 /**
  * What a Time Shift and the Field must agree on: the curve a flight is flown on, the stretch of a band's passage it
- * is flown over, how long a band runs, and the hours between two places' clocks. The page measures them at build
- * time, the browser while it scrolls.
+ * is flown over, the hours its clock has turned, how long a band runs, and the hours between two places' clocks. The
+ * page measures them at build time, the browser while it scrolls.
  */
 
-/** The flight's curve (cubic in-out), so a band's clock and its traveller keep time together. */
+/** A domestic band's curve (cubic in-out), so its clock and its traveller keep time together. */
 export const inOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+/**
+ * The ocean crossing's curve (sine in-out). The cubic runs three times the mean rate at mid-flight, which packed the
+ * crossing's hours into a few pixels of scroll each; this peaks at about 1.6 times, so they stay countable.
+ */
+export const sineInOut = (t: number) => 0.5 - Math.cos(Math.PI * t) / 2;
+
+/** How far along its leg a traveller is, from how far through its flight it is: a band on the cubic, the crossing on the sine. */
+export const travelled = (flight: number, band: boolean) => (band ? inOut : sineInOut)(flight);
+
+/**
+ * How many of a scene's hours its clock has turned, from how far along its leg the traveller is. The count starts
+ * where the traveller is at `start`, turns the hours one at a time as the traveller covers the rest, and the last
+ * one as it lands.
+ */
+export function hoursTurned(along: number, start: number, hours: number) {
+  const k = Math.min(1, Math.max(0, (along - start) / Math.max(0.05, 1 - start)));
+  return Math.min(hours, Math.floor(k * hours));
+}
 
 /**
  * How far along its flight a domestic band's traveller is, from how far the reader is through the band's passage
