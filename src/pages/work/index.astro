@@ -161,6 +161,7 @@ const others = allEntries().filter(({ entry }) => entry.kind !== 'case');
   .work__next { margin-top: clamp(64px, 9vw, 130px); border-top: 1px solid var(--rule); padding-top: 22px; }
   .work__more { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; }
   @media (pointer: coarse) { .work__more { row-gap: 22px; } }
+  @media (max-width: 520px) { .work__more { flex-direction: column; align-items: flex-start; } }
 
   @media (max-width: 1100px) {
     .work__layout { grid-template-columns: minmax(0, 1fr); }

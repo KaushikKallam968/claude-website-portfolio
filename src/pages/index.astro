@@ -168,6 +168,8 @@ const fieldPlaces = chapters.map((c) => ({
   .hero__actions { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; }
   /* Touch hit areas are 44px tall; wrapped rows sit far enough apart that they never overlap. */
   @media (pointer: coarse) { .hero__actions { row-gap: 22px; } }
+  /* On a phone the three actions stack, one to a row, rather than wrapping two and one. */
+  @media (max-width: 520px) { .hero__actions { flex-direction: column; align-items: flex-start; } }
 
   /* Journey in the top bar lands the index clear of the bar (and, on small screens, the notes ticker). */
   .route { margin-top: clamp(28px, 3.4vw, 52px); padding-right: calc(var(--margin) + var(--rail) + var(--gutter)); scroll-margin-top: 96px; }
