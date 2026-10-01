@@ -1,3 +1,4 @@
+import { yieldToMain } from '../yield';
 import { attribute, createProgram, type Program } from './gl';
 
 /**
@@ -267,9 +268,6 @@ export interface Colors {
 }
 
 export class FieldRenderer {
-  readonly gl: WebGL2RenderingContext;
-  private dots: Program;
-  private route: Program;
   private dotsVao: WebGLVertexArrayObject;
   private routeVao: WebGLVertexArrayObject;
   private dotBuffers = new Map<string, WebGLBuffer>();
@@ -284,16 +282,35 @@ export class FieldRenderer {
   tone = { dot: 1, map: 1 };
   colors: Colors = { ink: [0.07, 0.07, 0.06], note: [0.17, 0.23, 0.88] };
 
-  constructor(readonly canvas: HTMLCanvasElement) {
+  /**
+   * The context and each program are made in a task of their own. Every one waits on the GPU process, which can
+   * be busy, and the page should answer between them.
+   */
+  static async create(canvas: HTMLCanvasElement) {
     const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: false, powerPreference: 'high-performance' });
     if (!gl) throw new Error('WebGL2 unavailable');
-    this.gl = gl;
-    this.dots = createProgram(gl, DOTS_VS, DOT_FS);
-    this.route = createProgram(gl, ROUTE_VS, ROUTE_FS);
+    await yieldToMain();
+    const dots = createProgram(gl, DOTS_VS, DOT_FS);
+    await yieldToMain();
+    const route = createProgram(gl, ROUTE_VS, ROUTE_FS);
+    return new FieldRenderer(canvas, gl, dots, route);
+  }
+
+  private constructor(
+    readonly canvas: HTMLCanvasElement,
+    readonly gl: WebGL2RenderingContext,
+    private dots: Program,
+    private route: Program,
+  ) {
     this.dotsVao = gl.createVertexArray()!;
     this.routeVao = gl.createVertexArray()!;
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  }
+
+  /** For a renderer that will not be used: gives the GPU context back now instead of when the browser collects it. */
+  dispose() {
+    this.gl.getExtension('WEBGL_lose_context')?.loseContext();
   }
 
   resize(width: number, height: number, dpr: number, mapWidthUnits: number) {

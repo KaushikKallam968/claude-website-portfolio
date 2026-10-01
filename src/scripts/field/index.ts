@@ -45,8 +45,11 @@ const TRAIL = 20;
 /** The ring of the place being read breathes 0.45 times a second, and rests 0.3 of the way through a breath. */
 const PULSE_HZ = 0.45;
 const PULSE_REST = 0.3;
-/** With only the ring moving, a frame every 50ms is enough; with no scrolling or pointer for 6s it rests. */
-const PULSE_FRAME_MS = 50;
+/**
+ * With only the ring moving, every third tick of a 60Hz screen (50ms) is enough, so a tick that comes a few ms early
+ * still counts. With no scrolling or pointer for 6s the ring rests.
+ */
+const PULSE_FRAME_MS = 42;
 const PULSE_STILL_MS = 6000;
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -61,7 +64,8 @@ export interface FieldHandle {
   textCue: number;
 }
 
-export async function startField(): Promise<FieldHandle | null> {
+/** `worldFile` is the dots file, asked for by the page as the code loads; null when it could not be had. */
+export async function startField(worldFile: Promise<ArrayBuffer | null>): Promise<FieldHandle | null> {
   const root = document.documentElement;
   const heading = document.querySelector<HTMLElement>('.hero__name');
   const placesEl = document.getElementById('field-places');
@@ -72,19 +76,19 @@ export async function startField(): Promise<FieldHandle | null> {
   canvas.className = 'field-canvas';
   canvas.setAttribute('aria-hidden', 'true');
   try {
-    renderer = new FieldRenderer(canvas);
+    renderer = await FieldRenderer.create(canvas);
   } catch {
     return null;
   }
 
   const places: Place[] = JSON.parse(placesEl.textContent ?? '[]');
-  const [bin] = await Promise.all([
-    fetch('/data/world-dots.bin').then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(r.status))),
-    document.fonts.load(`${getComputedStyle(heading).fontWeight} 100px Switzer`),
-  ]).catch(() => [null]);
+  const [bin] = await Promise.all([worldFile, document.fonts.load(`${getComputedStyle(heading).fontWeight} 100px Switzer`)]).catch(() => [null]);
   // The page gives up on the Field after five seconds (see Base.astro) and shows the plain name. A world that
   // arrives after that must not bring a canvas back over it.
-  if (!bin || !root.classList.contains('field')) return null;
+  if (!bin || !root.classList.contains('field')) {
+    renderer.dispose();
+    return null;
+  }
 
   document.body.prepend(canvas);
   root.classList.add('field-on');
@@ -209,6 +213,9 @@ export async function startField(): Promise<FieldHandle | null> {
   let visitSpacing = 4.4;
   let visitEndY = 0;
   let closeDocTop = Infinity;
+  // Set when something compute() reads has changed: the layout, a scroll, the pointer, the arrival ending. A tick
+  // at rest does not work all of it out again.
+  let dirty = true;
 
   const fitZoom = (xs: number[], ys: number[], fillW: number, fillH: number) => {
     const w = Math.max(...xs) - Math.min(...xs) || 0.01;
@@ -286,6 +293,7 @@ export async function startField(): Promise<FieldHandle | null> {
   }
 
   function measure() {
+    dirty = true;
     vw = innerWidth;
     vh = innerHeight;
     const dpr = Math.min(devicePixelRatio || 1, 2);
@@ -447,6 +455,8 @@ export async function startField(): Promise<FieldHandle | null> {
   const updateSun = () => {
     const s = subsolarPoint(new Date());
     sun = [(s.lat * Math.PI) / 180, (s.lon * Math.PI) / 180];
+    // The line between day and night moves a little each minute, even where nothing else does.
+    force = true;
   };
   updateSun();
   setInterval(updateSun, 60000);
@@ -504,7 +514,13 @@ export async function startField(): Promise<FieldHandle | null> {
   // On a phone the name sits above the identity text rather than beside it, so the world gives way to it
   // sooner: the empty space where the name will be never waits long.
   const q = narrow ? 0.65 : 1;
-  const tl = gsap.timeline({ paused: true, onComplete: () => (intro.running = false) });
+  const tl = gsap.timeline({
+    paused: true,
+    onComplete: () => {
+      intro.running = false;
+      dirty = true;
+    },
+  });
   tl.to(intro, { mapIn: 1, duration: 1.1 * q, ease: 'out' }, 0)
     .to(intro, { push: 1, duration: 3.4 * q, ease: 'out' }, 0)
     .to(intro, { route: 1, duration: 1.7 * q, ease: 'scene' }, 0.3 * q)
@@ -729,7 +745,7 @@ export async function startField(): Promise<FieldHandle | null> {
 
   // Only draw when something changed: scroll, the arrival, the pointer's warmth, dots in flight, or the
   // breathing ring of the place being read (which rests while live motion is paused). The ring alone is drawn
-  // every 50ms, and comes to rest after a still spell until the reader scrolls or moves the pointer again.
+  // every third tick, and comes to rest after a still spell until the reader scrolls or moves the pointer again.
   let clock = 0;
   let cycles = PULSE_REST;
   let lastTick = performance.now();
@@ -738,9 +754,12 @@ export async function startField(): Promise<FieldHandle | null> {
   let lastInput = lastTick;
   let rested = false;
   let lastKey = '';
+  let lastY = -1;
+  let warm = 0;
   const wake = () => {
     lastInput = performance.now();
     rested = false;
+    dirty = true;
   };
   addEventListener('scroll', wake, { passive: true });
   addEventListener('pointermove', wake, { passive: true });
@@ -751,14 +770,22 @@ export async function startField(): Promise<FieldHandle | null> {
     const dt = (now - lastTick) / 1000;
     if (!paused) clock += dt;
     lastTick = now;
-    compute();
-    const inHero = scrollY < heroBottom || frame.stage < 0.999;
+    // Scrolling is read from the page itself, not from its event: Lenis moves the page in this same frame.
+    const y = scrollY;
+    const changing = dirty || force || intro.running || warm >= 0.002 || y !== lastY;
+    if (changing) {
+      dirty = false;
+      lastY = y;
+      compute();
+    }
+    const inHero = y < heroBottom || frame.stage < 0.999;
     if (!inHero && frame.mapVis < 0.002) {
       if (!idle) {
         renderer.clear();
         labelLayer.style.visibility = 'hidden';
         idle = true;
       }
+      warm = 0;
       return;
     }
     if (idle) {
@@ -766,9 +793,11 @@ export async function startField(): Promise<FieldHandle | null> {
       force = true;
     }
     idle = false;
-    fillTrail(now);
-    let warm = 0;
-    for (let i = 0; i < TRAIL; i++) warm += trail[i * 3 + 2];
+    if (changing) {
+      fillTrail(now);
+      warm = 0;
+      for (let i = 0; i < TRAIL; i++) warm += trail[i * 3 + 2];
+    }
     const inFlight = (frame.stage > 0.001 && frame.stage < 0.999) || (frame.stage > 1.001 && frame.stage < 1.999);
     const pulsing = frame.routeVis > 0.001 && !paused && !rested;
     if (pulsing) {
@@ -781,7 +810,8 @@ export async function startField(): Promise<FieldHandle | null> {
         force = true;
       }
     }
-    const key = `${scrollY}|${frame.stage.toFixed(4)}|${frame.mapIn}|${frame.route}|${frame.mapVis.toFixed(3)}|${vw}x${vh}`;
+    // What the key is made of only changes with compute(), so a tick that skipped it has the last key.
+    const key = changing ? `${y}|${frame.stage.toFixed(4)}|${frame.mapIn}|${frame.route}|${frame.mapVis.toFixed(3)}|${vw}x${vh}` : lastKey;
     const moving = force || intro.running || warm >= 0.002 || (inFlight && !paused) || key !== lastKey;
     if (!moving && !(pulsing && now - lastDraw >= PULSE_FRAME_MS)) return;
     lastKey = key;

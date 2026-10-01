@@ -43,6 +43,12 @@ async function loadJourney() {
 }
 type Journey = Awaited<ReturnType<typeof loadJourney>>;
 
+/** The Field's dots. No world is an answer too: the page then stays plain. */
+const loadWorld = () =>
+  fetch('/data/world-dots.bin')
+    .then((r) => (r.ok ? r.arrayBuffer() : null))
+    .catch(() => null);
+
 /**
  * Content that opens in place (a Summary, Research in Development) moves everything below it, so the
  * scroll scenes measure again once the page has settled at its new height. The Field listens for the same
@@ -263,16 +269,19 @@ export function startMotion() {
   // The Journey is the home page: no other page loads its code.
   const onJourney = document.querySelector('.chapter, [data-shift]') !== null;
   if (reduced()) {
-    if (onJourney) import('./timeshift').then(({ startTimeShifts }) => startTimeShifts(true, livePaused));
+    if (onJourney) import('./timeshift').then(({ startTimeShifts }) => startTimeShifts(true, livePaused)).catch(() => {});
     reveal();
     return;
   }
   smoothScroll();
   if (!onJourney) return;
   const root = document.documentElement;
-  // The code is fetched while the fonts load; the Field's only when this page is going to draw it.
+  const wantsField = root.classList.contains('field');
+  // The code is fetched while the fonts load; the Field's only when this page is going to draw it. Its world is
+  // asked for beside the code, so on a slow line the two arrive together instead of one after the other.
   const journeyCode = loadJourney().catch(() => null);
-  const fieldCode = root.classList.contains('field') ? import('./field').catch(() => null) : null;
+  const fieldCode = wantsField ? import('./field').catch(() => null) : null;
+  const world = wantsField ? loadWorld() : null;
   document.fonts.ready.then(async () => {
     const journey = await journeyCode;
     const fieldModule = await fieldCode;
@@ -282,7 +291,7 @@ export function startMotion() {
       reveal();
       return;
     }
-    const field = fieldModule ? await fieldModule.startField().catch(() => null) : null;
+    const field = fieldModule && world ? await fieldModule.startField(world).catch(() => null) : null;
     if (!field) root.classList.remove('field');
     // After a slow load the failsafe has already shown the page; an entrance now would only hide it again.
     if (!root.classList.contains('motion-done')) intro(field, journey);
