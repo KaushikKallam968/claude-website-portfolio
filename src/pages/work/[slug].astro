@@ -5,7 +5,7 @@ import FigureScene from '../../components/FigureScene.astro';
 import NotesPanel from '../../components/NotesPanel.astro';
 import Arrow from '../../components/Arrow.astro';
 import { entryFor } from '../../data/journey';
-import { keepDots, nobrCompounds, sentence } from '../../lib/format';
+import { isLongTitle, keepDots, nobrCompounds, sentence } from '../../lib/format';
 
 export async function getStaticPaths() {
   const cases = await getCollection('cases');
@@ -28,7 +28,7 @@ const last = at + 1 === ordered.length;
     <div class="case__layout">
       <article class="case__article" aria-labelledby="case-title">
         <header class="case__head">
-          <h1 id="case-title" class:list={['case__title', { 'case__title--long': d.title.length > 25 }]}><span class="case__title-text" style={`view-transition-name: case-${entry.id}`}>{d.title}</span></h1>
+          <h1 id="case-title" class:list={['case__title', { 'case__title--long': isLongTitle(d.title) }]}><span class="case__title-text" style={`view-transition-name: case-${entry.id}`}>{d.title}</span></h1>
           <p class="case__crumbs">
             <span>{keepDots(d.context)}</span>
             <span>Case {d.order} of {ordered.length}</span>

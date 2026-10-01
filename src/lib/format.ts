@@ -32,3 +32,9 @@ export function nobrCompounds(s: string): string {
 
 /** Ends a sentence with a full stop, unless the name that ends it already carries one ("watched."). */
 export const sentence = (s: string) => (/[.!?]$/.test(s) ? s : `${s}.`);
+
+/**
+ * A Case title this long sets on the smaller page-title size and wraps to two lines (see --t-page-long in global.css).
+ * The page and the click that leads to it both ask, so they agree on whether the heading will be one line.
+ */
+export const isLongTitle = (title: string) => title.length > 25;

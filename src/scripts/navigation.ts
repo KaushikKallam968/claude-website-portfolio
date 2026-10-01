@@ -2,6 +2,7 @@ import type Lenis from 'lenis';
 import { clockFormat } from './clock';
 import { originFromState, type Origin } from '../lib/origin';
 import { KEYS, session } from '../lib/store';
+import { isLongTitle } from '../lib/format';
 import { record, elapsed, READING_LINE } from './notes';
 
 /** The `out` curve, as CSS (see motion.ts). */
@@ -29,9 +30,11 @@ export function rememberOrigins() {
     else session.remove(KEYS.origin(caseId));
     // The row that was clicked becomes the Case page: the next page opens out of its outline, and only its
     // title travels to the Case's heading. Every other title stays part of the page, so none is left behind.
-    // On a Case, the words of "Next case: <title>" are that title; "Back to the first case" has none.
+    // On a Case, the words of "Next case: <title>" are that title; "Back to the first case" has none. Those words
+    // are one line, so they travel only to a heading that sets on one line: a long title wraps at its page, and
+    // like the first case it arrives with the page's words instead.
     const title = fromCase
-      ? a.querySelector<HTMLElement>('.case__next-text')
+      ? isLongTitle(a.dataset.caseTitle ?? '') ? null : a.querySelector<HTMLElement>('.case__next-text')
       : a.closest('.entry, .row')?.querySelector<HTMLElement>('.entry__text, .row__text');
     nameTravellingTitle(title ?? null, caseId);
     const row = a.closest('.entry, .row') ?? a;
@@ -173,6 +176,14 @@ export function wireDisclosures() {
 
 /** Where a jump rests against its target: above it, clear of the top bar. */
 const ANCHOR_OFFSET = -64;
+/** The id a fragment names. A bad percent escape (a mistyped address) names nothing rather than stopping the page's scripts. */
+const fragmentId = (hash: string) => {
+  try {
+    return decodeURIComponent(hash.slice(1));
+  } catch {
+    return '';
+  }
+};
 /** A jump over more than this many screens fades the page out and in; a shorter one flies over it. */
 const FAR_JUMP = 2.5;
 const FADE_OUT_MS = 180;
@@ -181,6 +192,8 @@ const FADE_IN_MS = 350;
 let veil: HTMLElement | null = null;
 let fade: Animation | null = null;
 let fades = 0;
+/** The heading a page opened at a fragment was moved onto, until the top bar has taken its place (see wireTopBar). */
+let landed: HTMLElement | null = null;
 
 /**
  * Takes the page's paper to `to` (1 hides the page) over `ms`, from wherever it is now, and says when it is there.
@@ -268,7 +281,7 @@ export function wireAnchorJumps(restored: boolean) {
   document.addEventListener('click', (ev) => {
     const a = (ev.target as Element).closest<HTMLAnchorElement>('a[href*="#"]');
     if (!a || ev.defaultPrevented || a.origin !== location.origin || a.pathname !== location.pathname || a.hash.length < 2) return;
-    const id = decodeURIComponent(a.hash.slice(1));
+    const id = fragmentId(a.hash);
     const target = document.getElementById(id);
     // With no smooth scroller (reduced motion) the browser jumps, as it does for any link.
     if (!target || !smooth) {
@@ -299,7 +312,26 @@ export function wireAnchorJumps(restored: boolean) {
   // Arriving from another page with a fragment (Contact from a Case) lands focus there too, unless the reader is
   // being put back where they were (Return, or Back through history), where focus belongs to the Entry.
   const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
-  if (location.hash.length > 1 && !restored && nav?.type !== 'back_forward') focusAt(decodeURIComponent(location.hash.slice(1)));
+  if (location.hash.length < 2 || restored || nav?.type === 'back_forward') return;
+  const id = fragmentId(location.hash);
+  focusAt(id);
+  // The browser rests a fragment's target at its scroll margin, a jump ANCHOR_OFFSET above that, and the short-screen
+  // landings count on the jump (see .close in index.astro). So the same address would land two ways, by how it was
+  // reached: a page opened at one is moved to where the jump rests, once it has loaded (until then the browser keeps
+  // the target where it put it), unless the reader has begun to scroll. A reload keeps the position it restores.
+  if (nav?.type !== 'navigate') return;
+  let moved = false;
+  for (const type of ['wheel', 'touchstart', 'keydown']) addEventListener(type, () => (moved = true), { once: true, passive: true });
+  addEventListener(
+    'load',
+    () => {
+      const target = document.getElementById(id);
+      if (moved || !smooth || !target) return;
+      smooth.scrollTo(restAt(target), { immediate: true, force: true });
+      landed = focusable(id);
+    },
+    { once: true },
+  );
 }
 
 /** The smooth scroller, once motion has started one: whatever else moves the page by itself goes through it. */
@@ -348,12 +380,14 @@ export function wireTopBar() {
   const root = document.documentElement;
   let last = scrollY;
   // A page that opens part-way down (an address with a fragment, a reload) is arrived at, not read down to: it
-  // starts where it is, with the bar in place.
+  // starts where it is, with the bar in place, unless that would cover the heading it has landed on (a short
+  // screen's close, which a jump reaches with the bar away). This follows the move onto a fragment, which is made
+  // by the load handler wireAnchorJumps adds first.
   addEventListener(
     'load',
     () => {
       last = scrollY;
-      root.classList.remove('nav-hidden');
+      root.classList.toggle('nav-hidden', landed !== null && landed.getBoundingClientRect().top < chromeBottom(true));
     },
     { once: true },
   );

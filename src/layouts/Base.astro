@@ -91,9 +91,9 @@ const nav = [
       // This has to be registered before first render, so it lives here rather than in a module.
       // Leaving a Case, its heading travels back to the title it came from only if it is on screen as the page
       // leaves. A Case read down to Return has no heading in sight, so the whole page folds back into its row,
-      // except on a phone, where a row is taller than the screen and the fold would show as blank paper: the
-      // page cross-fades there.
-      var phone = function () { return matchMedia('(max-width: 600px)').matches; };
+      // if the row is small beside the screen: a row nearly as tall as the screen (a phone, held either way) would
+      // show the fold as blank paper, so the page cross-fades there. The row is on the page it came from, so that
+      // is decided when this page is shown, below.
       addEventListener('pageswap', function (e) {
         var main = document.querySelector('main[data-case]');
         if (!e.viewTransition || !main) return;
@@ -105,7 +105,7 @@ const nav = [
         var toCase = !!h && h.style.viewTransitionName === 'none';
         if (h && !toCase) h.style.viewTransitionName = seen ? 'case-' + main.getAttribute('data-case') : 'none';
         // With no heading to carry, the Case folds back into its row and lets its words go first (see global.css).
-        if (!seen && !toCase && !phone()) document.documentElement.classList.add('vt-folding');
+        if (!seen && !toCase) document.documentElement.classList.add('vt-folding');
         try { sessionStorage.setItem('kk:vt-case', JSON.stringify({ id: main.getAttribute('data-case'), seen: seen })); } catch (err) {}
       });
       addEventListener('pagereveal', function (e) {
@@ -132,7 +132,7 @@ const nav = [
             t.style.viewTransitionName = 'case-' + back.id;
             d.classList.add('vt-return');
             e.viewTransition.finished.finally(function () { t.style.viewTransitionName = ''; d.classList.remove('vt-return'); });
-          } else if (!back.seen && rr && !phone()) {
+          } else if (!back.seen && rr && rr.bottom - rr.top < innerHeight * 0.7) {
             // The row is measured now and again once the page has been nudged clear of the bar (a frame after it is
             // shown), so the fold ends on the row where it rests.
             var aim = function () { var b = row.getBoundingClientRect(); d.style.setProperty('--vt-to', inset(b.top, innerWidth - b.right, innerHeight - b.bottom, b.left)); };

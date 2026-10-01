@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { nobrCompounds } from './format';
+import { isLongTitle, nobrCompounds } from './format';
 
 const nobr = (s: string) => `<span class="nobr">${s}</span>`;
 
@@ -38,5 +38,18 @@ describe('keeping compound words on one line', () => {
 
   it('escapes once: text that already reads like an entity is shown as written', () => {
     expect(nobrCompounds('&amp; &lt;')).toBe('&amp;amp; &amp;lt;');
+  });
+});
+
+describe('which Case titles wrap', () => {
+  it('counts more than 25 characters as long, the size at which a title sets on two lines', () => {
+    expect(isLongTitle('x'.repeat(25))).toBe(false);
+    expect(isLongTitle('x'.repeat(26))).toBe(true);
+  });
+
+  it('sorts the Cases as their headings set', () => {
+    expect(['Chegg Mexico', 'Chegg Discord', 'watched.'].some(isLongTitle)).toBe(false);
+    expect(isLongTitle('Inspire Brands Ad Creative')).toBe(true);
+    expect(isLongTitle('Data Instrumentation Coverage and Quality')).toBe(true);
   });
 });
