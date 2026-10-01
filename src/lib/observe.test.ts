@@ -123,16 +123,20 @@ describe('observation notes', () => {
 
   it('notes the time the device keeps once per visit, and cannot tell whether the reader is there', () => {
     const obs = createObservation();
-    expect(obs.record({ type: 'clock', t: 2000, place: 'Singapore' })).toEqual({
+    expect(obs.record({ type: 'clock', t: 2000, kept: 'the same time as Singapore' })).toEqual({
       t: 2000,
       event: 'clock',
       tag: null,
       quality: 'tagged',
-      shows: 'Your device keeps Singapore time.',
+      shows: 'Your device keeps the same time as Singapore.',
       cannotShow: 'Whether you’re there, or only your clock is.',
     });
     // Later pages replay the notes of the visit; the visit has already said it.
-    expect(obs.record({ type: 'clock', t: 9000, place: 'Singapore' })).toBeNull();
+    expect(obs.record({ type: 'clock', t: 9000, kept: 'the same time as Singapore' })).toBeNull();
+  });
+
+  it('says a city’s time as it is given, for a zone that is no Journey place', () => {
+    expect(createObservation().record({ type: 'clock', t: 2000, kept: 'London time' })?.shows).toBe('Your device keeps London time.');
   });
 
   it('only notes a pause once it is long enough to mean something', () => {

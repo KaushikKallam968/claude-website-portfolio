@@ -9,8 +9,8 @@ export type RawEvent =
   | { type: 'press'; t: number; tag: string | null; label?: string }
   /** Text copied from inside a tagged control (the email address): noted once per tag on each page. */
   | { type: 'copy'; t: number; page: string; tag: string; label: string; cannotShow?: string }
-  /** The place the device's clock keeps time for; the zone itself never enters the note. */
-  | { type: 'clock'; t: number; place: string }
+  /** What the device's clock keeps, in words ("the same time as Texas", "London time"); the zone itself never enters the note. */
+  | { type: 'clock'; t: number; kept: string }
   /** Where the visit began; its name, because the note is read on later pages too. */
   | { type: 'arrive'; t: number; page: string; pageName: string }
   | { type: 'depth'; t: number; page: string; pageName?: string; fraction: number }
@@ -105,7 +105,7 @@ export function createObservation() {
           // Said once per visit: the notes are replayed on every later page, and the clock has not changed.
           if (clockNoted) return null;
           clockNoted = true;
-          return { t: e.t, event: 'clock', tag: null, quality: 'tagged', shows: `Your device keeps ${e.place} time.`, cannotShow: 'Whether you’re there, or only your clock is.' };
+          return { t: e.t, event: 'clock', tag: null, quality: 'tagged', shows: `Your device keeps ${e.kept}.`, cannotShow: 'Whether you’re there, or only your clock is.' };
         case 'depth': {
           let seen = quartersSeen.get(e.page) ?? 0;
           const next = QUARTERS[seen];
