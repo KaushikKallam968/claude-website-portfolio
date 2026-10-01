@@ -24,8 +24,11 @@ export function rememberOrigins() {
     else session.remove(KEYS.origin(caseId));
     // The row that was clicked becomes the Case page: the next page opens out of its outline, and only its
     // title travels to the Case's heading. Every other title stays part of the page, so none is left behind.
-    const title = a.closest('.entry, .row')?.querySelector<HTMLElement>('.entry__text, .row__text');
-    nameTravellingTitle(fromCase ? null : title ?? null, caseId);
+    // On a Case, the words of "Next case: <title>" are that title; "Back to the first case" has none.
+    const title = fromCase
+      ? a.querySelector<HTMLElement>('.case__next-text')
+      : a.closest('.entry, .row')?.querySelector<HTMLElement>('.entry__text, .row__text');
+    nameTravellingTitle(title ?? null, caseId);
     const row = a.closest('.entry, .row') ?? a;
     const r = row.getBoundingClientRect();
     session.set(KEYS.expandFrom, { top: r.top, right: innerWidth - r.right, bottom: innerHeight - r.bottom, left: r.left });
@@ -37,15 +40,16 @@ export function rememberOrigins() {
 let travelling: HTMLElement | null = null;
 
 /**
- * Name the one title that travels in a page transition. Leaving a Case for another Case, nothing on this page
- * has a partner on the next, so the heading gives up its name and leaves with the page.
+ * Name the one title that travels in a page transition. Leaving a Case for another Case, the heading has no
+ * partner on the next page, so it gives up its name and leaves with the page; the next Case's title words
+ * (if the link has them) are what travel.
  */
 function nameTravellingTitle(el: HTMLElement | null, caseId: string) {
   if (travelling) travelling.style.viewTransitionName = '';
   travelling = el;
   if (el) el.style.viewTransitionName = `case-${caseId}`;
   const heading = document.querySelector<HTMLElement>('.case__title-text');
-  if (heading && !el) heading.style.viewTransitionName = 'none';
+  if (heading) heading.style.viewTransitionName = 'none';
 }
 
 /** On a Case page: take the Origin handed over by the previous page, or keep the one this entry already has. */
@@ -72,6 +76,9 @@ export function restoreIfPending(): boolean {
   el.focus({ preventScroll: true });
   const r = el.getBoundingClientRect();
   if (r.bottom < 0 || r.top > innerHeight) el.scrollIntoView({ block: 'center' });
+  // The bar is back on a new page, though it had stepped away when the Entry was opened: an Entry that was
+  // up there now sits under it. A Chapter heading keeps the landing the page gave it.
+  if (el.tabIndex >= 0) clearOfChrome(el);
   return true;
 }
 
@@ -106,8 +113,9 @@ export function restoreOnPageShow() {
   addEventListener('pageshow', (e) => {
     if (!(e as PageTransitionEvent).persisted) return;
     restoreIfPending();
-    // Back from the Case: the heading's name was only for the way out (the way back is named in Base.astro).
-    document.querySelector<HTMLElement>('.case__title-text')?.style.removeProperty('view-transition-name');
+    // Back from the Case: the names were only for the way out (the way back is named in Base.astro).
+    document.querySelectorAll<HTMLElement>('.case__title-text, .case__next-text').forEach((el) => el.style.removeProperty('view-transition-name'));
+    document.documentElement.classList.remove('vt-folding');
   });
 }
 
@@ -210,6 +218,23 @@ function chromeBottom() {
   return bottom;
 }
 
+/**
+ * One frame after focus lands, a control the bar or the ticker would cover is scrolled clear of them, at once.
+ * The frame lets the browser finish its own scroll into view first.
+ */
+function clearOfChrome(el: HTMLElement) {
+  requestAnimationFrame(() => {
+    // Focus may have moved on already (tabbing quickly through a slow frame); it is the one that rests that matters.
+    if (document.activeElement !== el || smooth?.isScrolling === 'smooth') return;
+    const { top, bottom } = el.getBoundingClientRect();
+    const under = chromeBottom();
+    if (bottom <= 0 || top >= under) return;
+    const by = top - under - 12;
+    if (smooth) smooth.scrollTo(smooth.scroll + by, { immediate: true, force: true });
+    else scrollBy({ top: by, behavior: 'instant' as ScrollBehavior });
+  });
+}
+
 /** The top bar steps aside while reading down and returns when scrolling up. */
 export function wireTopBar() {
   const root = document.documentElement;
@@ -225,16 +250,7 @@ export function wireTopBar() {
     // the bar or the ticker is moved clear of it, at once. Only controls the keyboard can reach: the heading a jump
     // lands on, and a jump still under way, keep the landing the page gave them.
     if (el.tabIndex < 0 || el.closest('.skip') || !el.matches(':focus-visible')) return;
-    requestAnimationFrame(() => {
-      // Focus may have moved on already (tabbing quickly through a slow frame); it is the one that rests that matters.
-      if (document.activeElement !== el || smooth?.isScrolling === 'smooth') return;
-      const { top, bottom } = el.getBoundingClientRect();
-      const under = chromeBottom();
-      if (bottom <= 0 || top >= under) return;
-      const by = top - under - 12;
-      if (smooth) smooth.scrollTo(smooth.scroll + by, { immediate: true, force: true });
-      else scrollBy({ top: by, behavior: 'instant' as ScrollBehavior });
-    });
+    clearOfChrome(el);
   });
   addEventListener(
     'scroll',
