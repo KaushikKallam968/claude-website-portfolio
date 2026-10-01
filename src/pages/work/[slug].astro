@@ -162,7 +162,8 @@ const last = at + 1 === ordered.length;
   .tldr div { flex: 1 1 220px; padding: 14px 0 18px; border-bottom: 1px solid var(--rule); }
   .tldr dt { font-size: var(--t-small); color: var(--ink-3); margin-bottom: 4px; }
   .tldr dd { margin: 0; font-size: var(--t-meta); }
-  .tldr ul { display: grid; gap: 4px; }
+  /* The methods are the longest lines in the summary: across the whole row they would run past 90 characters. */
+  .tldr ul { display: grid; gap: 4px; max-width: 60ch; }
   .tldr .tldr__outcome { flex-basis: 100%; }
   .tldr__outcome dd { font-size: var(--t-body); max-width: 58ch; }
   .tldr__type { color: var(--ink); font-weight: 520; margin-left: 6px; }
