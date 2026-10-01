@@ -45,7 +45,7 @@ Roles and dates:
 
 ## Capabilities and Constraints
 
-Featured research, in order: Data Instrumentation Coverage and Quality; Chegg Mexico; Chegg Discord (the order they are met on the Journey since the Chegg contract joined the internship in Silicon Valley). watched. is a distinct cofounder/product case. Bounded multi-agent evaluation is "research in development", never a completed case. Chase Mobile Entry Points is a concise summary, not a full case.
+Featured research, in order: Data Instrumentation Coverage and Quality; Chegg Mexico; Chegg Discord (the order they are met on the Journey since the Chegg contract joined the internship in Silicon Valley); Inspire Brands Ad Creative (Atlanta). watched. is a distinct cofounder/product case. Bounded multi-agent evaluation is "research in development", never a completed case. Chase Mobile Entry Points is a concise summary, not a full case.
 
 Claim boundaries that bind every surface:
 
@@ -53,6 +53,7 @@ Claim boundaries that bind every surface:
 - **AI evaluation:** bounded multi-agent workflows only; concept development with his manager; he does not design the agentic test experience. Internal signals, definitions, rubrics and logs are protected. Agent-side indicators are an operational construct, not proof agents feel emotion.
 - **Discord:** discovery plus low-fidelity concept tests produced different advance/iterate recommendations. No launched bot or measured learning gains. Do not sum participants into 60 unique people.
 - **Mexico:** mixed-methods; stakeholder scoping from a 100+ question draft; bilingual search recommendation, implementation reported in the owner's presentation. No business uplift. Do not merge with the separate 400+ EGEL claim.
+- **Inspire Brands Ad Creative:** content coding of 548 quick-service restaurant TV ads on 21 yes-or-no attributes (defined with the head of Demand Gen Analytics before any ad was watched), linear regression in R of the Overall ACE Score and its seven components; he coded all the ads, ran every regression and presented the readout (August 8, 2023), which was used to inform creative guidance (owner, October 1, 2026). ACE Metrix may be named and the findings published in words (owner, October 1, 2026). Never published: regression estimates or significance values, the brand list or its size, competitors, codebook definitions beyond the product close-up example, the counting thresholds, internal tools and follow-up plans, colleagues' names, and the outcome percentages on old résumés (unsupported by the deck). Results are associations, never causes. The survey work is described as identifying submissions that looked automated, without numbers; the owner's sources differ on bot-generated versus chatbot responses. Sources: his readout deck and interview-prep notes in Google Drive.
 - **watched.:** co-founded with two longtime friends; research, product/UX and front-end contributions alongside technical cofounders; launched, currently paused in an offline maintenance release (App Store, version 2.12.2 of September 8, 2026, rechecked September 30, 2026; recheck before sharing widely). Singapore did not inspire or originate it.
 - Case copy is confirmed and cleared for publishing (owner, September 30, 2026: publish publicly with the Draft markers removed, confirming the copy and that the employer material, the JPMorganChase entries included, is cleared). The Draft marker remains in the code for any future copy that is not yet confirmed.
 
@@ -71,6 +72,7 @@ Claim boundaries that bind every surface:
 - Licensed material: Figtree (SIL OFL) and CC0 Poly Haven HDR skies in `portfolio-handoff/`.
 - No portrait of Kaushik on the site (owner decision, September 30, 2026).
 - watched. screenshots: the real screens from the public App Store listing (provenance in `assets-source/watched/PROVENANCE.md`) are approved for the site (owner, September 30, 2026).
+- Inspire Brands: the August 2023 readout deck and a later interview-prep document in the owner's Google Drive (read October 1, 2026; the deck is marked confidential, so it is a source, never shown).
 - Absent, and never to be fabricated: photos of Kaushik or his life, watched. video, a résumé PDF, publishable employer artifacts, participant quotes, outcome metrics.
 
 ## Product Principles
