@@ -37,15 +37,15 @@ Some attributes needed a rule as well as a definition. For jump cuts and split s
 
 ## Choosing the model
 
-I asked a member of the Data Science team for guidance on the statistical approach, then chose linear regression: in R, I modeled each of the eight scores against the coded attributes, to find the attributes that were both most impactful and statistically significant. A separate regression of the overall score on its seven components ranked how much each one mattered.
+I asked a member of the Data Science team for guidance on the statistical approach, then chose linear regression: in R, I modeled each of the eight scores against the coded attributes, to find the attributes that were both most strongly associated with the scores and statistically significant. A separate regression of the overall score on its seven components ranked how much each one mattered.
 
 The analysis assumed that brand does not affect the scores, and brand was blinded, so the study could say nothing about any single brand.
 
 ## What the readout found
 
-Watchability was the most influential component of the Overall ACE Score by a wide margin, with Change and Relevance tied for second. In the readout’s terms, a close-up focus on the product, and action set at the restaurant, were the biggest positive drivers of the overall score and of every component. Real people and testimonials were the top negative driver in almost every score, and humor was a negative driver in many scores. Thirty-second ads were associated with higher scores than fifteen-second ones.
+Watchability was the most influential component of the Overall ACE Score by a wide margin, with Change and Relevance tied for second. In the readout’s terms, a close-up focus on the product, and action set at the restaurant, were the biggest positive drivers of the overall score and of every component. Real people and testimonials were the attribute most strongly associated with lower values in almost every score, and humor was associated with lower values in many scores. Thirty-second ads were associated with higher scores than fifteen-second ones.
 
-For each score, a chart set every attribute’s impact against its statistical significance and highlighted the key drivers, and each score got its own recommendation. For the overall score, it was a 30-second ad focused on the product, with the action at the restaurant. I presented the readout in August, and it was used to inform Inspire’s creative guidance.
+For each score, a chart set every attribute’s impact against its statistical significance and highlighted the attributes most strongly associated with that score, and each score got its own recommendation. For the overall score, it was a 30-second ad focused on the product, with the action at the restaurant. I presented the readout in August, and it was used to inform Inspire’s creative guidance.
 
 ## Cautions in the readout
 
