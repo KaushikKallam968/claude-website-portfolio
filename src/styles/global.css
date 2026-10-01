@@ -260,7 +260,7 @@ html.vt-fold::view-transition-new(root) { animation: none; mix-blend-mode: norma
 
 /* Masks for line and character reveals: leave room for descenders. */
 .ln-mask, .ch-mask { padding-bottom: 0.14em; margin-bottom: -0.14em; }
-h1, h2, h3 { text-wrap: balance; }
+h1, h2, h3, h4 { text-wrap: balance; }
 p, li, dd { text-wrap: pretty; }
 
 /* ---------- The Field (home page) ---------- */
@@ -429,5 +429,5 @@ html.lens-on .lens-bar { display: flex; }
   /* A Case's scene may break between its figure and its steps (kept whole, they leave a page short and strand
      the Return block); the figure itself, each step and the Return link stay whole. */
   .fig, .scene__steps li, .entry, .row, .shift, .prologue, .close, .case__return { break-inside: avoid; }
-  h1, h2, h3, .chapter__head { break-after: avoid; break-inside: avoid; }
+  h1, h2, h3, h4, .chapter__head { break-after: avoid; break-inside: avoid; }
 }

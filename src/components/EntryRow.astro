@@ -7,16 +7,19 @@ import { keepDots, nobrCompounds } from '../lib/format';
 interface Props {
   entry: Entry;
   chapter: Chapter;
+  /** An Entry is one level below the heading that holds it: a Chapter's (3), or a subsection's (4). */
+  level?: 3 | 4;
 }
 
-const { entry, chapter } = Astro.props;
+const { entry, chapter, level = 3 } = Astro.props;
+const Heading = `h${level}` as 'h3' | 'h4';
 const isCase = entry.kind === 'case';
 const href = `/work/${entry.id}/`;
 ---
 
 <li class="entry" id={entry.id} data-entry={entry.id} data-chapter={chapter.id}>
   <div class="entry__main">
-    <h3 class="entry__title" id={`entry-${entry.id}-title`}>
+    <Heading class="entry__title" id={`entry-${entry.id}-title`}>
       {isCase ? (
         <a
           href={href}
@@ -33,7 +36,7 @@ const href = `/work/${entry.id}/`;
       ) : (
         <span id={`entry-${entry.id}`} tabindex="-1"><Fragment set:html={nobrCompounds(entry.title)} /></span>
       )}
-    </h3>
+    </Heading>
     <p class="entry__context">
       <span>{keepDots(entry.context)}</span>
       {entry.draft && <span class="draft-marker" title="Draft copy awaiting Kaushik’s confirmation">Draft</span>}

@@ -68,7 +68,7 @@ const reachCannot =
       </div>
       {g.entries.length > 0 && (
         <ol class="entries grid" aria-label={g.heading ?? `Work in ${chapter.label}`}>
-          {g.entries.map((e) => <EntryRow entry={e} chapter={chapter} />)}
+          {g.entries.map((e) => <EntryRow entry={e} chapter={chapter} level={g.heading ? 4 : 3} />)}
         </ol>
       )}
     </div>
