@@ -12,7 +12,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "test": "vitest run",
-    "indexnow": "node scripts/indexnow.mjs"
+    "indexnow": "node scripts/indexnow.mjs",
+    "og": "node scripts/build-og.mjs"
   },
   "dependencies": {
     "astro": "^7.3.5",
@@ -23,6 +24,7 @@
     "@astrojs/check": "^0.9.10",
     "@types/d3-geo": "^3.1.1",
     "d3-geo": "^3.1.1",
+    "playwright-core": "^1.56.1",
     "topojson-client": "^3.1.0",
     "typescript": "^6.0.3",
     "vitest": "^5.0.2",
