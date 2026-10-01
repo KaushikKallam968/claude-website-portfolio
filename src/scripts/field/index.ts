@@ -5,6 +5,7 @@ import { clockFormat } from '../clock';
 import { livePaused } from '../navigation';
 import { record, elapsed, readout } from '../notes';
 import { dotUnit } from '../../lib/visit';
+import { yieldToMain } from '../yield';
 import { cssColor } from './gl';
 import { sampleName } from './name';
 import { FieldRenderer, type Camera, type FieldFrame } from './renderer';
@@ -188,6 +189,8 @@ export async function startField(): Promise<FieldHandle | null> {
     return { el, x, y, t: placeT.get(p.id)!, id: p.id, w: 0 };
   });
   document.body.prepend(labelLayer);
+  // The world and the labels are made; building the dots is a task of its own.
+  await yieldToMain();
 
   // ---------- Layout ----------
   let vw = innerWidth;
@@ -239,24 +242,40 @@ export async function startField(): Promise<FieldHandle | null> {
     const nameW = heading!.getBoundingClientRect().width || 1;
     let lastN = -1;
     let lastM = -1;
+    // Written straight into the typed arrays: an array literal per dot made this loop mostly garbage collection.
     for (let i = 0; i < N; i++) {
       const ni = nIdx[Math.floor((i * name.count) / N)];
       const mi = Math.floor((i * world.length) / N);
       const nx = name.points[ni * 2];
-      nameArr.set([nx, name.points[ni * 2 + 1], ni !== lastN ? 1 : 0], i * 3);
-      const w = world[mi];
-      mapArr.set([w.x, w.y, (w.lon * Math.PI) / 180, (w.lat * Math.PI) / 180], i * 4);
       const ny = name.points[ni * 2 + 1];
+      const w = world[mi];
+      const a3 = i * 3;
+      const a4 = i * 4;
+      nameArr[a3] = nx;
+      nameArr[a3 + 1] = ny;
+      nameArr[a3 + 2] = ni !== lastN ? 1 : 0;
+      mapArr[a4] = w.x;
+      mapArr[a4 + 1] = w.y;
+      mapArr[a4 + 2] = (w.lon * Math.PI) / 180;
+      mapArr[a4 + 3] = (w.lat * Math.PI) / 180;
       const band = (Math.sin(ny * 0.045 + nx * 0.004) + 1) / 2; // neighbouring dots share a bend
-      meta.set([clamp01(0.62 * (nx / nameW) + 0.38 * Math.random()), (narrow ? 8 : 14) + Math.random() * (narrow ? 26 : 52), clamp01(band * 0.8 + Math.random() * 0.2), mi !== lastM ? 1 : 0], i * 4);
-      visit.set([nx, name.points[ni * 2 + 1], 0, Math.random()], i * 4);
+      meta[a4] = clamp01(0.62 * (nx / nameW) + 0.38 * Math.random());
+      meta[a4 + 1] = (narrow ? 8 : 14) + Math.random() * (narrow ? 26 : 52);
+      meta[a4 + 2] = clamp01(band * 0.8 + Math.random() * 0.2);
+      meta[a4 + 3] = mi !== lastM ? 1 : 0;
+      visit[a4] = nx;
+      visit[a4 + 1] = ny;
+      visit[a4 + 3] = Math.random();
       lastN = ni;
       lastM = mi;
     }
     renderer.setDots({ name: nameArr, map: mapArr, meta, visit }, N);
     dotTotal = N;
     mapXY = new Float32Array(N * 2);
-    for (let i = 0; i < N; i++) mapXY.set([mapArr[i * 4], mapArr[i * 4 + 1]], i * 2);
+    for (let i = 0; i < N; i++) {
+      mapXY[i * 2] = mapArr[i * 4];
+      mapXY[i * 2 + 1] = mapArr[i * 4 + 1];
+    }
     // Dots that stand for the visit are drawn from those visible on the map, in a shuffled order.
     visitOrder = [];
     for (let i = 0; i < N; i++) if (meta[i * 4 + 3] > 0) visitOrder.push(i);
@@ -389,7 +408,11 @@ export async function startField(): Promise<FieldHandle | null> {
         const col = Math.floor(j / cells[ri].lines);
         const line = j % cells[ri].lines;
         const order = (ri + j / Math.max(1, n)) / rows; // row by row, left to right
-        visit.set([row.x + (col + 0.5) * visitSpacing, row.y + (line + 0.5) * visitSpacing * 0.9, row.id === 'outside' ? outsideAlpha : 1, order], idx * 4);
+        const at = idx * 4;
+        visit[at] = row.x + (col + 0.5) * visitSpacing;
+        visit[at + 1] = row.y + (line + 0.5) * visitSpacing * 0.9;
+        visit[at + 2] = row.id === 'outside' ? outsideAlpha : 1;
+        visit[at + 3] = order;
       }
     });
     renderer.setVisit(visit);
@@ -397,6 +420,7 @@ export async function startField(): Promise<FieldHandle | null> {
   }
 
   buildDots();
+  await yieldToMain();
   measure();
 
   // Set whenever something changes that scroll position alone would not reveal (colours, the portrait).

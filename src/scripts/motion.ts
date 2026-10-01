@@ -7,6 +7,7 @@ import { startTimeShifts } from './timeshift';
 import { startField, type FieldHandle } from './field';
 import { record, elapsed } from './notes';
 import { livePaused } from './navigation';
+import { yieldToMain } from './yield';
 
 /**
  * One motion grammar for the whole site: position, opacity and clip only.
@@ -128,8 +129,8 @@ function attentionTrace(chars: HTMLElement[]) {
   });
 }
 
-function chapters() {
-  gsap.utils.toArray<HTMLElement>('.chapter').forEach((ch) => {
+async function chapters() {
+  for (const ch of gsap.utils.toArray<HTMLElement>('.chapter')) {
     const word = ch.querySelector<HTMLElement>('.chapter__word');
     const head = ch.querySelector('.chapter__head');
     if (word) {
@@ -151,7 +152,9 @@ function chapters() {
     ch.querySelectorAll<HTMLElement>('.entry').forEach((row) => {
       gsap.from(row, { '--line': 0, duration: 1.2, ease: 'scene', scrollTrigger: { trigger: row, start: 'top 88%', once: true } });
     });
-  });
+    // One chapter a turn: the page stays live while the rest are set up.
+    await yieldToMain();
+  }
 
   const close = document.querySelector('.close__title');
   if (close) {
@@ -259,10 +262,13 @@ export function startMotion() {
     const wantsField = document.documentElement.classList.contains('field');
     const field = wantsField ? await startField().catch(() => null) : null;
     if (!field) document.documentElement.classList.remove('field');
-    startTimeShifts(false, livePaused);
     // After a slow load the failsafe has already shown the page; an entrance now would only hide it again.
     if (!document.documentElement.classList.contains('motion-done')) intro(field);
-    chapters();
+    // The rest is set up a turn at a time, so the arrival's frames never wait on all of it.
+    await yieldToMain();
+    startTimeShifts(false, livePaused);
+    await yieldToMain();
+    await chapters();
     ScrollTrigger.refresh();
     remeasureOnGrowth();
   });
