@@ -5,7 +5,8 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   site: process.env.SITE_URL || 'https://www.kkportfolio.xyz',
   trailingSlash: 'ignore',
-  build: { format: 'directory' },
+  // The styles go inside each page, so no stylesheet request blocks the first paint.
+  build: { format: 'directory', inlineStylesheets: 'always' },
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   devToolbar: { enabled: false },
 });
