@@ -131,6 +131,10 @@ html { -webkit-tap-highlight-color: transparent; }
 }
 .skip:focus { transform: none; }
 
+/* A long jump within the page hides it under paper while it jumps (see navigation.ts): over the page, under the top bar
+   and the notes ticker, so the chrome stays put and the change reads as the page moving, not loading. */
+.veil { position: fixed; inset: 0; z-index: 38; background: var(--paper); opacity: 0; pointer-events: none; }
+
 .grid {
   display: grid;
   grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
@@ -327,7 +331,7 @@ html.lens-on .lens-bar { display: flex; }
   }
   /* The bar, the notes (a ticker or a margin), the Field and the lens are for the screen; the bar and ticker
      are fixed, so they would reprint over the content of every page. */
-  :is(.top, .skip, .notes, .rail, .case__rail, .work__rail, .field-canvas, .field-labels, .lens-cursor, .lens-layer, .lens-bar) { display: none !important; }
+  :is(.top, .skip, .notes, .rail, .case__rail, .work__rail, .field-canvas, .field-labels, .veil, .lens-cursor, .lens-layer, .lens-bar) { display: none !important; }
   body { padding: 0 !important; }
   /* The screen's display sizes step down to print sizes: every size set in rem follows. */
   html { font-size: 12px; }

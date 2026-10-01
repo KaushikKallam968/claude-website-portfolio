@@ -1,7 +1,7 @@
 import { startClocks } from './clock';
 import { startNotes } from './notes';
 import { startReadout } from './readout';
-import { rememberOrigins, restoreFocusOnBack, restoreIfPending, restoreOnPageShow, wireAnchorFocus, wireDisclosures, wireLivePause, wireTopBar, wireTopWhere, wireRowLinks } from './navigation';
+import { rememberOrigins, restoreFocusOnBack, restoreIfPending, restoreOnPageShow, wireAnchorJumps, wireDisclosures, wireLivePause, wireTopBar, wireTopWhere, wireRowLinks } from './navigation';
 import { startMotion } from './motion';
 import { startLens } from './lens';
 
@@ -17,6 +17,6 @@ wireDisclosures();
 wireTopBar();
 wireTopWhere();
 wireRowLinks();
-wireAnchorFocus(restored);
+wireAnchorJumps(restored);
 startLens();
 startMotion();

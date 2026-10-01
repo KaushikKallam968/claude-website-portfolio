@@ -26,7 +26,8 @@ function reveal() {
 }
 
 function smoothScroll() {
-  lenis = new Lenis({ duration: 1.15, easing: (t) => 1 - Math.pow(1 - t, 4), anchors: { offset: -64 }, autoRaf: false });
+  // In-page jumps are made by wireAnchorJumps (navigation.ts), which decides whether to fly or fade.
+  lenis = new Lenis({ duration: 1.15, easing: (t) => 1 - Math.pow(1 - t, 4), autoRaf: false });
   setScroller(lenis);
   gsap.ticker.add((time) => lenis?.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);

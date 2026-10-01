@@ -549,6 +549,29 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
   // Nothing is drawn yet, which is what idle means: the first frame that shows the map shows the labels, placed.
   let idle = true;
 
+  // ---------- The pour after a jump ----------
+  // Scrolling into the close pours the world into the readout's rows as the reader goes. A jump has scrolled already
+  // when it lands, so the pour would be over before anyone saw it: it plays on a timer instead, from the world.
+  const pour = { p: 1, running: false };
+  document.addEventListener('jump:landed', () => {
+    gsap.killTweensOf(pour);
+    pour.p = 1;
+    pour.running = false;
+    const close = windows.find((w) => w.kind === 'visit');
+    if (!close || scrollY < close.start) return;
+    pour.p = 0;
+    pour.running = true;
+    gsap.to(pour, {
+      p: 1,
+      duration: 1.4,
+      ease: 'scene',
+      onComplete: () => {
+        pour.running = false;
+        dirty = true;
+      },
+    });
+  });
+
   // ---------- Quiet zones: text that must stay readable over the map ----------
   const QUIET = 6;
   const quiet = new Float32Array(QUIET * 4);
@@ -622,7 +645,8 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
             ? [Math.max(-1e5, active.start - y), 1e5]
             : [-1e5, 1e5];
     if (active.kind === 'visit') {
-      const p = clamp01((y - active.start) / Math.max(1, active.end - active.start));
+      // The scroll's pour, held back by the timer's while a jump's plays (and following the scroll if it goes back up).
+      const p = Math.min(clamp01((y - active.start) / Math.max(1, active.end - active.start)), pour.p);
       const k = ease(clamp01(p * 1.4));
       const c0 = cityCam(active.from);
       const s0 = renderer.scale * c0.z;
@@ -775,7 +799,7 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
     lastTick = now;
     // Scrolling is read from the page itself, not from its event: Lenis moves the page in this same frame.
     const y = scrollY;
-    const changing = dirty || force || intro.running || warm >= 0.002 || y !== lastY;
+    const changing = dirty || force || intro.running || pour.running || warm >= 0.002 || y !== lastY;
     if (changing) {
       dirty = false;
       lastY = y;
@@ -819,7 +843,7 @@ export async function startField(worldFile: Promise<ArrayBuffer | null>): Promis
     }
     // What the key is made of only changes with compute(), so a tick that skipped it has the last key.
     const key = changing ? `${y}|${frame.stage.toFixed(4)}|${frame.mapIn}|${frame.route}|${frame.mapVis.toFixed(3)}|${vw}x${vh}` : lastKey;
-    const moving = force || intro.running || warm >= 0.002 || (inFlight && !paused) || key !== lastKey;
+    const moving = force || intro.running || pour.running || warm >= 0.002 || (inFlight && !paused) || key !== lastKey;
     if (!moving && !(pulsing && now - lastDraw >= PULSE_FRAME_MS)) return;
     lastKey = key;
     lastDraw = now;
