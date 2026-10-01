@@ -380,6 +380,9 @@ html.lens-on .lens-bar { display: flex; }
      stand: the dashed box around the thin attribute is drawn apart from its cells, so they must not sit 8px low. */
   html.js :is(.ad__frame, .ad__row, .ad__th, .ad__cell, .ad__hide, .ad__note) { opacity: var(--o, 1) !important; translate: none !important; }
   html.js .ad__col--thin::after { opacity: 1 !important; }
+  /* Its fills are backgrounds, which a print drops unless the visitor turns Background graphics on: the Yes chips
+     would print as paper-coloured words in an outline, the coded cells as an empty grid, Brand's hatch as blank. */
+  :is(.ad__chip--yes, .ad__cell.is-on, .ad__hide) { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .xl__typed { animation: none !important; }
   html.scenes .scene__step { color: var(--ink) !important; }
 
