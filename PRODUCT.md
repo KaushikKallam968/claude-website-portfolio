@@ -30,9 +30,9 @@ A quantitative UX researcher working in the gaps between what people need, how p
 
 Owner-confirmed biographical record (background, not a required route): born in Tirupati, India; moved to Singapore when young; New Jersey from 2007 for two years; New Mexico one year; Minnesota one year; Texas for middle school through a master's degree; Atlanta for an internship during the master's; Silicon Valley for a summer internship; back to Texas as a remote Chegg contractor (one of two interns converted), then JPMorganChase; moved internally to New York City.
 
-Curated journey content, confirmed in the earlier project: New York (current work) → Texas (career) → Silicon Valley (Chegg internship) → Atlanta (Inspire Brands) → Texas (education) → Singapore (life outside work), then contact. It is a curated reverse narrative, not a date sort. The two Texas chapters stay distinct. Childhood stops and a return to Tirupati are excluded.
+Curated journey content, confirmed in the earlier project: New York (current work) → Texas (career) → Silicon Valley (Chegg) → Atlanta (Inspire Brands) → Texas (education) → Singapore (life outside work), then contact. It is a curated reverse narrative, not a date sort. The two Texas chapters stay distinct. Childhood stops and a return to Tirupati are excluded.
 
-Each internship lives in its own city, and Singapore holds only personal life (owner decision, September 30, 2026). Texas: career is JPMorganChase only. The Chegg contract that followed the internship (remote from Texas, August to November 2024, with the Chegg Discord case) is told in the Silicon Valley chapter as "After the summer", beside the internship it grew out of; it stays attributed to Chegg and marked remote from Texas.
+Each internship lives in its own city, and Singapore holds only personal life (owner decision, September 30, 2026). Texas: career is JPMorganChase only. The Chegg contract that followed the internship (remote from Texas, August to November 2024, with the Chegg Discord case) is told first in the Silicon Valley chapter, newest first like the whole Journey, with the internship it grew out of under "Before that: the summer in Silicon Valley" (owner, October 1, 2026); it stays attributed to Chegg and marked remote from Texas.
 
 Roles and dates:
 
@@ -45,7 +45,7 @@ Roles and dates:
 
 ## Capabilities and Constraints
 
-Featured research, in order: Data Instrumentation Coverage and Quality; Chegg Mexico; Chegg Discord (the order they are met on the Journey since the Chegg contract joined the internship in Silicon Valley); Inspire Brands Ad Creative (Atlanta). watched. is a distinct cofounder/product case. Bounded multi-agent evaluation is "research in development", never a completed case. Chase Mobile Entry Points is a concise summary, not a full case.
+Featured research, in order: Data Instrumentation Coverage and Quality; Chegg Discord; Chegg Mexico; Inspire Brands Ad Creative (Atlanta). watched. is a distinct cofounder/product case. Bounded multi-agent evaluation is "research in development", never a completed case. Chase Mobile Entry Points is a concise summary, not a full case.
 
 Claim boundaries that bind every surface:
 

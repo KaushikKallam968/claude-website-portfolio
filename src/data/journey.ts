@@ -165,67 +165,65 @@ export const chapters: Chapter[] = [
     id: 'silicon-valley',
     title: 'Silicon Valley',
     label: 'Silicon Valley',
-    work: 'Chegg Mexico · Chegg Discord',
+    work: 'Chegg Discord · Chegg Mexico',
     place: { name: 'Santa Clara County, California', lat: 37.3541, lon: -121.9552, timeZone: 'America/Los_Angeles' },
     period: 'Summer 2024',
     intro: [
-      'In the summer of 2024, I interned at Chegg in Silicon Valley, working on understanding students’ needs and evaluating learning experiences.',
+      'After a summer internship at Chegg in Silicon Valley, I returned to Texas and kept working with Chegg remotely until I joined Chase. I was one of two interns who moved into a contractor role.',
+      'That work included studying how AI-powered academic support could fit into students’ existing Discord routines.',
     ],
     roles: [
       {
-        title: 'UX Research intern',
+        title: 'UX Researcher II, contractor',
         org: 'Chegg',
-        period: 'June to August 2024',
-        where: 'Santa Clara County, California',
-        highlights: ['Mixed-methods localization research for Mexico: a 1,000-student comparative survey and 12 interviews, leading to a cross-language search recommendation.'],
-        more: '/work/chegg-mexico/',
+        period: 'August to November 2024',
+        where: 'Remote from Texas',
+        highlights: ['Discovery research and three concept tests for AI-assisted academic support in Discord; one of two interns who moved into a contractor role.'],
+        more: '/work/chegg-discord/',
       },
     ],
     entries: [
       {
-        id: 'chegg-mexico',
-        title: 'Chegg Mexico',
+        id: 'chegg-discord',
+        title: 'Chegg Discord',
         kind: 'case',
-        context: 'Chegg · Mixed-methods localization research',
+        context: 'Chegg · Discovery and concept evaluation',
         preview: [
-          'Localizing a learning product meant understanding how students studied, the support they relied on, and how they moved between languages.',
-          'Interviews revealed that students searched in both Spanish and English. I recommended that a Spanish search could retrieve a relevant answer from Chegg’s English database.',
+          'Students already used Discord to study together. We wanted to understand what academic support should look like within that environment.',
+          'Through discovery research and concept testing, I explored homework help, math solving and quiz generation. The findings gave the concepts different next steps.',
         ],
-        contribution: 'I worked across the survey and interview phases and made the cross-language search recommendation.',
-        status: 'Mixed-methods study completed · cross-language search implementation reported',
-        action: 'Explore the Mexico case',
-        figure: 'mexico',
+        contribution: 'I ran the discovery research and the concept tests.',
+        status: 'Discovery and concept testing completed · recommendations for alpha and iteration',
+        action: 'Explore the Discord case',
+        figure: 'discord',
       },
     ],
     subsections: [
       {
-        heading: 'After the summer: Chegg contract work',
-        text: [
-          'After the internship, I returned to Texas and kept working with Chegg remotely until I joined Chase. I was one of two interns who moved into a contractor role.',
-          'That work included studying how AI-powered academic support could fit into students’ existing Discord routines.',
-        ],
+        heading: 'Before that: the summer in Silicon Valley',
+        text: ['In the summer of 2024, I interned at Chegg in Silicon Valley, working on understanding students’ needs and evaluating learning experiences.'],
         role: {
-          title: 'UX Researcher II, contractor',
+          title: 'UX Research intern',
           org: 'Chegg',
-          period: 'August to November 2024',
-          where: 'Remote from Texas',
-          highlights: ['Discovery research and three concept tests for AI-assisted academic support in Discord; one of two interns who moved into a contractor role.'],
-          more: '/work/chegg-discord/',
+          period: 'June to August 2024',
+          where: 'Santa Clara County, California',
+          highlights: ['Mixed-methods localization research for Mexico: a 1,000-student comparative survey and 12 interviews, leading to a cross-language search recommendation.'],
+          more: '/work/chegg-mexico/',
         },
         entries: [
           {
-            id: 'chegg-discord',
-            title: 'Chegg Discord',
+            id: 'chegg-mexico',
+            title: 'Chegg Mexico',
             kind: 'case',
-            context: 'Chegg · Discovery and concept evaluation',
+            context: 'Chegg · Mixed-methods localization research',
             preview: [
-              'Students already used Discord to study together. We wanted to understand what academic support should look like within that environment.',
-              'Through discovery research and concept testing, I explored homework help, math solving and quiz generation. The findings gave the concepts different next steps.',
+              'Localizing a learning product meant understanding how students studied, the support they relied on, and how they moved between languages.',
+              'Interviews revealed that students searched in both Spanish and English. I recommended that a Spanish search could retrieve a relevant answer from Chegg’s English database.',
             ],
-            contribution: 'I ran the discovery research and the concept tests.',
-            status: 'Discovery and concept testing completed · recommendations for alpha and iteration',
-            action: 'Explore the Discord case',
-            figure: 'discord',
+            contribution: 'I worked across the survey and interview phases and made the cross-language search recommendation.',
+            status: 'Mixed-methods study completed · cross-language search implementation reported',
+            action: 'Explore the Mexico case',
+            figure: 'mexico',
           },
         ],
       },
@@ -360,8 +358,8 @@ function ended(period: string) {
 }
 
 /**
- * Every Role, most recent first. A Chapter can tell its roles in story order (Silicon Valley tells the
- * internship before the contract that followed it), so the résumé sorts them by when each ended.
+ * Every Role, most recent first. The Journey tells newest first too, but it is curated rather than sorted,
+ * so the résumé orders the Roles by when each ended.
  */
 export function allRoles() {
   return chapters
