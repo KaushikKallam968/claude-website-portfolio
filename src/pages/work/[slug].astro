@@ -77,8 +77,8 @@ const last = at + 1 === ordered.length;
             <li><a class="link link--under" href="/work/" data-observe="case.all-work" data-observe-label="All selected work" data-observe-cannot="Whether you are comparing cases.">All selected work <Arrow /></a></li>
             {next.id !== entry.id && (
               <li>
-                <a class="link link--under" href={`/work/${next.id}/`} aria-label={last ? `Back to the first case: ${next.data.title}` : undefined} data-case-link={next.id} data-case-title={next.data.title} data-observe={`case.${next.id}`} data-observe-label={last ? 'Back to the first case' : `Next case: ${next.data.title}`} data-observe-cannot="Whether you are reading them all or looking for one.">
-                  {last ? 'Back to the first case' : `Next case: ${next.data.title}`} <Arrow />
+                <a class:list={['link', 'link--under', { 'case__next-link': !last }]} href={`/work/${next.id}/`} aria-label={last ? `Back to the first case: ${next.data.title}` : undefined} data-case-link={next.id} data-case-title={next.data.title} data-observe={`case.${next.id}`} data-observe-label={last ? 'Back to the first case' : `Next case: ${next.data.title}`} data-observe-cannot="Whether you are reading them all or looking for one.">
+                  {last ? 'Back to the first case' : <>Next case: <span class="case__next-text">{next.data.title}</span></>} <Arrow />
                 </a>
               </li>
             )}
@@ -203,6 +203,11 @@ const last = at + 1 === ordered.length;
   .case__return-label { letter-spacing: -0.04em; line-height: 0.95; font-weight: 520; }
   .case__return:hover :global(.arrow) { translate: -8px 0; }
   .case__more { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 520; }
+  /* The next Case's title words travel to its heading: they wrap at 18ch and set as tight as an Entry's words
+     (Title role tracking, 0.95 leading), so the flight starts from a box of about the heading's shape. */
+  .case__next-text { display: inline-block; max-width: 18ch; line-height: 0.95; letter-spacing: -0.028em; text-wrap: balance; }
+  /* A title that wraps hangs beside its label, which stays level with the first line. */
+  .case__next-link { display: inline-flex; align-items: baseline; gap: 0.3em; }
   @media (pointer: coarse) { .case__more { row-gap: 22px; } }
   @media (max-width: 520px) { .case__more { flex-direction: column; align-items: flex-start; } }
 

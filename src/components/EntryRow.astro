@@ -107,8 +107,9 @@ const href = `/work/${entry.id}/`;
     max-width: 22ch;
   }
   /* Only the words slide: a transformed ancestor would shrink the row-wide link target to itself. 18ch is the
-     Case heading's measure, so a long title wraps the same way at both ends of the transition. */
-  .entry__text { display: inline-block; max-width: 18ch; transition: translate 0.8s var(--ease-out); }
+     Case heading's measure, and the leading is close to its 0.92, so a long title wraps the same way and its
+     lines sit alike at both ends of the transition (a looser line would show as two titles mid-flight). */
+  .entry__text { display: inline-block; max-width: 18ch; line-height: 0.95; transition: translate 0.8s var(--ease-out); }
   .entry__link { text-decoration: none; }
   .entry__link:focus-visible { outline: none; }
   /* The ring stands clear of the text, including at a phone's edge. */

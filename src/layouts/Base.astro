@@ -89,11 +89,21 @@ const nav = [
       } catch (e) {}
       // Arriving at a Case from its row: the new page opens out of the row's outline (see global.css).
       // This has to be registered before first render, so it lives here rather than in a module.
-      // Leaving a Case, its heading travels back to the title it came from, when that title is on screen on the
-      // next page; otherwise the heading simply leaves with the page.
+      // Leaving a Case, its heading travels back to the title it came from only if it is on screen as the page
+      // leaves. A Case read down to Return has no heading in sight, so the whole page folds back into its row.
       addEventListener('pageswap', function (e) {
         var main = document.querySelector('main[data-case]');
-        try { if (e.viewTransition && main) sessionStorage.setItem('kk:vt-case', main.getAttribute('data-case')); } catch (err) {}
+        if (!e.viewTransition || !main) return;
+        var h = main.querySelector('.case__title-text');
+        var bar = document.querySelector('.top');
+        var r = h && h.getBoundingClientRect();
+        var seen = !!r && r.top >= (bar ? bar.offsetHeight : 0) && r.top < innerHeight;
+        // A link to another Case has already taken the name away (the next Case has no partner for this heading).
+        var toCase = !!h && h.style.viewTransitionName === 'none';
+        if (h && !toCase) h.style.viewTransitionName = seen ? 'case-' + main.getAttribute('data-case') : 'none';
+        // With no heading to carry, the Case folds back into its row and lets its words go first (see global.css).
+        if (!seen && !toCase) document.documentElement.classList.add('vt-folding');
+        try { sessionStorage.setItem('kk:vt-case', JSON.stringify({ id: main.getAttribute('data-case'), seen: seen })); } catch (err) {}
       });
       addEventListener('pagereveal', function (e) {
         var d = document.documentElement;
@@ -101,24 +111,34 @@ const nav = [
         var back = null;
         try {
           raw = sessionStorage.getItem('kk:expand'); sessionStorage.removeItem('kk:expand');
-          back = sessionStorage.getItem('kk:vt-case'); sessionStorage.removeItem('kk:vt-case');
+          var left = sessionStorage.getItem('kk:vt-case'); sessionStorage.removeItem('kk:vt-case');
+          back = left && JSON.parse(left);
         } catch (err) {}
+        // A row's rect as clip-path: inset wants it, the screen's edges it leaves free.
+        var px = function (v) { return Math.max(0, Math.round(v)) + 'px'; };
+        var inset = function (top, right, bottom, left) { return 'inset(' + px(top) + ' ' + px(right) + ' ' + px(bottom) + ' ' + px(left) + ')'; };
         var titles = document.querySelectorAll('.entry__text, .row__text');
         for (var i = 0; i < titles.length; i++) titles[i].style.viewTransitionName = '';
         if (e.viewTransition && back && !raw) {
-          var t = document.querySelector('.entry__link[data-case-link="' + back + '"] .entry__text, .row__link[data-case-link="' + back + '"] .row__text');
-          var tr = t && t.getBoundingClientRect();
-          if (tr && tr.bottom > 0 && tr.top < innerHeight) {
-            t.style.viewTransitionName = 'case-' + back;
+          var link = document.querySelector('.entry__link[data-case-link="' + back.id + '"], .row__link[data-case-link="' + back.id + '"]');
+          var t = link && link.querySelector('.entry__text, .row__text');
+          var row = link && link.closest('.entry, .row');
+          var shown = function (el) { var b = el && el.getBoundingClientRect(); return b && b.bottom > 0 && b.top < innerHeight ? b : null; };
+          var rr = shown(row);
+          if (back.seen && shown(t)) {
+            t.style.viewTransitionName = 'case-' + back.id;
             d.classList.add('vt-return');
             e.viewTransition.finished.finally(function () { t.style.viewTransitionName = ''; d.classList.remove('vt-return'); });
+          } else if (!back.seen && rr) {
+            d.style.setProperty('--vt-to', inset(rr.top, innerWidth - rr.right, innerHeight - rr.bottom, rr.left));
+            d.classList.add('vt-fold');
+            e.viewTransition.finished.finally(function () { d.classList.remove('vt-fold'); d.style.removeProperty('--vt-to'); });
           }
         }
         if (!e.viewTransition || !raw) return;
         try {
-          var r = JSON.parse(raw);
-          var px = function (v) { return Math.max(0, Math.round(v)) + 'px'; };
-          d.style.setProperty('--vt-from', 'inset(' + px(r.top) + ' ' + px(r.right) + ' ' + px(r.bottom) + ' ' + px(r.left) + ')');
+          var f = JSON.parse(raw);
+          d.style.setProperty('--vt-from', inset(f.top, f.right, f.bottom, f.left));
           d.classList.add('vt-expand');
           e.viewTransition.finished.finally(function () { d.classList.remove('vt-expand'); });
         } catch (err) {}

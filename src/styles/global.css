@@ -198,27 +198,48 @@ html:not(.js) [data-clock], html:not(.js) .chapter__meta-live, html:not(.js) .sh
 ::view-transition-new(root) { animation: 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both vt-in; }
 @keyframes vt-out { to { opacity: 0; } }
 @keyframes vt-in { from { opacity: 0; transform: translateY(24px); } }
-/* Opening a Case: the clicked row grows into the page while the old page steps back. */
-html.vt-expand::view-transition-old(root) { animation: 0.38s cubic-bezier(0.16, 1, 0.3, 1) both vt-step-back; }
-/* The page's content waits until the travelling title is nearly home, so the title never crosses words. */
-html.vt-expand::view-transition-new(root) { animation: 1s cubic-bezier(0.86, 0, 0.07, 1) both vt-expand, 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.64s both vt-fade; }
+/* Opening a Case: the clicked row's paper grows into the page while the old page dims and steps back, so the
+   new page's edge is seen against it. The Case's words (case-body, and the notes beside or above them) are
+   layers of their own and wait until the travelling title is nearly home, so the title never crosses words.
+   The two pages draw over each other, not added together, which the default would do. */
+html.vt-expand::view-transition-old(root) { animation: 0.38s cubic-bezier(0.16, 1, 0.3, 1) both vt-dim; mix-blend-mode: normal; }
+html.vt-expand::view-transition-new(root) { animation: 1s cubic-bezier(0.86, 0, 0.07, 1) both vt-expand, 0.18s cubic-bezier(0.16, 1, 0.3, 1) both vt-fade; mix-blend-mode: normal; }
+html.vt-expand .case__article { view-transition-name: case-body; }
+html.vt-expand .case__rail .notes { view-transition-name: case-notes; }
+html.vt-expand::view-transition-new(case-body), html.vt-expand::view-transition-new(case-notes) { animation: 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.64s both vt-fade; }
 html.vt-expand::view-transition-group(*) { animation-duration: 1s; }
 /* Returning, the reverse: the Case steps back, its heading travels alone to its title, and the page fills in
    around it once it is nearly there. */
 html.vt-return::view-transition-old(root) { animation: 0.38s cubic-bezier(0.16, 1, 0.3, 1) both vt-step-back; }
 html.vt-return::view-transition-new(root) { animation: 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both vt-fade; }
+/* Returning with the heading off screen, there is no title to carry: the Case's words go, then its paper stays
+   on top and folds back into its row, the opening run backwards, with the page it came from showing beneath.
+   The bar is a layer of its own and stays put until the end, since words scrolled under it would show over it
+   while they fade. */
+html.vt-folding .case__article { view-transition-name: case-body; }
+html.vt-folding .case__rail .notes { view-transition-name: case-notes; }
+html.vt-folding .top { view-transition-name: case-bar; }
+html.vt-fold::view-transition-group(case-bar) { z-index: 1; }
+html.vt-fold::view-transition-old(case-body), html.vt-fold::view-transition-old(case-notes) { animation: 0.25s cubic-bezier(0.16, 1, 0.3, 1) both vt-out; }
+html.vt-fold::view-transition-old(case-bar) { animation: 0.18s cubic-bezier(0.16, 1, 0.3, 1) 0.52s both vt-out; }
+html.vt-fold::view-transition-old(root) { animation: 0.7s cubic-bezier(0.86, 0, 0.07, 1) both vt-fold, 0.18s cubic-bezier(0.16, 1, 0.3, 1) 0.52s both vt-out; z-index: 1; mix-blend-mode: normal; }
+html.vt-fold::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 /* The travelling title is always one solid title: each image keeps its own proportions as it scales with the
-   moving box, and they hand over in a short cut at mid-flight, so neither a gap nor a double exposure shows.
+   moving box, and they hand over in a short cut early in the flight, so neither a gap nor a double exposure shows.
+   The flight starts 0.12s into its curve, which would otherwise hold the title still just as the old page goes.
    A heading with no partner leaves in place with the page; one with nothing to come from arrives with it. */
 /* The words themselves travel (the title's text, not its link), so every end of the flight is a box of the same
    shape as the words in it. */
-.entry__text, .row__text, .case__title-text { view-transition-class: case-title; }
-::view-transition-old(.case-title) { animation: 0.16s linear 0.42s both vt-out; }
-::view-transition-new(.case-title) { animation: 0.16s linear 0.42s both vt-fade; }
+.entry__text, .row__text, .case__title-text, .case__next-text { view-transition-class: case-title; }
+::view-transition-group(.case-title) { animation-delay: -0.12s; }
+::view-transition-old(.case-title) { animation: 0.16s linear 0.3s both vt-out; }
+::view-transition-new(.case-title) { animation: 0.16s linear 0.3s both vt-fade; }
 ::view-transition-old(.case-title):only-child { animation: 0.3s cubic-bezier(0.16, 1, 0.3, 1) both vt-out; }
 ::view-transition-new(.case-title):only-child { animation: 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both vt-fade; }
 @keyframes vt-step-back { to { opacity: 0; transform: scale(0.975); } }
+@keyframes vt-dim { to { opacity: 0.35; transform: scale(0.975); } }
 @keyframes vt-expand { from { clip-path: var(--vt-from, inset(50% 0 50% 0)); } to { clip-path: inset(0 0 0 0); } }
+@keyframes vt-fold { from { clip-path: inset(0 0 0 0); } to { clip-path: var(--vt-to, inset(50% 0 50% 0)); } }
 @keyframes vt-fade { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
@@ -372,7 +393,19 @@ html.lens-on .lens-bar { display: flex; }
   /* Screenshots that have not loaded would print as empty frames; on white paper their own edges are enough. */
   .phone { outline: none !important; }
   .foot { margin-top: 20px !important; padding-block: 12px !important; }
+  /* A Case starts at the top of the sheet (the space kept for the bar above it is empty on paper) and ends with
+     its Where next block, without the air the screen leaves below it, which would push the block to a page of its own. */
+  .case { padding-top: 0 !important; }
+  .case__head { padding-top: 16px !important; }
+  .case__article { padding-bottom: 0 !important; }
+  .case__next { margin-top: 40px !important; }
+  /* Tighter gaps and smaller phones, so a Case's figure (which stays whole) can still end its first page instead of
+     starting its second. */
+  .tldr, .case__figure { margin-top: 24px !important; }
+  .case__figure .fig--watched .phone { width: min(34%, 18vh) !important; }
 
-  .fig, .scene, .entry, .row, .shift, .prologue, .close, .case__next { break-inside: avoid; }
+  /* A Case's scene may break between its figure and its steps (kept whole, they leave a page short and strand
+     the Return block); the figure itself, each step and the Return link stay whole. */
+  .fig, .scene__steps li, .entry, .row, .shift, .prologue, .close, .case__return { break-inside: avoid; }
   h1, h2, h3, .chapter__head { break-after: avoid; break-inside: avoid; }
 }

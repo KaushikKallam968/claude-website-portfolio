@@ -278,7 +278,7 @@ const scores = [1, 2, 3, 4, 5, 6, 7, 8];
   .fig--inspire { container-type: inline-size; }
   /* Beside an Entry's text the figure is smaller: finer rows, and the narrow layout below, so it stands no
      taller than the words at any width a laptop or a desktop gives it. */
-  .fig--compact .ad { --row: 9px; --rgap: 2px; --cgap: 3px; --head: 44px; }
+  .fig--compact .ad { --row: 8px; --rgap: 2px; --cgap: 3px; --head: 44px; }
   .fig--compact .ad__row { padding: 5px 8px; }
   .fig--compact .ad__label { margin-bottom: 8px; }
   .ad__panel { position: relative; min-width: 0; }
@@ -444,6 +444,11 @@ const scores = [1, 2, 3, 4, 5, 6, 7, 8];
   :global(html.scenes) .fig--scene .ad__col--score .ad__th { --at: calc(0.76 + var(--ci) * 0.012); }
   :global(html.scenes) .fig--scene .ad__col--score .ad__cell { --at: calc(0.78 + var(--r) * 0.004 + var(--ci) * 0.008); }
   :global(html.scenes) .fig--scene .ad__note { --at: 0.88; }
+  /* The arrow before a panel arrives with it: until then the parts above still rest 12px low, and it would
+     sit on their bottom border. */
+  :global(html.scenes) .fig--scene .ad__book { --at: 0.28; }
+  :global(html.scenes) .fig--scene .ad__table { --at: 0.52; }
+  :global(html.scenes) .fig--scene :is(.ad__book, .ad__table)::before { opacity: clamp(0, calc((var(--p, 0) - var(--at)) * 9), 1); }
   :global(html.scenes) .fig--scene .ad__col--thin::after { opacity: clamp(0, calc((var(--p, 0) - 0.84) * 9), 1); transition: none; }
   :global(html.scenes) .fig--scene .fig__cap > span:not(.fig__note) { display: none; }
 
@@ -479,3 +484,13 @@ const scores = [1, 2, 3, 4, 5, 6, 7, 8];
     .fig--compact .ad { padding: 22px 18px; }
   }
 </style>
+
+<script>
+  // The screenshots load as they near the screen, so a page printed before they were scrolled to would carry empty
+  // frames. Once the page has settled they are asked for (a few small files); a print that comes sooner asks too.
+  const loadAll = () => document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach((img) => (img.loading = 'eager'));
+  addEventListener('beforeprint', loadAll);
+  const settle = () => ('requestIdleCallback' in window ? requestIdleCallback(loadAll, { timeout: 3000 }) : setTimeout(loadAll, 3000));
+  if (document.readyState === 'complete') settle();
+  else addEventListener('load', settle, { once: true });
+</script>
