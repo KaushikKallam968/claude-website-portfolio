@@ -23,12 +23,12 @@ Cloudflare Pages is an equally good choice if you'd rather keep DNS and hosting 
 
 Deployed publicly on September 30, 2026, at the owner's request, with the copy confirmed and the Draft markers removed.
 
-- **Live at:** https://www.kkportfolio.xyz, the owner's domain, bought through Vercel on October 1, 2026 (`www` is primary; the bare `kkportfolio.xyz` redirects to it). It belongs to the `website` project in the owner's Vercel team, whose first address, https://website-nu-five-41.vercel.app, now redirects to it. The per-deployment `*-kaushikkallam-5085s-projects.vercel.app` URLs stay behind Vercel login, as the team's protection setting intends; the production domain is public.
+- **Live at:** https://www.kkportfolio.xyz, the owner's domain, bought through Vercel on October 1, 2026 (`www` is primary; the bare `kkportfolio.xyz` redirects to it). It belongs to the `website` project in the owner's Vercel team, whose first address, https://website-nu-five-41.vercel.app, still serves the site. The per-deployment `*-kaushikkallam-5085s-projects.vercel.app` URLs stay behind Vercel login, as the team's protection setting intends; the production domain is public.
 - **Why that project:** the Vercel connection used from Claude sessions may deploy but may not create or change projects (both return 403), so a new `kaushik-kallam` project could not be made from a session.
 - **How it is deployed:** the project is linked to this repository (owner, October 1, 2026). Production is built from `master`: work happens on a branch (each push builds a preview behind Vercel login), is verified, then `master` is moved to it and that commit is deployed to production. Until the project's production branch is set to `master` (below), a push to `master` builds only a preview, so the production build is started from a session with the Vercel connector, from the same commit. The build is pinned in the repository (`vercel.json`: framework Astro, `npm ci`, `npm run build`, output `dist`; `package.json` engines: Node 22), so every build matches.
 - **Still open, for the owner in the Vercel dashboard:**
   - Set the production branch to `master` (Settings, Environments, Production, Branch Tracking), so a push to `master` deploys the live site by itself. On October 1, 2026, a push to `master` built only a preview.
-  - (Done in code, October 1, 2026: `vercel.json` redirects the old `website-nu-five-41.vercel.app` to `www.kkportfolio.xyz` with a 308, so the site has one address.)
+  - Optional: redirect the old `website-nu-five-41.vercel.app` to `www.kkportfolio.xyz` (Settings, Domains, Edit, Redirect to, 308), so the site has one address. A host-matched redirect in `vercel.json` was tried on October 1, 2026 and Vercel did not apply it to the `vercel.app` address, so this stays a dashboard setting. The canonical links already name the new domain, so search engines prefer it either way.
 
 ## Search
 

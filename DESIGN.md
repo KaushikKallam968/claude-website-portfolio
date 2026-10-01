@@ -22,100 +22,100 @@ colors:
   print-ink: "#000"
 typography:
   display:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(4.2rem, 18.6vw, 23rem)"
     fontWeight: 530
     lineHeight: 0.76
     letterSpacing: "-0.04em"
   headline:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(3.25rem, 12.5cqi, 10rem)"
     fontWeight: 520
     lineHeight: 0.84
     letterSpacing: "-0.04em"
   clock:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(3.4rem, 13cqi, 11.5rem)"
     fontWeight: 440
     lineHeight: 1
     letterSpacing: "-0.04em"
     fontFeature: "'tnum' on"
   page-title:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(2.8rem, 8cqi, 6rem)"
     fontWeight: 530
     lineHeight: 0.92
     letterSpacing: "-0.04em"
   page-title-long:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(2.2rem, 6cqi, 4.5rem)"
     fontWeight: 530
     lineHeight: 0.92
     letterSpacing: "-0.04em"
   page-title-wide:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(2.6rem, 6.4vw, 6rem)"
     fontWeight: 530
     lineHeight: 0.9
     letterSpacing: "-0.04em"
   row-title:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(2rem, 6cqi, 5rem)"
     fontWeight: 520
     lineHeight: 0.95
     letterSpacing: "-0.04em"
   clock-far:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(4.4rem, 22cqi, 19rem)"
     fontWeight: 440
     lineHeight: 1
     letterSpacing: "-0.04em"
   readout-label:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(1.25rem, 0.8rem + 1vw, 1.9rem)"
     fontWeight: 520
     lineHeight: 1
     letterSpacing: "-0.028em"
   email:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(1.4rem, 0.9rem + 1.1vw, 2.1rem)"
     fontWeight: 520
     letterSpacing: "-0.03em"
   arrow:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(1.5rem, 3cqi, 2.6rem)"
     fontWeight: 400
     lineHeight: 1
   title:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem)"
     fontWeight: 520
     lineHeight: 1.08
     letterSpacing: "-0.028em"
   lede:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(1.25rem, 1.05rem + 0.8vw, 1.75rem)"
     fontWeight: 400
     lineHeight: 1.35
     letterSpacing: "-0.015em"
   body:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "clamp(1rem, 0.94rem + 0.28vw, 1.1875rem)"
     fontWeight: 400
     lineHeight: 1.55
     fontFeature: "'ss01' on"
   meta:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.9375rem"
     fontWeight: 400
     lineHeight: 1.45
   fine:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.45
   label:
-    fontFamily: "Switzer, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Switzer, 'Switzer fallback', ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.8125rem"
     fontWeight: 400
     letterSpacing: "0.01em"
@@ -269,9 +269,10 @@ Dark theme swaps each token for its `-dark` twin with no structural change. The 
 
 ## Typography
 
-**Display Font:** Switzer variable (with ui-sans-serif, system-ui)
+**Display Font:** Switzer variable (with 'Switzer fallback', ui-sans-serif, system-ui)
 **Body Font:** Switzer variable, `ss01` on
 **Label/Mono Font:** Fragment Mono (with ui-monospace), for data only
+**Fallback face:** 'Switzer fallback' is local Arial (or Liberation Sans, Helvetica, Roboto) with `size-adjust` 101.07% and Switzer's ascent, descent and line gap (96.96%, 24.74%, 8.9%), so text set before Switzer arrives takes the same lines and the swap moves nothing. It is never a design choice and never seen once the font loads; re-derive its numbers if Switzer changes.
 
 **Character:** A single neutral grotesk carries identity through scale alone, from a name the width of the page to a 13px label. The mono appears only where the page reports a measured fact.
 
@@ -313,7 +314,7 @@ A twelve-column grid (`.grid`: 12 equal columns, `gutter` column gap, `margin` i
 - **Scenes (Field on):** the Prologue is a 130vh runway and an ocean-crossing Time Shift a 240vh runway (200vh at 700px and below), each with a 100svh sticky stage. A domestic Time Shift is a band 48vh tall plus 10vh for each hour between its two clocks (58, 68 or 78vh; the offset as the site is built), not by distance, with no pin: the map draws only inside the band and rides with the page, the flight framed on the band wherever it is on screen. Words and clock sit bottom left; the map frames the place up and to the right of them (14% of the width and 12% of the height off centre; 16% of the height on phones, centred horizontally). The Time Shift route row sits at the top, under the bar. Without the Field these collapse to a short static band with a blue top rule.
 - **Hero on landscape tablets and small windows (901 to 1240px wide, landscape):** the name is sized by height (`min(18.6vw, 22vh)`), which leaves room for the identity beside "Kallam" as on a desktop, and the gaps tighten as on short laptops, so the actions and the route index are on the first screen (from 1024x768 up). Portrait tablets keep the identity under the name.
 - **Close:** title across columns 1 to 10; the hand-off (thanks, email, links) in 9 to 12 beside the readout in 1 to 8, with the blue "can't tell" sentence under the hand-off. In the source and on narrow screens the hand-off comes first, and arriving by Contact skips the section's opening space (a negative `scroll-margin-top` equal to its top padding), so the email is on the first screen at every size. On screens under 560px tall (a phone on its side, a laptop at 200% zoom) the landing drops the bar's space (the bar hides on the way down, and a jump's own 64px is taken back), the title scales with the height (`min(page, 11vh)`) and the hand-off tightens (20px above it, 0.7em between parts). Readout rows are one grid (label max-content, track 1fr, value 5.5em) with each row on a subgrid, so every track starts on the same line and lengths compare. With the Field each track is a `readout-row` tall box with a `rule` baseline; without it, a 14px bar. On narrow screens each row stacks its label over its track with 6px between, so descenders clear the first row of dots.
-- **Colophon:** "About this site" is a short note under the readout and above the foot: the label over a meta-size ink-2 paragraph at 60ch, in the readout's columns (full width at 900px and below), so the hand-off and the email stay the close's peak. It says what the site asks of its visitors and that the owner directed it while AI coding tools wrote the code; its one link, "public on GitHub", is a tagged external link like LinkedIn (`contact.code`, up-right arrow, same tab). It sits outside the readout, so it reads with scripts off and on paper; it is a quiet zone like the hand-off; and, coming after the readout, it never moves the Contact landing.
+- **Colophon:** "About this site" is a short note under the readout and above the foot: the label over a meta-size ink-2 paragraph at 60ch. The readout and the colophon share one column wrapper (`.close__record`, columns 1 to 8 beside the hand-off; full width at 900px and below), so the colophon always sits `clamp(48px, 5vw, 72px)` under the readout, however short the visit, so the hand-off and the email stay the close's peak. It says what the site asks of its visitors and that the owner directed it while AI coding tools wrote the code; its one link, "public on GitHub", is a tagged external link like LinkedIn (`contact.code`, up-right arrow, same tab). It sits outside the readout, so it reads with scripts off and on paper; it is a quiet zone like the hand-off; and, coming after the readout, it never moves the Contact landing.
 - **Case:** single article column (title max 14ch, prose 56ch, blocks max 1100px) beside the rail. The summary under the question lists Contribution, Timeline and Methods (only when the Case has research methods; watched. has none), then the typed Outcome.
 - **Résumé:** a single column (max 1180px); each role's date and title share a first baseline.
 - **Rhythm:** large fluid gaps between reading moments (chapter tops `clamp(56px, 8vw, 120px)`, first chapter up to 220px, close up to 240px), tight gaps within them (6 to 18px).
@@ -444,7 +445,7 @@ A small 1px `rule`-bordered tag reading Draft, for copy awaiting the owner's con
 
 Two curves, registered in GSAP as CustomEase and mirrored in CSS: `out` (`--ease-out`, cubic-bezier(0.16, 1, 0.3, 1)) for entrances and anything that settles, `scene` (`--ease-scene`, cubic-bezier(0.86, 0, 0.07, 1)) for changes of place. The Field's own interpolation uses the matching cubic in-out. Lenis provides inertial scroll (1.15s, quartic out). The route index asks for 96px of scroll margin (132px under 1100px, clear of the notes ticker), so Journey in the top bar lands it below the bar from any page. Every Entry asks for the same, so a link to an Entry lands its title clear of the bar and the ticker.
 
-- **In-page jumps:** the page's own handler makes them (`wireAnchorJumps`), not Lenis's anchors, with a 64px rest offset. A route item for a Chapter that follows a Time Shift rests the Chapter's top at the bottom of the chrome as it will be on arrival (0 going down, where the bar steps away; the bar's height going up, plus the 44px ticker at 1100px and below), so nothing of the band shows above it and the Chapter's own top padding is the space above its heading; Contact, New York, Explore the journey, Continue links and fragment loads keep the 64px rest. A jump of more than 2.5 screens, or one asked for while another is fading, fades the page to paper (0.18s on `out`), lands instantly, then fades back in (0.35s on `out`) after the page has settled, two frames on; a shorter jump flies. Reduced motion jumps instantly. The address is pushed and focus moves to the target before the page lands, then a `jump:landed` event tells the readout (its snapshot), the Field (the close's pour) and the disclosures (opening at the fragment). The veil is a layer inside `main`, under the notes ticker (z 38 under 39) and the top bar (40), so the chrome stays put; the lens outlines go with the page. A page opened at a fragment (a shared link, Contact from a Case) is moved once after load to the same landing as a jump; a reload, Back and Return keep their own position, and the bar stays unless the landing would sit under it.
+- **In-page jumps:** the page's own handler makes them (`wireAnchorJumps`), not Lenis's anchors, with a 64px rest offset. Under reduced motion (no Lenis) a route item for a Chapter after a Time Shift still rests where the flying jump would, with an instant scroll, so the band is never what it lands on; other links jump as the browser does. A route item for a Chapter that follows a Time Shift rests the Chapter's top at the bottom of the chrome as it will be on arrival (0 going down, where the bar steps away; the bar's height going up, plus the 44px ticker at 1100px and below), so nothing of the band shows above it and the Chapter's own top padding is the space above its heading; Contact, New York, Explore the journey, Continue links and fragment loads keep the 64px rest. A jump of more than 2.5 screens, or one asked for while another is fading, fades the page to paper (0.18s on `out`), lands instantly, then fades back in (0.35s on `out`) after the page has settled, two frames on; a shorter jump flies. Reduced motion jumps instantly. The address is pushed and focus moves to the target before the page lands, then a `jump:landed` event tells the readout (its snapshot), the Field (the close's pour) and the disclosures (opening at the fragment). The veil is a layer inside `main`, under the notes ticker (z 38 under 39) and the top bar (40), so the chrome stays put; the lens outlines go with the page. A page opened at a fragment (a shared link, Contact from a Case) is moved once after load to the same landing as a jump; a reload, Back and Return keep their own position, and the bar stays unless the landing would sit under it.
 - **Arrival with the Field:** map in 1.1s on `out`, route draws 1.4s on `scene` from 0.3s, dots gather into the name 1.55s from 1.85s; on a phone each takes 0.7 of that time. The identity text is first paint and never waits; the route index, its rule and the notes follow the name.
 - **Arrival without the Field:** SplitText characters of the name rise from 108% (1.35s, 0.034s stagger); identity lines rise 26px and fade; route items follow; the notes clip open on `scene`. On scroll the two name lines drift apart. The attention trace warms letters toward blue under a fine pointer and cools over about a second.
 - **Dark mode:** light dots on a dark ground read bigger and louder than ink dots on paper, so in the dark theme the world's dots are drawn at 84% size and 62% strength, which keeps the maps at the weight of the light theme. The name keeps its size (its dots are packed, and smaller ones open into a mesh), and the blue portrait is unchanged. The page declares `color-scheme: light dark`, so a phone in dark mode paints dark from the first frame.
@@ -475,19 +476,19 @@ Any page prints on white paper with the light tokens, whatever scheme the screen
 - **End states:** every entrance and scroll state prints at its end: reveals shown, rules drawn, figures at `--p` 1, every figure part at its own end opacity with its rise reset (the Inspire figure's frames, rows, cells, hatch, note and the thin attribute's dashed box included).
 - **Scenes:** the Prologue's runway and the Time Shift bands print at the height of their words, with no clock, route row or Continue link; a Time Shift keeps its blue top rule.
 - **Type:** the root is 12px, so every size set in rem steps down with it; Chapter titles are 44px.
-- **Layout:** an Entry's figure sits beside its words, as on a wide screen. The readout prints as its plain bars (its unit line is about dots, so it is left out), with print colours forced on so the bars show on a default print.
+- **Layout:** an Entry's figure sits beside its words, as on a wide screen. The readout prints as its plain bars (its unit line is about dots, so it is left out), with print colours forced on so the bars show on a default print. A readout with nothing measured yet (no Chapter, no Case, under a second; `data-unmeasured`) prints only its one line, not a bar of zero. The Inspire figure's Yes chips, coded cells and brand hatch force print colours on too.
 - **Breaks:** figures, figure steps, Entries, Work rows, bands, the close and the Return link never split across pages; a Case's scene may break between its figure and its steps, and Where next may break; a heading never ends a page. A Case starts at the top of the sheet.
 - **Screenshots:** lazy images are requested when a print starts (`beforeprint`), never at idle, so a reader pays only for what they scroll to.
 
 ## Head and metadata
 
-`Base.astro` writes every page's head from its props: `title`, `description`, `current` (the nav item marked `aria-current`), `mainId` (the skip link's target), `noindex` (default false) and `preloadMono` (default true).
+`Base.astro` writes every page's head from its props: `title`, `description`, `current` (the nav item marked `aria-current`), `mainId` (the skip link's target), `noindex` (default false), `preloadMono` (default true), `ogType` (website, profile for the home page, article for a Case), `ogImage` (a share card and its alt) and `schema` (the page's JSON-LD nodes). Titles, descriptions and the schema.org graphs come from `src/lib/seo.ts` (see the Search section of `docs/publishing.md`). Each page's styles are inlined (`inlineStylesheets: 'always'`), so no stylesheet request blocks the first paint.
 
 - **Address:** every indexable page emits a canonical link and a matching `og:url`, built from `site` in `astro.config.mjs` (`SITE_URL`, with a fallback to the published address). `noindex` writes `robots` noindex and leaves out both; the 404 sets it.
-- **Share card:** every page emits `og:site_name` ("Kaushik Kallam"), `og:image` (`public/og.png`, 1200 by 630) and `twitter:card` `summary_large_image`. The `og:image:alt` is fixed text that describes `og.png` exactly: the name on two lines, the role line, and the blue "what the data shows and what it can't" note. If `og.png` is redrawn, the alt text in `Base.astro` changes with it.
+- **Share card:** every page emits `og:site_name` ("Kaushik Kallam"), `og:image` (1200 by 630) and `twitter:card` `summary_large_image`. Home, Selected work, the résumé and the 404 use `public/og.png`, whose `og:image:alt` is fixed text that describes it exactly (the name on two lines, the role line, and the blue "what the data shows and what it can't" note); if `og.png` is redrawn, that alt text in `Base.astro` changes with it. Each Case uses its own card, `public/og/<id>.png`, also the Article's `image`: paper, the Case's context in ink-2, its title in Switzer 500 at up to 120px with -0.06em tracking, its question in ink-2, the name and role at the bottom left and og.png's blue rule and mono note at the bottom right, 48px margins. `npm run og` redraws them (after a Case's title, context or question changes) and `prebuild` stops the build if a Case has none; the alt comes from `caseCardAlt`.
 - **Description:** each page passes its own; a Case's is its question, and Selected work's is its on-page intro, kept in one constant so the two cannot drift.
 - **Endpoints:** `src/pages/robots.txt.ts` allows everything and names the sitemap. `src/pages/sitemap.xml.ts` lists `/`, `/work/`, each Case from the collection sorted by `order`, and `/resume/`; a new page type is added to its `paths` list by hand. The 404 is never listed.
-- **Icons:** `favicon.svg` carries a light and a dark fill. `public/apple-touch-icon.png` is the favicon's light fills on the `paper` colour (#ecece8), 180 by 180 and opaque; it is regenerated if the favicon or the `paper` token changes.
+- **Icons:** `favicon.svg` carries a light and a dark fill; `favicon.ico` (16, 32 and 48px, the light fills) answers browsers and crawlers that ask for it. `public/apple-touch-icon.png` is the favicon's light fills on the `paper` colour (#ecece8), 180 by 180 and opaque; it is regenerated if the favicon or the `paper` token changes.
 - **Fonts:** Switzer is preloaded on every page. Fragment Mono is preloaded on every page except the résumé, which sets `preloadMono` false because it renders no mono text.
 
 ## Accessibility commitments
