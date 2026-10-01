@@ -140,6 +140,19 @@ export function resumeSchema(site: Site, title: string): Node[] {
   ];
 }
 
+/** /llms.txt, for AI search engines: who this is, every Case with its question, the other pages, and how to write. */
+export function llmsText(site: Site, cases: Pick<CaseFacts, 'id' | 'title' | 'question'>[], { linkedin }: Pick<Contact, 'linkedin'>): string {
+  const bullets = cases.map((c) => `- [${c.title}](${at(site, `/work/${c.id}/`)}): ${c.question}`);
+  return [
+    `# ${NAME}`,
+    `> ${homeDescription}`,
+    'Role: Senior Quantitative UX Researcher at JPMorganChase, New York. Education: MS in Applied Cognition and Neuroscience and BS in Neuroscience and Psychology, University of Texas at Dallas.',
+    `## Case studies\n\n${bullets.join('\n')}`,
+    `## Pages\n\n- [Selected work](${at(site, '/work/')})\n- [Résumé](${at(site, '/resume/')})`,
+    `## Contact\n\n- [LinkedIn](${linkedin})`,
+  ].join('\n\n') + '\n';
+}
+
 /** One JSON-LD document for a script tag. `<` is escaped so no value can close the tag. */
 export function serializeGraph(nodes: object[]): string {
   return JSON.stringify({ '@context': 'https://schema.org', '@graph': nodes }).replace(/</g, '\\u003c');

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { caseDescription, caseSchema, caseTitle, homeDescription, homeSchema, personId, resumeSchema, serializeGraph, websiteId, workSchema } from './seo';
+import { caseDescription, caseSchema, caseTitle, homeDescription, homeSchema, llmsText, personId, resumeSchema, serializeGraph, websiteId, workSchema } from './seo';
 
 const site = 'https://www.kkportfolio.xyz';
 const contact = { email: 'kaushik.kallam@gmail.com', linkedin: 'https://www.linkedin.com/in/kaushikkallam/' };
@@ -222,6 +222,46 @@ describe('the résumé graph', () => {
         ],
       },
     ]);
+  });
+});
+
+describe('llms.txt', () => {
+  const cases = [
+    { id: 'instrumentation', title: 'Data Instrumentation Coverage and Quality', question: 'When a product records an interaction, does that record actually explain what the person did?' },
+    { id: 'chegg-discord', title: 'Chegg Discord', question: 'Could academic support fit into the way students already study together on Discord?' },
+  ];
+
+  it('introduces the person, lists each Case in the order given with its question, then the pages and the contact', () => {
+    expect(llmsText(site, cases, contact)).toBe(`# Kaushik Kallam
+
+> Kaushik Kallam, Senior Quantitative UX Researcher at JPMorganChase in New York. Research on behavior, instrumentation, AI evaluation and learning products.
+
+Role: Senior Quantitative UX Researcher at JPMorganChase, New York. Education: MS in Applied Cognition and Neuroscience and BS in Neuroscience and Psychology, University of Texas at Dallas.
+
+## Case studies
+
+- [Data Instrumentation Coverage and Quality](https://www.kkportfolio.xyz/work/instrumentation/): When a product records an interaction, does that record actually explain what the person did?
+- [Chegg Discord](https://www.kkportfolio.xyz/work/chegg-discord/): Could academic support fit into the way students already study together on Discord?
+
+## Pages
+
+- [Selected work](https://www.kkportfolio.xyz/work/)
+- [Résumé](https://www.kkportfolio.xyz/resume/)
+
+## Contact
+
+- [LinkedIn](https://www.linkedin.com/in/kaushikkallam/)
+`);
+  });
+
+  it('lists a new Case without any other change, and uses the site as given', () => {
+    const text = llmsText('https://example.com/', [{ id: 'new-case', title: 'New case', question: 'Why?' }], contact);
+    expect(text).toContain('- [New case](https://example.com/work/new-case/): Why?\n');
+    expect(text).toContain('- [Selected work](https://example.com/work/)\n');
+  });
+
+  it('contains no em dash', () => {
+    expect(llmsText(site, cases, contact)).not.toContain('\u2014');
   });
 });
 
