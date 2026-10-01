@@ -68,8 +68,7 @@ Claim boundaries that bind every surface:
 
 ## Evidence on Hand
 
-- Content spine (owner-accepted chapter copy, reading flow, draft cases, source syntheses): `portfolio-handoff/outputs/portfolio-reading-draft.md`, `portfolio-reading-flow.md`, `portfolio-selected-case-studies.md`, `portfolio-journey-content-map.md`, `portfolio-voice-guide.md`, and the source notes they cite.
-- Licensed material: Figtree (SIL OFL) and CC0 Poly Haven HDR skies in `portfolio-handoff/`.
+- Content spine (owner-accepted chapter copy, reading flow, draft cases, source syntheses): the earlier Codex handoff, `portfolio-handoff/`, removed from the working tree on October 1, 2026 (owner decision: it held process notes and résumé versions with personal contact details) and kept in the repository's history at commit 08dc724.
 - No portrait of Kaushik on the site (owner decision, September 30, 2026).
 - watched. screenshots: the real screens from the public App Store listing (provenance in `assets-source/watched/PROVENANCE.md`) are approved for the site (owner, September 30, 2026).
 - Inspire Brands: the August 2023 readout deck and a later interview-prep document in the owner's Google Drive (read October 1, 2026; the deck is marked confidential, so it is a source, never shown).
