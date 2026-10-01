@@ -201,7 +201,7 @@ export const chapters: Chapter[] = [
     subsections: [
       {
         heading: 'Before that: the summer in Silicon Valley',
-        text: ['In the summer of 2024, I interned at Chegg in Silicon Valley, working on understanding students’ needs and evaluating learning experiences.'],
+        text: ['As an intern, I worked on understanding students’ needs and evaluating learning experiences.'],
         role: {
           title: 'UX Research intern',
           org: 'Chegg',
