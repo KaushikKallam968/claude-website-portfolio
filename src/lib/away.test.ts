@@ -104,14 +104,52 @@ describe('the notes’ clock', () => {
     expect(clock.elapsed()).toBe(0);
   });
 
-  it('keeps the latest moment the page went out of sight, since pagehide and visibilitychange both say so', () => {
+  it('holds still while the page is out of sight, so what is stamped then gets the moment it left', () => {
     let at = 0;
     const clock = createVisibleClock(0, sessionLike(), () => at);
+    at = 40_000;
     clock.hide();
-    at = 40;
-    clock.hide();
-    at = 60_040;
-    expect(clock.back()).toBe(60_000);
+    at = 100_000;
+    expect(clock.elapsed()).toBe(40_000);
+    at = 640_000;
+    expect(clock.elapsed()).toBe(40_000);
+  });
+
+  it('keeps the earliest moment the page went out of sight, so a later pagehide does not shorten the absence', () => {
+    const store = sessionLike();
+    let at = 0;
+    const closing = createVisibleClock(0, store, () => at);
+    // The tab goes to the background at 40 s, and is closed from the tab strip ten minutes later.
+    at = 40_000;
+    closing.hide();
+    at = 640_000;
+    closing.hide();
+    // Session restore opens it again at 700 s.
+    at = 700_000;
+    const restored = createVisibleClock(0, store, () => at);
+    expect(restored.back()).toBe(660_000);
+    expect(restored.elapsed()).toBe(40_000);
+  });
+
+  it('gives a Chapter left while the page is out of sight the time it was in sight, not the hidden time', () => {
+    const store = sessionLike();
+    let at = 0;
+    const closing = createVisibleClock(0, store, () => at);
+    const obs = createObservation();
+    at = 10_000;
+    obs.record({ type: 'enter', t: closing.elapsed(), id: 'nyc', title: 'New York' });
+    at = 40_000;
+    closing.hide();
+    // The tab is closed at 640 s: pagehide stamps the leave, then hides.
+    at = 640_000;
+    obs.record({ type: 'leave', t: closing.elapsed(), id: 'nyc' });
+    closing.hide();
+    at = 700_000;
+    const restored = createVisibleClock(0, store, () => at);
+    restored.back();
+    const r = obs.readout(restored.elapsed());
+    expect(r.chapters).toEqual([{ id: 'nyc', title: 'New York', ms: 30_000 }]);
+    expect(r.totalMs).toBe(40_000);
   });
 });
 
@@ -156,8 +194,7 @@ describe('the notes’ clock across pages', () => {
     at = 400_000;
     aCase.hide();
     at = 400_200;
-    // The cached page has not run since: its own total of time away is still nothing.
-    expect(journey.elapsed()).toBe(400_200);
+    // The cached page has not run since, so it knows nothing of the four minutes until it is shown and reads them.
     expect(journey.back()).toBe(0);
     expect(journey.elapsed()).toBe(160_200);
   });

@@ -31,12 +31,20 @@ export function createVisibleClock(startedAt: number, store: AwayStore, now: () 
   };
 
   return {
-    /** Milliseconds since the visit began, less every stretch the page was out of sight. */
-    elapsed: () => now() - startedAt - known.awayMs,
+    /**
+     * Milliseconds since the visit began, less every stretch the page was out of sight. The clock stands still while
+     * the page is out of sight, so whatever is stamped then (a Chapter left as a hidden tab is closed, a reach timer
+     * firing in the background) gets the moment the page left, not the moment the stamp was made.
+     */
+    elapsed: () => (known.hiddenAt ?? now()) - startedAt - known.awayMs,
 
-    /** The page is going out of sight (a hidden tab, a page being left); the latest moment it said so is kept. */
+    /**
+     * The page is going out of sight (a hidden tab, a page being left). The first moment it said so is kept: a page
+     * already out of sight that is then closed (pagehide after visibilitychange) was gone since the first.
+     */
     hide() {
-      keep({ ...store.read(known), hiddenAt: now() });
+      const saved = store.read(known);
+      keep({ ...saved, hiddenAt: saved.hiddenAt ?? now() });
     },
 
     /**
