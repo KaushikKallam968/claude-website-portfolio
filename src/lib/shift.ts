@@ -1,7 +1,7 @@
 /**
  * What a Time Shift and the Field must agree on: the curve a flight is flown on, the stretch of a band's passage it
- * is flown over, the hours its clock has turned, how long a band runs, the hours between two places' clocks and the
- * day tag beside them. The page measures them at build time (a band's length, at one fixed instant), the browser
+ * is flown over, the hours its clock has turned, how long a band runs, the hours between two places' clocks, and the
+ * day tag and the sentence beside them. The page measures them at build time (a band's length, at one fixed instant), the browser
  * while it scrolls (the clocks, live).
  */
 
@@ -84,3 +84,15 @@ export function clockAfter(fromHour: number, off: number, count: number) {
 
 /** The tag beside a clock for the days it has crossed: "+1 day" once it is tomorrow there, "−1 day" while it is yesterday. */
 export const dayTag = (days: number) => (days > 0 ? '+1 day' : days < 0 ? '−1 day' : '');
+
+const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen'];
+const hoursPhrase = (n: number) => `${words[n] ?? n} hour${n === 1 ? '' : 's'}`;
+
+/**
+ * The sentence under a Time Shift: how far ahead of or behind `from` the other place is, then which side of midnight
+ * it is on once its date differs (`days`, from dayShift). One string, so the page can write it only when it changes.
+ */
+export function shiftSentence(from: string, to: string, off: number, days: number) {
+  const hours = off === 0 ? `${to} keeps the same time as ${from}.` : `${to} is ${hoursPhrase(Math.abs(off))} ${off > 0 ? 'ahead of' : 'behind'} ${from}.`;
+  return days === 0 ? hours : `${hours} ${days > 0 ? 'It’s already tomorrow there.' : 'It’s still yesterday there.'}`;
+}

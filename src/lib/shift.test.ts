@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { chapters } from '../data/journey';
-import { BAND_REFERENCE, bandFlight, bandRun, bandRunBetween, clockAfter, dayShift, dayTag, hoursTurned, inOut, offsetHours, sineInOut, travelled, wallClock } from './shift';
+import { BAND_REFERENCE, bandFlight, bandRun, bandRunBetween, clockAfter, dayShift, dayTag, hoursTurned, inOut, offsetHours, shiftSentence, sineInOut, travelled, wallClock } from './shift';
 
 const summer = new Date('2026-07-01T12:00:00Z');
 const winter = new Date('2026-01-15T12:00:00Z');
@@ -235,6 +235,68 @@ describe('the day tag', () => {
     expect(landedTag(DALLAS, SG, '2026-11-02T05:59:00Z')).toBe('+1 day');
     expect(landedTag(SG, DALLAS, '2026-11-02T05:59:00Z')).toBe('−1 day');
     expect(landedTag(SG, DALLAS, '2026-11-02T06:00:00Z')).toBe('');
+  });
+});
+
+describe('the sentence under a Time Shift', () => {
+  it('says how far ahead or behind the other place is, in words up to fourteen hours', () => {
+    expect(shiftSentence('Richardson', 'Singapore', 13, 0)).toBe('Singapore is thirteen hours ahead of Richardson.');
+    expect(shiftSentence('Singapore', 'Richardson', -14, 0)).toBe('Richardson is fourteen hours behind Singapore.');
+    expect(shiftSentence('Plano', 'Santa Clara', -2, 0)).toBe('Santa Clara is two hours behind Plano.');
+    expect(shiftSentence('Plano', 'Atlanta', 1, 0)).toBe('Atlanta is one hour ahead of Plano.');
+    expect(shiftSentence('Santa Clara', 'Atlanta', 3, 0)).toBe('Atlanta is three hours ahead of Santa Clara.');
+  });
+
+  it('turns to numerals past the words, and says the places keep the same time at no hours', () => {
+    expect(shiftSentence('Santa Clara', 'Singapore', 15, 0)).toBe('Singapore is 15 hours ahead of Santa Clara.');
+    expect(shiftSentence('Singapore', 'Santa Clara', -16, 0)).toBe('Santa Clara is 16 hours behind Singapore.');
+    expect(shiftSentence('New York', 'Plano', 0, 0)).toBe('Plano keeps the same time as New York.');
+  });
+
+  it('adds which side of midnight the other place is on once its date differs', () => {
+    expect(shiftSentence('Richardson', 'Singapore', 13, 1)).toBe('Singapore is thirteen hours ahead of Richardson. It’s already tomorrow there.');
+    expect(shiftSentence('Singapore', 'Richardson', -13, -1)).toBe('Richardson is thirteen hours behind Singapore. It’s still yesterday there.');
+    expect(shiftSentence('Santa Clara', 'Atlanta', 3, 1)).toBe('Atlanta is three hours ahead of Santa Clara. It’s already tomorrow there.');
+  });
+
+  // The sentence for two places at an instant, from their wall clocks: the way the page words it.
+  const sentenceAt = (fromTz: string, toTz: string, from: string, to: string, at: string) => {
+    const when = new Date(at);
+    const off = offsetHours(fromTz, toTz, when);
+    return shiftSentence(from, to, off, dayShift(wallClock(fromTz, when), wallClock(toTz, when), off));
+  };
+
+  it('is the same string from one minute to the next, so the page has no reason to rewrite it', () => {
+    // 15:58:30Z and 15:59:30Z on Oct 2 are 23:58 and 23:59 in Singapore, 10:58 and 10:59 in Richardson.
+    const words = 'Singapore is thirteen hours ahead of Richardson.';
+    expect(sentenceAt(DALLAS, SG, 'Richardson', 'Singapore', '2026-10-02T15:58:30Z')).toBe(words);
+    expect(sentenceAt(DALLAS, SG, 'Richardson', 'Singapore', '2026-10-02T15:59:30Z')).toBe(words);
+  });
+
+  it('turns over at Singapore midnight', () => {
+    // 16:00Z is 00:00 on Oct 3 in Singapore and 11:00 on Oct 2 in Richardson.
+    expect(sentenceAt(DALLAS, SG, 'Richardson', 'Singapore', '2026-10-02T15:59:59Z')).toBe('Singapore is thirteen hours ahead of Richardson.');
+    expect(sentenceAt(DALLAS, SG, 'Richardson', 'Singapore', '2026-10-02T16:00:00Z')).toBe('Singapore is thirteen hours ahead of Richardson. It’s already tomorrow there.');
+    expect(sentenceAt(SG, DALLAS, 'Singapore', 'Richardson', '2026-10-02T16:00:00Z')).toBe('Richardson is thirteen hours behind Singapore. It’s still yesterday there.');
+  });
+
+  it('changes its hours when the US clocks go back, and its day at Richardson’s midnight', () => {
+    // Richardson goes back at 07:00Z on Nov 1 (02:00 CDT to 01:00 CST).
+    expect(sentenceAt(DALLAS, SG, 'Richardson', 'Singapore', '2026-11-01T06:59:00Z')).toBe('Singapore is thirteen hours ahead of Richardson.');
+    expect(sentenceAt(DALLAS, SG, 'Richardson', 'Singapore', '2026-11-01T07:00:00Z')).toBe('Singapore is fourteen hours ahead of Richardson.');
+    // 04:59Z on Nov 1 is 23:59 on Oct 31 in Richardson and 12:59 on Nov 1 in Singapore; 05:00Z is Richardson’s midnight.
+    expect(sentenceAt(DALLAS, SG, 'Richardson', 'Singapore', '2026-11-01T04:59:00Z')).toBe('Singapore is thirteen hours ahead of Richardson. It’s already tomorrow there.');
+    expect(sentenceAt(DALLAS, SG, 'Richardson', 'Singapore', '2026-11-01T05:00:00Z')).toBe('Singapore is thirteen hours ahead of Richardson.');
+    // Singapore’s midnight on Nov 2 is 16:00Z, now 14 hours ahead of Richardson.
+    expect(sentenceAt(DALLAS, SG, 'Richardson', 'Singapore', '2026-11-01T16:00:00Z')).toBe('Singapore is fourteen hours ahead of Richardson. It’s already tomorrow there.');
+  });
+
+  it('gains and loses its day at the near place’s midnight on a domestic band too', () => {
+    // Plano and Santa Clara: Plano’s midnight on Oct 3 is 05:00Z, 22:00 on Oct 2 in Santa Clara.
+    expect(sentenceAt(DALLAS, LA, 'Plano', 'Santa Clara', '2026-10-03T04:59:00Z')).toBe('Santa Clara is two hours behind Plano.');
+    expect(sentenceAt(DALLAS, LA, 'Plano', 'Santa Clara', '2026-10-03T05:00:00Z')).toBe('Santa Clara is two hours behind Plano. It’s still yesterday there.');
+    // Santa Clara’s midnight on Oct 3 is 07:00Z, 02:00 on Oct 3 in Plano: the dates agree again.
+    expect(sentenceAt(DALLAS, LA, 'Plano', 'Santa Clara', '2026-10-03T07:00:00Z')).toBe('Santa Clara is two hours behind Plano.');
   });
 });
 

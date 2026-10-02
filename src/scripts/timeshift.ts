@@ -1,13 +1,15 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { bandFlight, clockAfter, dayShift, dayTag, hoursTurned, offsetHours, travelled, wallClock } from '../lib/shift';
+import { bandFlight, clockAfter, dayShift, dayTag, hoursTurned, offsetHours, shiftSentence, travelled, wallClock } from '../lib/shift';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const DIGITS_PER_TURN = 10;
 
-const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen'];
-const hoursPhrase = (n: number) => `${words[n] ?? n} hour${n === 1 ? '' : 's'}`;
+// Writing text replaces its node and clears a selection in it, so only write what changed.
+const write = (el: HTMLElement, t: string) => {
+  if (el.textContent !== t) el.textContent = t;
+};
 
 /**
  * Every Time Shift rolls from the previous place's clock to the next place's clock. With the Field running
@@ -28,13 +30,9 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
       const a = wallClock(fromTz, now);
       const b = wallClock(toTz, now);
       const off = offsetHours(fromTz, toTz, now);
-      text.textContent =
-        off === 0
-          ? `${to} keeps the same time as ${from}.`
-          : `${to} is ${hoursPhrase(Math.abs(off))} ${off > 0 ? 'ahead of' : 'behind'} ${from}.`;
       const days = dayShift(a, b, off);
-      day.textContent = dayTag(days);
-      if (days) text.textContent += days > 0 ? ' It’s already tomorrow there.' : ' It’s still yesterday there.';
+      write(text, shiftSentence(from, to, off, days));
+      write(day, dayTag(days));
       const digits = (t: { h: number; m: number }) => [Math.floor(t.h / 10), t.h % 10, Math.floor(t.m / 10), t.m % 10];
       return { from: digits(a), to: digits(b), off };
     };
@@ -48,7 +46,7 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
 
     if (reduced) {
       place(state.to);
-      // Still, but never stale: a page left open crosses Singapore midnight and the clocks changing like any other.
+      // Still, but live: the words, the day tag and the clock turn over on the minute like every other clock.
       document.addEventListener('clock:minute', () => place(paint().to));
       return;
     }
@@ -99,7 +97,7 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
             },
           });
         });
-        day.textContent = dayTag(days);
+        write(day, dayTag(days));
         day.style.opacity = days !== 0 ? '1' : '0';
       };
       // The traveller's progress at a point of the scene, the Field's own mapping: a band is flown over the middle
