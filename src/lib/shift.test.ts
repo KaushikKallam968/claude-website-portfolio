@@ -91,7 +91,7 @@ describe('the hours a clock has turned', () => {
   });
 });
 
-// US daylight saving ended on Sunday, November 1, 2026: 2:00 local, so at 06:00Z in New York, 07:00Z in Dallas and
+// US daylight saving ends on Sunday, November 1, 2026: 2:00 local, so at 06:00Z in New York, 07:00Z in Dallas and
 // 09:00Z in Los Angeles. Singapore keeps no daylight saving.
 const NY = 'America/New_York';
 const DALLAS = 'America/Chicago';
@@ -106,6 +106,8 @@ describe('the hours between two places across the clocks going back', () => {
     expect(offsetHours(NY, SG, standard)).toBe(13);
     expect(offsetHours(DALLAS, SG, daylight)).toBe(13);
     expect(offsetHours(DALLAS, SG, standard)).toBe(14);
+    expect(offsetHours(LA, SG, daylight)).toBe(15);
+    expect(offsetHours(LA, SG, standard)).toBe(16);
   });
 
   it('keeps New York and Dallas an hour apart, as both change together', () => {
@@ -137,7 +139,7 @@ describe('the hours between two places across the clocks going back', () => {
 describe('the length of a band', () => {
   afterEach(() => vi.useRealTimers());
 
-  it('is sized at standard time, in January', () => {
+  it('is sized in mid-January, with the US zones on standard time', () => {
     expect(BAND_REFERENCE.toISOString()).toBe('2026-01-15T12:00:00.000Z');
     expect(offsetHours(NY, SG, BAND_REFERENCE)).toBe(13);
     expect(offsetHours(DALLAS, SG, BAND_REFERENCE)).toBe(14);
@@ -149,7 +151,9 @@ describe('the length of a band', () => {
     expect(runs).toEqual([58, 68, 78, 58, 188]);
   });
 
-  it('does not depend on the day the site is built', () => {
+  // The length reads no clock of its own, so this only guards against one being put back (a `new Date()` in the
+  // component); that the build is the same is down to the fixed instant above.
+  it('does not read the day the site is built', () => {
     for (const day of ['2026-01-15T12:00:00Z', '2026-07-01T12:00:00Z', '2026-10-31T12:00:00Z', '2026-11-02T12:00:00Z']) {
       vi.useFakeTimers({ toFake: ['Date'] });
       vi.setSystemTime(new Date(day));
@@ -257,12 +261,14 @@ describe('the clock as its hours turn', () => {
   });
 });
 
-describe('the hours a clock has turned, whatever the band was sized for', () => {
-  // A band is sized at standard time; the live count may be an hour more or fewer. Whatever it is, the count only
-  // goes up, never passes the live hours, and has them all by the frame the traveller lands.
+describe('the hours a clock has turned, when the live hours are not the ones the band was sized for', () => {
+  // A band is sized in mid-January; the live hours may be one more or fewer. Whatever they are, the count only goes
+  // up, never passes them, and has them all by the frame the traveller lands. The starts are where the scenes begin
+  // counting: about 0.035 of the leg for the pinned crossing, and 0.05, 0.14 and 0.26 for the 58, 68 and 78vh bands,
+  // with 0 as the floor. The count could not land from a start past 0.95; no scene is anywhere near that.
   it('never passes the live hours, only goes up, and lands on them', () => {
-    for (const hours of [0, 1, 2, 3, 12, 13, 14]) {
-      for (const start of [0, 0.05, 0.3, 0.9]) {
+    for (const hours of [0, 1, 2, 3, 4, 12, 13, 14]) {
+      for (const start of [0, 0.035, 0.05, 0.14, 0.26]) {
         let last = 0;
         for (let i = 0; i <= 1000; i++) {
           const n = hoursTurned(i / 1000, start, hours);
