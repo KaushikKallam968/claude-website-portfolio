@@ -186,6 +186,9 @@ const plants: Record<string, { about?: string[]; bad: string[]; good: string[] }
       'Assessed interaction-data coverage, and designed the agentic test experience.',
       'Assessed interaction-data coverage and designed the agentic test experience.',
       'I also built the agents that run the test.',
+      // A status joins its clauses with a middle dot, and a highlight may end in a bracketed clause.
+      "        status: 'Research in development · designing the agentic test experience',",
+      "          'Developing an evaluation approach with my manager (designed the agentic test experience).',",
     ],
     good: [
       'The agentic test experience is designed by another team.',
@@ -218,6 +221,15 @@ const plants: Record<string, { about?: string[]; bad: string[]; good: string[] }
       'Agents could become angry.',
       'The agent can really feel frustration.',
       'Agents can experience frustration.',
+      // Every modal and perfect helper, chains of any length, and the progressive.
+      'Agents should feel frustration.',
+      'Agents must feel frustration.',
+      'Agents have felt frustration.',
+      'An agent has felt frustrated.',
+      'Agents might really be frustrated.',
+      'Agents may be getting frustrated.',
+      'The agent is feeling frustrated.',
+      'Agents are feeling frustration.',
     ],
     good: [
       'One challenge is defining what a human concept such as frustration means when applied to agent behavior.',
@@ -227,6 +239,7 @@ const plants: Record<string, { about?: string[]; bad: string[]; good: string[] }
       'Agents do not feel frustration.',
       'Agents can’t get frustrated.',
       'Agents cannot feel frustration.',
+      'Agents should not feel frustration.',
       'The agent can loop without anyone being frustrated.',
     ],
   },

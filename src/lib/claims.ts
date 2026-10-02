@@ -107,8 +107,10 @@ const SCORE = String.raw`scores?|ACE|components?|Watchability|Attention|Likeabil
 /** A verb that moves a result up or down, as the spec's "increases" does. */
 const MOVES = String.raw`(?:in|de)creas(?:e|es|ed|ing)|rais(?:e|es|ed|ing)|lowers|lowered|lowering`;
 
-/** What may stand between "agents" and what they feel: up to two helpers or modals, as in "can really feel" or "may be frustrated". */
-const AGENT_HELPERS = String.raw`(?:(?:really|actually|truly|genuinely|are|is|was|were|be|been|become|becomes|became|get|gets|got|getting|can|could|may|might|do|does|did|will|would)\s+){0,2}`;
+/** What may stand between "agents" and what they feel: any run of helpers, modals and intensifiers, as in "can really feel", "may be
+ * getting frustrated" or "have felt". Each is a function word, so a longer run catches more without catching a denial: not, n't and never
+ * are not among them. */
+const AGENT_HELPERS = String.raw`(?:(?:really|actually|truly|genuinely|are|is|was|were|be|been|become|becomes|became|get|gets|got|getting|can|could|may|might|must|should|shall|do|does|did|will|would|have|has|had)\s+)*`;
 
 /** Internal tool names stay out of the repository, this file included, so the Rule holds them as base64 and decodes them here. */
 const INTERNAL_TOOLS = ['SUJBVA==', 'SU1VUw=='].map((t) => atob(t));
@@ -279,10 +281,10 @@ export const rules: Rule[] = [
     reason: 'The evaluation approach is developed with his manager. He does not design the agentic experience used to test it, so no sentence says that he designs or builds it.',
     about: ['ai-evaluation'],
     // A Role highlight and an Entry's fields have no subject by house format, so the verb may also open a string, even one that
-    // follows a key on its line, or follow a semicolon, a colon, a comma or "and". A denial or a third-party sentence worded the
+    // follows a key on its line, or follow a semicolon, a colon, a comma, a status's middle dot, an opening bracket or "and". A denial or a third-party sentence worded the
     // same way ("Created by another team: the agentic test experience.") fails too, so reword it as the real copy does, "I don’t
     // design ...", or give it an Allowance.
-    forbids: /(?:^\W*|[;:,]\W*(?:and\s+)?|\band\s+|\b(?:I|we|he|Kaushik|I[’']m|I[’']ve)\s+)(?:also\s+)?(?:design(?:ed|s|ing)?|built|build(?:s|ing)?|creat(?:e|ed|es|ing))\b[^.!?]*\bagent\w*/i,
+    forbids: /(?:^\W*|[;:,·(]\W*(?:and\s+)?|\band\s+|\b(?:I|we|he|Kaushik|I[’']m|I[’']ve)\s+)(?:also\s+)?(?:design(?:ed|s|ing)?|built|build(?:s|ing)?|creat(?:e|ed|es|ing))\b[^.!?]*\bagent\w*/i,
   },
   {
     id: 'ai-evaluation-no-agent-feelings',
@@ -291,7 +293,7 @@ export const rules: Rule[] = [
     about: ['ai-evaluation'],
     forbids: new RegExp(
       [
-        String.raw`\bagents?\s+${AGENT_HELPERS}(?:feels?|felt|frustrated|angry|upset|anxious|annoyed)\b`,
+        String.raw`\bagents?\s+${AGENT_HELPERS}(?:feel(?:s|ing)?|felt|frustrated|angry|upset|anxious|annoyed)\b`,
         String.raw`\bagents?\s+${AGENT_HELPERS}experiences?\s+(?:frustration|emotions?|feelings?)\b`,
       ].join('|'),
       'i',
