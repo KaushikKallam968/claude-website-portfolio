@@ -30,8 +30,11 @@ const clock = createVisibleClock(sessionStart, {
     session.set(KEYS.awayMs, state.awayMs);
   },
 });
-/** How long the reader was gone before this page loaded (0 for a link followed). Taken first, so nothing is read off the clock before it is set aside. */
-const awayBeforeLoad = clock.back();
+/**
+ * How long the reader was gone before this page loaded (0 for a link followed). Taken first, so nothing is read off the
+ * clock before it is set aside. It runs to where this navigation started, not to now, so a slow load is not an absence.
+ */
+const awayBeforeLoad = clock.back(Math.round(performance.timeOrigin));
 
 /** Milliseconds this visit has been in sight, on the notes' clock. */
 export const elapsed = clock.elapsed;

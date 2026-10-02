@@ -53,10 +53,12 @@ export function createVisibleClock(startedAt: number, store: AwayStore, now: () 
      * The page is in sight again: a tab shown, a page restored from the back-forward cache, or the next page of the
      * visit loading. Returns how long it was gone, or 0 for a hand-over between pages or when it had not gone.
      * It reads the store first, because the pages visited meanwhile may have set time aside that this one has not seen.
+     * A page that is loading says when its navigation started: the network after that is the page arriving, not the
+     * reader being away, so a slow load is not an absence.
      */
-    back(): number {
+    back(returnedAt: number = now()): number {
       const saved = store.read(known);
-      const gap = saved.hiddenAt === null ? 0 : now() - saved.hiddenAt;
+      const gap = saved.hiddenAt === null ? 0 : returnedAt - saved.hiddenAt;
       const away = gap > NAVIGATION_GAP_MS ? gap : 0;
       keep({ hiddenAt: null, awayMs: saved.awayMs + away });
       return away;
