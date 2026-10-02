@@ -20,8 +20,9 @@ const cases = defineCollection({
     /** The kind of outcome, so a recommendation never reads as a measured result. */
     outcomeType: z.enum(['Delivered capability', 'Recommendations', 'Recommendations, used', 'Recommendation, implementation reported', 'Launched, now paused']),
     status: z.string(),
-    shows: z.array(z.string()),
-    cannotShow: z.array(z.string()),
+    shows: z.array(z.string()).min(1),
+    /** Every Case says what its evidence cannot show, so none can leave this empty. */
+    cannotShow: z.array(z.string()).min(1),
     draft: z.boolean().default(false),
   }),
 });
