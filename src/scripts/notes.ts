@@ -255,10 +255,10 @@ function wireAway() {
     const first = unseen;
     unseen = false;
     const ms = clock.back();
-    if (!ms) return;
-    // Coming back is a sign of life: the pause that follows is counted from here, not from before the reader left.
-    lastActive = elapsed();
-    if (!first) record({ type: 'away', t: elapsed(), ms });
+    if (!ms || first) return;
+    // An absence long enough to be noted is a sign of life: the pause that follows is counted from here, not from
+    // before the reader left. A shorter one is only set aside by the clock, and a pause across it still counts.
+    if (record({ type: 'away', t: elapsed(), ms })) lastActive = elapsed();
   };
   document.addEventListener('visibilitychange', sync);
   addEventListener('pageshow', sync);
