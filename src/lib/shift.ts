@@ -37,9 +37,10 @@ export const bandFlight = (passage: number) => Math.min(1, Math.max(0, (passage 
 export const bandRun = (hours: number) => 48 + 10 * Math.abs(hours);
 
 /**
- * The instant a band is sized at: mid-January, when every zone that keeps daylight saving is on standard time. A
- * band's length is pacing, so it must not move with the day the site is built; its clock and its hour count are
- * live, and stay exact all year.
+ * The instant a band is sized at: mid-January, when the Journey's zones (the US zones; Singapore keeps no daylight
+ * saving) are on standard time. A band's length is pacing, so it must not move with the day the site is built; its
+ * clock and its hour count are live, and stay exact all year. A zone south of the equator is on daylight time in
+ * January, so a Chapter there would be sized by that offset, the same on every build.
  */
 export const BAND_REFERENCE = new Date('2026-01-15T12:00:00Z');
 
