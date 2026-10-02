@@ -63,6 +63,9 @@ const plants: Record<string, { about?: string[]; bad: string[]; good: string[] }
       'I found the attributes that were most strongly associated with the scores and statistically significant.',
       'Attributes few ads use leave less to go on.',
       'We do not publish a coefficient for each attribute.',
+      'The coefficient often changed sign across the scores.',
+      'The coefficient isn’t published.',
+      'The coefficient for humor isn’t published.',
     ],
   },
   'inspire-no-decimals': {
@@ -74,10 +77,17 @@ const plants: Record<string, { about?: string[]; bad: string[]; good: string[] }
       'Watchability scored 8.5.',
       'The coefficient for humor was 0.4.',
       'Close-up ads scored 4.2 points higher.',
+      'Close-up ads were scoring 4.2 points higher.',
       'The effect of humor was 1.5.',
     ],
     good: [
-      'Close-up ads scored higher than ads without one.','I coded all 548 ads on all 21 attributes.', 'Thirty-second ads were associated with higher scores than fifteen-second ones.', 'The place is at 33.749, -84.388.', 'Version 2.12.2 is paused.', "[0.76, 'Each score is modeled against the codes."],
+      'Close-up ads scored higher than ads without one.',
+      'I coded all 548 ads on all 21 attributes.',
+      'Thirty-second ads were associated with higher scores than fifteen-second ones.',
+      'The place is at 33.749, -84.388.',
+      'Version 2.12.2 is paused.',
+      "[0.76, 'Each score is modeled against the codes.",
+    ],
   },
   'inspire-no-brand-list': {
     about: INSPIRE,
@@ -164,6 +174,18 @@ const plants: Record<string, { about?: string[]; bad: string[]; good: string[] }
       'Assessed interaction-data coverage; and built the agentic test experience.',
       'Role: creating the agentic experience used to test it.',
       "          'Designed the agentic test experience with my manager.',",
+      // A string that opens after a key on the same line, as an Entry's own fields are written in journey.ts.
+      "        contribution: 'Designed the agentic test experience with my manager.',",
+      "        contribution: 'Designing the agentic test experience with my manager.',",
+      "        title: 'Building the agentic test experience',",
+      "        status: 'Designed the agentic test experience · concept stage',",
+      "        intro: ['Designed the agentic test experience.'],",
+      // The verb after "also", a comma or a plain "and", as a subject branch already takes it.
+      'Also designed the agentic test experience.',
+      'Assessed interaction-data coverage; also designed the agentic test experience.',
+      'Assessed interaction-data coverage, and designed the agentic test experience.',
+      'Assessed interaction-data coverage and designed the agentic test experience.',
+      'I also built the agents that run the test.',
     ],
     good: [
       'The agentic test experience is designed by another team.',
@@ -172,6 +194,11 @@ const plants: Record<string, { about?: string[]; bad: string[]; good: string[] }
       'I don’t design the agentic experience used to test it.',
       'With my manager, I’m developing an evaluation approach to help identify whether a breakdown comes from the user or the agent.',
       'Developing the approach with my manager.',
+      "        contribution: 'Developing the approach with my manager.',",
+      "        title: 'Evaluating bounded multi-agent workflows',",
+      "        status: 'Research in development · concept stage',",
+      'Assessed interaction-data coverage, and created a cross-product HTML dashboard.',
+      'Also assessed interaction-data coverage.',
     ],
   },
   'ai-evaluation-no-agent-feelings': {
@@ -183,12 +210,24 @@ const plants: Record<string, { about?: string[]; bad: string[]; good: string[] }
       'Agents feel emotion.',
       'Agents can feel frustration.',
       'An agent may feel frustrated.',
+      // A modal is followed by be, get or become as well as by feel.
+      'Agents can get frustrated.',
+      'An agent may be frustrated.',
+      'An agent might get annoyed.',
+      'Agents will be upset.',
+      'Agents could become angry.',
+      'The agent can really feel frustration.',
+      'Agents can experience frustration.',
     ],
     good: [
       'One challenge is defining what a human concept such as frustration means when applied to agent behavior.',
       'Agent-side indicators are an operational construct.',
       'The user was frustrated and the agent kept going.',
       'Turning it into something observable in an agent doesn’t assume the agent feels anything.',
+      'Agents do not feel frustration.',
+      'Agents can’t get frustrated.',
+      'Agents cannot feel frustration.',
+      'The agent can loop without anyone being frustrated.',
     ],
   },
   'mexico-not-egel': {
@@ -338,6 +377,7 @@ describe('the Rules that deny a result, a launch or a feeling', () => {
     const id = 'ai-evaluation-no-agent-feelings';
     expect(found(id, 'ai-evaluation', 'Turning it into something observable in an agent doesn’t assume the agent feels anything, but agents get frustrated.')).toBe(1);
     expect(found(id, 'ai-evaluation', 'Turning it into something observable in an agent doesn’t assume the agent feels anything, but agents can feel frustration.')).toBe(1);
+    expect(found(id, 'ai-evaluation', 'Turning it into something observable in an agent doesn’t assume the agent feels anything, but agents can get frustrated.')).toBe(1);
   });
 });
 
@@ -351,10 +391,10 @@ describe('the decimals Rule', () => {
     expect(found("Each attribute is a yes or no, defined before any ad was watched, at 0.28.")).toBe(1);
   });
 
-  it('reads a decimal beside a coefficient, an effect or a score that was given, as it does beside an estimate', () => {
-    expect(found('The coefficient for humor was 0.4.')).toBe(1);
-    expect(found('The effect of humor was 0.4.')).toBe(1);
-    expect(found('Close-up ads scored 4.2 points higher.')).toBe(1);
+  it('reads a decimal beside a coefficient, an effect or any form of score, as it does beside an estimate', () => {
+    expect(found('Humor had an effect size of 0.3.')).toBe(1);
+    expect(found('The coefficient on close-ups was −0.4.')).toBe(1);
+    expect(found('Humor ads were scoring 3.1 points lower.')).toBe(1);
   });
 });
 
@@ -570,13 +610,16 @@ describe('reading the real text', () => {
     expect(broken(SCENE, 'each tested with 12 STEM students.', 'each tested with 20 STEM students, 60 in all.')).toEqual([expect.stringMatching(/^discord-no-sixty src\/components\/FigureScene\.astro:\d+$/)]);
   });
 
-  it('fails a Role highlight that says it designed the agentic test experience, though a highlight has no subject', () => {
+  it('fails a Role highlight or a contribution that says it designed the agentic test experience, though neither has a subject', () => {
     const whole = files.find((f) => f.file === JOURNEY)!.text;
-    const from = 'Developing an evaluation approach for bounded multi-agent workflows with my manager (concept development).';
-    expect(whole, `${JOURNEY} holds "${from}"`).toContain(from);
-    expect(checkAll(rules, chapterSources(whole.replace(from, 'Designed the agentic test experience.'))).map((v) => `${v.rule} ${v.file}:${v.line}`)).toEqual([
-      expect.stringMatching(/^ai-evaluation-not-the-designer src\/data\/journey\.ts:\d+$/),
-    ]);
+    const broken = (from: string, to: string) => {
+      expect(whole, `${JOURNEY} holds "${from}"`).toContain(from);
+      return checkAll(rules, chapterSources(whole.replace(from, to))).map((v) => `${v.rule} ${v.file}:${v.line}`);
+    };
+    const designer = [expect.stringMatching(/^ai-evaluation-not-the-designer src\/data\/journey\.ts:\d+$/)];
+    // A Role highlight begins its own line, and an Entry's contribution opens after its key.
+    expect(broken('Developing an evaluation approach for bounded multi-agent workflows with my manager (concept development).', 'Designed the agentic test experience.')).toEqual(designer);
+    expect(broken('Developing the approach with my manager.', 'Designed the agentic test experience with my manager.')).toEqual(designer);
   });
 
   it('skips images, and anything else with a NUL byte', () => {

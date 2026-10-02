@@ -107,6 +107,9 @@ const SCORE = String.raw`scores?|ACE|components?|Watchability|Attention|Likeabil
 /** A verb that moves a result up or down, as the spec's "increases" does. */
 const MOVES = String.raw`(?:in|de)creas(?:e|es|ed|ing)|rais(?:e|es|ed|ing)|lowers|lowered|lowering`;
 
+/** What may stand between "agents" and what they feel: up to two helpers or modals, as in "can really feel" or "may be frustrated". */
+const AGENT_HELPERS = String.raw`(?:(?:really|actually|truly|genuinely|are|is|was|were|be|been|become|becomes|became|get|gets|got|getting|can|could|may|might|do|does|did|will|would)\s+){0,2}`;
+
 /** Internal tool names stay out of the repository, this file included, so the Rule holds them as base64 and decodes them here. */
 const INTERNAL_TOOLS = ['SUJBVA==', 'SU1VUw=='].map((t) => atob(t));
 
@@ -145,14 +148,14 @@ export const rules: Rule[] = [
     from: 'regression estimates or significance values',
     reason: 'The findings are published in words. A coefficient, a p-value or a fit statistic would be the regression estimates themselves.',
     about: ['inspire-ad-creative'],
-    forbids: /β|\bbeta\b|\bp\s*[<=≤]\s*\.?\d|\bR(?:²|-squared| squared)|\bcoefficients?\s+(?:(?:of|was|were|is|are|=|:)|(?:for|on|from)\b[^.!?]{1,40}?(?:\b(?:was|were|is|are)\b|[=:]))|\b(?:estimates?|significance|p-values?)\s+(?:of|was|were|is|are|=|:|<)\s*[-−]?\.?\d|\bsignifican\w*\b[^\d]{0,40}?[-−]?\.?\d/i,
+    forbids: /β|\bbeta\b|\bp\s*[<=≤]\s*\.?\d|\bR(?:²|-squared| squared)|\bcoefficients?\s+(?:(?:of|was|were|is|are)\b|[=:]|(?:for|on|from)\b[^.!?]{1,40}?(?:\b(?:was|were|is|are)\b|[=:]))|\b(?:estimates?|significance|p-values?)\s+(?:of|was|were|is|are|=|:|<)\s*[-−]?\.?\d|\bsignifican\w*\b[^\d]{0,40}?[-−]?\.?\d/i,
   },
   {
     id: 'inspire-no-decimals',
     from: 'regression estimates or significance values',
     reason: 'A decimal in a sentence about a score, an attribute, an estimate, a coefficient or an effect reads as one of the regression estimates, whatever it is called. The findings are in words.',
     about: ['inspire-ad-creative'],
-    when: new RegExp(String.raw`\b(?:attributes?|estimates?|coefficients?|effects?|scored|${SCORE})\b`, 'i'),
+    when: new RegExp(String.raw`\b(?:attributes?|estimates?|coefficients?|effects?|scored|scoring|${SCORE})\b`, 'i'),
     // Not the number that opens a line as `[0.28, 'text']`: in FigureScene that is the scroll offset of a step, which is code.
     forbids: /(?<!^\s*\[)(?<!\w)\d*\.\d+\b/,
   },
@@ -275,15 +278,24 @@ export const rules: Rule[] = [
     from: 'he does not design the agentic test experience',
     reason: 'The evaluation approach is developed with his manager. He does not design the agentic experience used to test it, so no sentence says that he designs or builds it.',
     about: ['ai-evaluation'],
-    // A Role highlight has no subject by house format, so the verb may also open the sentence or follow a semicolon or a colon.
-    forbids: /(?:^\W*|[;:]\s*(?:and\s+)?|\b(?:I|we|he|Kaushik|I[’']m|I[’']ve)\s+(?:also\s+)?)(?:design(?:ed|s|ing)?|built|build(?:s|ing)?|creat(?:e|ed|es|ing))\b[^.!?]*\bagent\w*/i,
+    // A Role highlight and an Entry's fields have no subject by house format, so the verb may also open a string, even one that
+    // follows a key on its line, or follow a semicolon, a colon, a comma or "and". A denial or a third-party sentence worded the
+    // same way ("Created by another team: the agentic test experience.") fails too, so reword it as the real copy does, "I don’t
+    // design ...", or give it an Allowance.
+    forbids: /(?:^\W*|[;:,]\W*(?:and\s+)?|\band\s+|\b(?:I|we|he|Kaushik|I[’']m|I[’']ve)\s+)(?:also\s+)?(?:design(?:ed|s|ing)?|built|build(?:s|ing)?|creat(?:e|ed|es|ing))\b[^.!?]*\bagent\w*/i,
   },
   {
     id: 'ai-evaluation-no-agent-feelings',
     from: 'not proof agents feel emotion',
     reason: 'Agent-side indicators are an operational construct. Nothing is said that treats an agent as feeling frustration or any other emotion.',
     about: ['ai-evaluation'],
-    forbids: /\bagents?\s+(?:(?:really|actually|truly|genuinely|are|is|was|were|get|gets|got|can|could|may|might|do|does|did|will|would)\s+)?(?:feels?|felt|frustrated|angry|upset|anxious|annoyed)\b|\bagents?\s+experiences?\s+(?:frustration|emotions?|feelings?)\b/i,
+    forbids: new RegExp(
+      [
+        String.raw`\bagents?\s+${AGENT_HELPERS}(?:feels?|felt|frustrated|angry|upset|anxious|annoyed)\b`,
+        String.raw`\bagents?\s+${AGENT_HELPERS}experiences?\s+(?:frustration|emotions?|feelings?)\b`,
+      ].join('|'),
+      'i',
+    ),
     allow: [
       { opens: 'Turning it into something observable in an agent', words: /^agent feels$/i, reason: 'It denies it: observing the construct does not assume the agent feels anything.' },
     ],
