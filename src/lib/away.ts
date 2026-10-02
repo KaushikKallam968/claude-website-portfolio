@@ -39,12 +39,14 @@ export function createVisibleClock(startedAt: number, store: AwayStore, now: () 
     elapsed: () => (known.hiddenAt ?? now()) - startedAt - known.awayMs,
 
     /**
-     * The page is going out of sight (a hidden tab, a page being left). The first moment it said so is kept: a page
-     * already out of sight that is then closed (pagehide after visibilitychange) was gone since the first.
+     * The page is going out of sight (a hidden tab, a page being left). The first moment this page said so is kept: a
+     * page already out of sight that is then closed (pagehide after visibilitychange) was gone since the first. Only
+     * this page's own memory counts, not the store's: a moment another page left there is that page's, and a page
+     * restored from the back-forward cache would otherwise take it for its own.
      */
     hide() {
       const saved = store.read(known);
-      keep({ ...saved, hiddenAt: saved.hiddenAt ?? now() });
+      keep({ ...saved, hiddenAt: known.hiddenAt ?? now() });
     },
 
     /**

@@ -199,6 +199,29 @@ describe('the notes’ clock across pages', () => {
     expect(journey.elapsed()).toBe(160_200);
   });
 
+  it('does not take another page’s hiding for its own, when a cached page comes back and is left again', () => {
+    const store = sessionLike();
+    let at = 0;
+    const journey = createVisibleClock(0, store, () => at);
+    // The Journey page is left for a Case, and kept in the cache.
+    at = 10_000;
+    journey.hide();
+    at = 10_300;
+    const aCase = createVisibleClock(0, store, () => at);
+    aCase.back();
+    // Back to the cached Journey page at 20 s: the Case hides as it is left. The Journey read for 8 s, then follows
+    // the next Case. Its own first hide is the moment it went, not the 10 s the store still held from before.
+    at = 20_000;
+    journey.back();
+    aCase.hide();
+    at = 28_000;
+    journey.hide();
+    at = 28_300;
+    const next = createVisibleClock(0, store, () => at);
+    expect(next.back()).toBe(0);
+    expect(next.elapsed()).toBe(28_300);
+  });
+
   it('keeps a page honest within itself when storage is blocked', () => {
     let at = 0;
     const clock = createVisibleClock(0, blocked, () => at);
