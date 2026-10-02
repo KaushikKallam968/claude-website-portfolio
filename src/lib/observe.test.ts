@@ -166,6 +166,35 @@ describe('observation notes', () => {
       cannotShow: 'Whether you were reading, thinking or away.',
     });
   });
+
+  it('says a long pause in minutes, the way an absence is said', () => {
+    expect(createObservation().record({ type: 'idle', t: 400000, ms: 185000 })?.shows).toBe('The page sat still for 3 minutes.');
+  });
+
+  it('notes an absence of the page from sight, once it is long enough to mean something', () => {
+    const obs = createObservation();
+    expect(obs.record({ type: 'away', t: 60000, ms: 4000 })).toBeNull();
+    expect(obs.record({ type: 'away', t: 60000, ms: 4999 })).toBeNull();
+    expect(obs.record({ type: 'away', t: 61000, ms: 5000 })?.shows).toBe('You left this tab for 5 seconds.');
+    expect(obs.record({ type: 'away', t: 300000, ms: 240000 })).toEqual({
+      t: 300000,
+      event: 'away',
+      tag: null,
+      quality: 'tagged',
+      shows: 'You left this tab for 4 minutes.',
+      cannotShow: 'Where you went, or whether you meant to come back.',
+    });
+  });
+
+  it('says a long absence in hours and minutes', () => {
+    expect(createObservation().record({ type: 'away', t: 1, ms: 4500000 })?.shows).toBe('You left this tab for 1 hour 15 minutes.');
+  });
+
+  it('notes every absence, not only the first', () => {
+    const obs = createObservation();
+    expect(obs.record({ type: 'away', t: 100000, ms: 30000 })?.shows).toBe('You left this tab for 30 seconds.');
+    expect(obs.record({ type: 'away', t: 500000, ms: 120000 })?.shows).toBe('You left this tab for 2 minutes.');
+  });
 });
 
 describe('the visit readout', () => {
@@ -182,6 +211,20 @@ describe('the visit readout', () => {
       { id: 'texas-career', title: 'Texas: career', ms: 10000 },
     ]);
     expect(r.totalMs).toBe(62000);
+  });
+
+  it('replays a stored visit with an absence in it, the Chapter keeping the time its own events measured', () => {
+    const stored: RawEvent[] = [
+      { type: 'arrive', t: 0, page: '/', pageName: 'the journey' },
+      { type: 'enter', t: 3000, id: 'nyc', title: 'New York' },
+      { type: 'away', t: 20000, ms: 240000 },
+      { type: 'leave', t: 30000, id: 'nyc' },
+      { type: 'idle', t: 90000, ms: 61000 },
+    ];
+    const obs = createObservation();
+    const notes = stored.map((e) => obs.record(e)).filter((n) => n !== null);
+    expect(notes.map((n) => n.shows)).toEqual(['You arrived at the journey.', 'You left this tab for 4 minutes.', 'The page sat still for 1 minute.']);
+    expect(obs.readout(40000).chapters).toEqual([{ id: 'nyc', title: 'New York', ms: 27000 }]);
   });
 
   it('lists the Cases opened, in order, once each', () => {

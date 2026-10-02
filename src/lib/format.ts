@@ -9,6 +9,19 @@ export function formatDuration(ms: number): string {
   return `${Math.floor(whole / 60)} min ${pad2(whole % 60)} s`;
 }
 
+const count = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'}`;
+
+/** A duration said in words, for a note: seconds under a minute, whole minutes under an hour, then hours and minutes. */
+export function spokenDuration(ms: number): string {
+  const seconds = Math.round(ms / 1000);
+  if (seconds < 60) return count(seconds, 'second');
+  // Rounding in minutes before splitting, so 59.6 minutes reads as an hour and never as 60 minutes.
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return count(minutes, 'minute');
+  const rest = minutes % 60;
+  return rest ? `${count(Math.floor(minutes / 60), 'hour')} ${count(rest, 'minute')}` : count(minutes / 60, 'hour');
+}
+
 /** Elapsed time on the notes' own clock, e.g. 01:07.3. */
 export function formatElapsed(ms: number): string {
   const s = Math.floor(ms / 1000);

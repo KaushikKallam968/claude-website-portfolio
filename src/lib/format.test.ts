@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isLongTitle, nobrCompounds } from './format';
+import { isLongTitle, nobrCompounds, spokenDuration } from './format';
 
 const nobr = (s: string) => `<span class="nobr">${s}</span>`;
 
@@ -51,5 +51,36 @@ describe('which Case titles wrap', () => {
     expect(['Chegg Mexico', 'Chegg Discord', 'watched.'].some(isLongTitle)).toBe(false);
     expect(isLongTitle('Inspire Brands Ad Creative')).toBe(true);
     expect(isLongTitle('Data Instrumentation Coverage and Quality')).toBe(true);
+  });
+});
+
+describe('a duration in words', () => {
+  it('counts seconds under a minute', () => {
+    expect(spokenDuration(5000)).toBe('5 seconds');
+    expect(spokenDuration(8200)).toBe('8 seconds');
+    expect(spokenDuration(59400)).toBe('59 seconds');
+  });
+
+  it('says one second and one minute in the singular', () => {
+    expect(spokenDuration(1000)).toBe('1 second');
+    expect(spokenDuration(60000)).toBe('1 minute');
+  });
+
+  it('counts whole minutes under an hour, rounding to the nearest', () => {
+    expect(spokenDuration(240000)).toBe('4 minutes');
+    expect(spokenDuration(270000)).toBe('5 minutes');
+    expect(spokenDuration(2700000)).toBe('45 minutes');
+  });
+
+  it('never rounds into a sixty of the unit below', () => {
+    expect(spokenDuration(59600)).toBe('1 minute');
+    expect(spokenDuration(3570000)).toBe('1 hour');
+  });
+
+  it('gives hours, then the minutes left over', () => {
+    expect(spokenDuration(3600000)).toBe('1 hour');
+    expect(spokenDuration(3900000)).toBe('1 hour 5 minutes');
+    expect(spokenDuration(7200000)).toBe('2 hours');
+    expect(spokenDuration(9060000)).toBe('2 hours 31 minutes');
   });
 });

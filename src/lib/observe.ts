@@ -2,7 +2,7 @@
  * The observation layer: turns what a visitor does on the page into short, honest notes.
  * Everything stays in the browser. Each note says what the event shows and what it cannot.
  */
-import { sentence } from './format';
+import { sentence, spokenDuration } from './format';
 
 export type RawEvent =
   | { type: 'point'; t: number; tag: string; label: string; pageName?: string; cannotShow?: string }
@@ -19,6 +19,8 @@ export type RawEvent =
   /** Reaching a part of a page that says, in its own words, what reaching it shows and can't. */
   | { type: 'reach'; t: number; page: string; id: string; shows: string; cannotShow: string }
   | { type: 'idle'; t: number; ms: number }
+  /** The page was out of sight for ms: another tab, or away from the site and back. */
+  | { type: 'away'; t: number; ms: number }
   | { type: 'enter'; t: number; id: string; title: string }
   | { type: 'leave'; t: number; id: string }
   | { type: 'open'; t: number; id: string; title: string };
@@ -57,8 +59,8 @@ function deviceKeeps(e: Extract<RawEvent, { type: 'clock' }>): string | null {
   return null;
 }
 
-/** A pause shorter than this is just reading rhythm, not something worth noting. */
-const IDLE_WORTH_NOTING_MS = 5000;
+/** A pause or an absence shorter than this is just reading rhythm, not something worth noting. */
+const WORTH_NOTING_MS = 5000;
 
 export function createObservation() {
   const quartersSeen = new Map<string, number>();
@@ -147,14 +149,24 @@ export function createObservation() {
           return { t: e.t, event: 'reach', tag: null, quality: 'tagged', shows: e.shows, cannotShow: e.cannotShow };
         }
         case 'idle':
-          if (e.ms < IDLE_WORTH_NOTING_MS) return null;
+          if (e.ms < WORTH_NOTING_MS) return null;
           return {
             t: e.t,
             event: 'idle',
             tag: null,
             quality: 'tagged',
-            shows: `The page sat still for ${Math.round(e.ms / 1000)} seconds.`,
+            shows: `The page sat still for ${spokenDuration(e.ms)}.`,
             cannotShow: 'Whether you were reading, thinking or away.',
+          };
+        case 'away':
+          if (e.ms < WORTH_NOTING_MS) return null;
+          return {
+            t: e.t,
+            event: 'away',
+            tag: null,
+            quality: 'tagged',
+            shows: `You left this tab for ${spokenDuration(e.ms)}.`,
+            cannotShow: 'Where you went, or whether you meant to come back.',
           };
         case 'enter':
           close(e.t);

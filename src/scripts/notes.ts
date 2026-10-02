@@ -1,4 +1,5 @@
 import { createObservation, type Note, type RawEvent } from '../lib/observe';
+import { createVisibleClock } from '../lib/away';
 import { formatElapsed } from '../lib/format';
 import { KEYS, session } from '../lib/store';
 import { createHoverIntent } from '../lib/hover';
@@ -18,8 +19,22 @@ export const READING_LINE = '-45% 0px -54% 0px';
 const sessionStart: number = session.get(KEYS.sessionStart, 0) || Date.now();
 session.set(KEYS.sessionStart, sessionStart);
 
-/** Milliseconds since this visit began, on the notes' clock. */
-export const elapsed = () => Date.now() - sessionStart;
+/**
+ * The notes' clock counts only time the page was in sight. The time between one page hiding and the next showing is
+ * kept beside the visit's start, so it survives the trip between pages.
+ */
+const clock = createVisibleClock(sessionStart, {
+  read: (fallback) => ({ hiddenAt: session.get(KEYS.hiddenAt, fallback.hiddenAt), awayMs: session.get(KEYS.awayMs, fallback.awayMs) }),
+  write: (state) => {
+    session.set(KEYS.hiddenAt, state.hiddenAt);
+    session.set(KEYS.awayMs, state.awayMs);
+  },
+});
+/** How long the reader was gone before this page loaded (0 for a link followed). Taken first, so nothing is read off the clock before it is set aside. */
+const awayBeforeLoad = clock.back();
+
+/** Milliseconds this visit has been in sight, on the notes' clock. */
+export const elapsed = clock.elapsed;
 
 /** What this page is called in a note, since notes are read again on later pages. */
 const pageName = () => document.querySelector<HTMLElement>('[data-page-name]')?.dataset.pageName ?? 'this page';
@@ -211,13 +226,43 @@ function wireReach() {
   parts.forEach((p) => io.observe(p));
 }
 
+/** The reader's last sign of life on the notes' clock: an input, or coming back to the page. */
+let lastActive = 0;
+
 function wireIdle() {
-  let lastActive = elapsed();
+  lastActive = elapsed();
   const wake = () => {
     record({ type: 'idle', t: elapsed(), ms: elapsed() - lastActive }); // short pauses produce no note
     lastActive = elapsed();
   };
   for (const type of ACTIVITY) addEventListener(type, wake, { passive: true });
+}
+
+/**
+ * A page out of sight is not read, so the clock sets the time aside (see lib/away.ts) and this says when. The page
+ * counts as gone from the moment it hides, a hidden tab or a page being left, and as back when it is shown again, a
+ * tab, a page restored from the back-forward cache, or the next page load (taken above).
+ */
+function wireAway() {
+  // A tab opened in the background has not been seen yet: its wait is set aside, but the reader never left it.
+  let unseen = document.visibilityState === 'hidden';
+  if (unseen) clock.hide();
+  const sync = () => {
+    if (document.visibilityState === 'hidden') {
+      clock.hide();
+      return;
+    }
+    const first = unseen;
+    unseen = false;
+    const ms = clock.back();
+    if (!ms) return;
+    // Coming back is a sign of life: the pause that follows is counted from here, not from before the reader left.
+    lastActive = elapsed();
+    if (!first) record({ type: 'away', t: elapsed(), ms });
+  };
+  document.addEventListener('visibilitychange', sync);
+  addEventListener('pageshow', sync);
+  addEventListener('pagehide', () => clock.hide());
 }
 
 function wireChapters() {
@@ -316,6 +361,8 @@ export function startNotes() {
   // The first note of a visit: arriving is the only thing the page knows for certain. It is kept like any other
   // note, so it is still there on the pages that follow.
   if (!savedEvents.length) record({ type: 'arrive', t: elapsed(), page: location.pathname, pageName: pageName() });
+  // The site was left and this page opened in the same tab session: the clock has set the time aside, and one note says so.
+  if (awayBeforeLoad) record({ type: 'away', t: elapsed(), ms: awayBeforeLoad });
   // Once the reader does anything, the one thing the device says about where they are: its clock. Said at arrival it
   // would stand over "You arrived", the visit's first note. The note names a time, never the zone, and like every
   // note it stays here. Later pages replay it rather than say it again.
@@ -351,5 +398,6 @@ export function startNotes() {
   wireDepth();
   wireReach();
   wireIdle();
+  wireAway();
   wireChapters();
 }

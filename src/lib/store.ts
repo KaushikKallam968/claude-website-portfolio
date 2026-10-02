@@ -5,6 +5,8 @@
 export const KEYS = {
   events: 'kk:events',
   sessionStart: 'kk:start',
+  hiddenAt: 'kk:hidden',
+  awayMs: 'kk:away',
   notesHidden: 'kk:notes',
   notesKnown: 'kk:notes-known',
   livePaused: 'kk:paused',
