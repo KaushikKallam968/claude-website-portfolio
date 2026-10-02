@@ -1,7 +1,8 @@
 /**
  * What a Time Shift and the Field must agree on: the curve a flight is flown on, the stretch of a band's passage it
  * is flown over, the hours its clock has turned, how long a band runs, and the hours between two places' clocks. The
- * page measures them at build time, the browser while it scrolls.
+ * page measures them at build time (a band's length, at one fixed instant), the browser while it scrolls (the clocks,
+ * live).
  */
 
 /** A domestic band's curve (cubic in-out), so its clock and its traveller keep time together. */
@@ -34,6 +35,16 @@ export const bandFlight = (passage: number) => Math.min(1, Math.max(0, (passage 
 
 /** A domestic band's runway in vh: a base for the clocks and the map, and a tenth of a screen for each hour flown. */
 export const bandRun = (hours: number) => 48 + 10 * Math.abs(hours);
+
+/**
+ * The instant a band is sized at: mid-January, when every zone that keeps daylight saving is on standard time. A
+ * band's length is pacing, so it must not move with the day the site is built; its clock and its hour count are
+ * live, and stay exact all year.
+ */
+export const BAND_REFERENCE = new Date('2026-01-15T12:00:00Z');
+
+/** A domestic band's runway between two zones, sized at the reference instant. */
+export const bandRunBetween = (fromTz: string, toTz: string) => bandRun(offsetHours(fromTz, toTz, BAND_REFERENCE));
 
 /** Wall-clock hour, minute and calendar date in a time zone. */
 export function wallClock(tz: string, at: Date) {

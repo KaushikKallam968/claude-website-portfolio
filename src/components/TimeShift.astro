@@ -6,11 +6,11 @@
  *
  * Scenes are sized by the hours flown, not the kilometres, and the climax gets the scroll. An ocean crossing is a
  * full pinned scene (240vh of runway, 200vh on a phone); a domestic hop is a shorter window onto the map that
- * scrolls with the page: 48vh, and 10vh more for each hour between its two clocks.
+ * scrolls with the page: 48vh, and 10vh more for each hour between its two clocks in standard time.
  */
 import { shortPlace, type Chapter } from '../data/journey';
 import { distanceKm } from '../lib/geo';
-import { bandRun, offsetHours } from '../lib/shift';
+import { bandRunBetween } from '../lib/shift';
 import Arrow from './Arrow.astro';
 
 interface Props {
@@ -22,8 +22,9 @@ const short = shortPlace;
 const reel = Array.from({ length: 30 }, (_, i) => i % 10);
 const km = distanceKm([from.place.lon, from.place.lat], [to.place.lon, to.place.lat]);
 const far = km > 6000;
-// Offset between the two zones as it stands when the site is built; the page's clocks count it live (see timeshift.ts).
-const run = bandRun(offsetHours(from.place.timeZone, to.place.timeZone, new Date()));
+// A band's length is pacing: the offset between its two zones in standard time, so the build never depends on the day
+// it runs. The page's clocks count the offset live, whatever it is that day (see timeshift.ts).
+const run = bandRunBetween(from.place.timeZone, to.place.timeZone);
 ---
 
 <div

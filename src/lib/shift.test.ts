@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { chapters } from '../data/journey';
-import { bandFlight, bandRun, hoursTurned, inOut, offsetHours, sineInOut, travelled } from './shift';
+import { BAND_REFERENCE, bandFlight, bandRun, bandRunBetween, hoursTurned, inOut, offsetHours, sineInOut, travelled } from './shift';
 
 const summer = new Date('2026-07-01T12:00:00Z');
 const winter = new Date('2026-01-15T12:00:00Z');
@@ -87,6 +87,93 @@ describe('the hours a clock has turned', () => {
       const gaps = at.slice(1).map((p, i) => p - at[i]);
       const mean = (at[hours - 1] - at[0]) / (hours - 1);
       expect(Math.min(...gaps)).toBeGreaterThan(0.6 * mean);
+    }
+  });
+});
+
+// US daylight saving ended on Sunday, November 1, 2026: 2:00 local, so at 06:00Z in New York, 07:00Z in Dallas and
+// 09:00Z in Los Angeles. Singapore keeps no daylight saving.
+const NY = 'America/New_York';
+const DALLAS = 'America/Chicago';
+const LA = 'America/Los_Angeles';
+const SG = 'Asia/Singapore';
+const daylight = new Date('2026-10-31T12:00:00Z');
+const standard = new Date('2026-11-02T12:00:00Z');
+
+describe('the hours between two places across the clocks going back', () => {
+  it('puts Singapore an hour further ahead of every US zone', () => {
+    expect(offsetHours(NY, SG, daylight)).toBe(12);
+    expect(offsetHours(NY, SG, standard)).toBe(13);
+    expect(offsetHours(DALLAS, SG, daylight)).toBe(13);
+    expect(offsetHours(DALLAS, SG, standard)).toBe(14);
+  });
+
+  it('keeps New York and Dallas an hour apart, as both change together', () => {
+    expect(offsetHours(NY, DALLAS, daylight)).toBe(-1);
+    expect(offsetHours(NY, DALLAS, standard)).toBe(-1);
+    expect(offsetHours(DALLAS, NY, daylight)).toBe(1);
+    expect(offsetHours(DALLAS, NY, standard)).toBe(1);
+  });
+
+  it('changes only the Pacific crossing, in every adjacent pair of Chapters the Journey flies', () => {
+    const hours = (at: Date) => chapters.slice(1).map((to, i) => offsetHours(chapters[i].place.timeZone, to.place.timeZone, at));
+    expect(hours(daylight)).toEqual([-1, -2, 3, -1, 13]);
+    expect(hours(standard)).toEqual([-1, -2, 3, -1, 14]);
+  });
+
+  it('lets the zones differ for the hours between their changes, as the live clock must show', () => {
+    // 06:30Z: New York has gone back (01:30 EST) and Dallas has not (01:30 CDT), so they keep the same time.
+    expect(offsetHours(NY, DALLAS, new Date('2026-11-01T06:30:00Z'))).toBe(0);
+    expect(offsetHours(NY, DALLAS, new Date('2026-11-01T07:30:00Z'))).toBe(-1);
+    // 07:30Z: Dallas is on CST (01:30) and Los Angeles still on PDT (00:30).
+    expect(offsetHours(DALLAS, LA, new Date('2026-11-01T07:30:00Z'))).toBe(-1);
+    expect(offsetHours(DALLAS, LA, new Date('2026-11-01T09:30:00Z'))).toBe(-2);
+    // 08:30Z: Los Angeles is 01:30 PDT and New York 03:30 EST.
+    expect(offsetHours(LA, NY, new Date('2026-11-01T08:30:00Z'))).toBe(2);
+    expect(offsetHours(LA, NY, new Date('2026-11-01T09:30:00Z'))).toBe(3);
+  });
+});
+
+describe('the length of a band', () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('is sized at standard time, in January', () => {
+    expect(BAND_REFERENCE.toISOString()).toBe('2026-01-15T12:00:00.000Z');
+    expect(offsetHours(NY, SG, BAND_REFERENCE)).toBe(13);
+    expect(offsetHours(DALLAS, SG, BAND_REFERENCE)).toBe(14);
+  });
+
+  it('is 48vh and 10vh an hour of that offset, for each band of the Journey', () => {
+    const runs = chapters.slice(1).map((to, i) => bandRunBetween(chapters[i].place.timeZone, to.place.timeZone));
+    // Hours -1, -2, 3, -1 and 14 (the Pacific crossing, which is a pinned scene and uses no runway).
+    expect(runs).toEqual([58, 68, 78, 58, 188]);
+  });
+
+  it('does not depend on the day the site is built', () => {
+    for (const day of ['2026-01-15T12:00:00Z', '2026-07-01T12:00:00Z', '2026-10-31T12:00:00Z', '2026-11-02T12:00:00Z']) {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date(day));
+      expect(bandRunBetween(DALLAS, SG)).toBe(188);
+      expect(bandRunBetween(LA, NY)).toBe(78);
+    }
+  });
+});
+
+describe('the hours a clock has turned, whatever the band was sized for', () => {
+  // A band is sized at standard time; the live count may be an hour more or fewer. Whatever it is, the count only
+  // goes up, never passes the live hours, and has them all by the frame the traveller lands.
+  it('never passes the live hours, only goes up, and lands on them', () => {
+    for (const hours of [0, 1, 2, 3, 12, 13, 14]) {
+      for (const start of [0, 0.05, 0.3, 0.9]) {
+        let last = 0;
+        for (let i = 0; i <= 1000; i++) {
+          const n = hoursTurned(i / 1000, start, hours);
+          expect(n).toBeLessThanOrEqual(hours);
+          expect(n).toBeGreaterThanOrEqual(last);
+          last = n;
+        }
+        expect(last).toBe(hours);
+      }
     }
   });
 });
