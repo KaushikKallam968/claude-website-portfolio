@@ -48,6 +48,8 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
 
     if (reduced) {
       place(state.to);
+      // Still, but never stale: a page left open crosses Singapore midnight and the clocks changing like any other.
+      document.addEventListener('clock:minute', () => place(paint().to));
       return;
     }
 
