@@ -48,6 +48,8 @@ const plants: Record<string, { about?: string[]; bad: string[]; good: string[] }
       'Humor was significant (p < .05).',
       'The result held at p = 0.01.',
       'The coefficient of humor was negative.',
+      'The coefficient for humor was 0.4.',
+      'The coefficient for close-ups = 0.3.',
       'The model had an R² of 0.3.',
       'Its estimate was 0.42.',
       'Humor had a beta of \u22120.4.',
@@ -60,12 +62,22 @@ const plants: Record<string, { about?: string[]; bad: string[]; good: string[] }
       'I modeled each of the eight scores in R, then compared them.',
       'I found the attributes that were most strongly associated with the scores and statistically significant.',
       'Attributes few ads use leave less to go on.',
+      'We do not publish a coefficient for each attribute.',
     ],
   },
   'inspire-no-decimals': {
     about: INSPIRE,
-    bad: ['A close-up added 4.2 points to the Overall ACE Score.', 'Humor moved Likeability by \u22120.4.', 'Each attribute’s estimate was .31.', 'Watchability scored 8.5.'],
-    good: ['I coded all 548 ads on all 21 attributes.', 'Thirty-second ads were associated with higher scores than fifteen-second ones.', 'The place is at 33.749, -84.388.', 'Version 2.12.2 is paused.', "[0.76, 'Each score is modeled against the codes."],
+    bad: [
+      'A close-up added 4.2 points to the Overall ACE Score.',
+      'Humor moved Likeability by \u22120.4.',
+      'Each attribute’s estimate was .31.',
+      'Watchability scored 8.5.',
+      'The coefficient for humor was 0.4.',
+      'Close-up ads scored 4.2 points higher.',
+      'The effect of humor was 1.5.',
+    ],
+    good: [
+      'Close-up ads scored higher than ads without one.','I coded all 548 ads on all 21 attributes.', 'Thirty-second ads were associated with higher scores than fifteen-second ones.', 'The place is at 33.749, -84.388.', 'Version 2.12.2 is paused.', "[0.76, 'Each score is modeled against the codes."],
   },
   'inspire-no-brand-list': {
     about: INSPIRE,
@@ -140,8 +152,23 @@ const plants: Record<string, { about?: string[]; bad: string[]; good: string[] }
   },
   'ai-evaluation-not-the-designer': {
     about: ['ai-evaluation'],
-    bad: ['I designed the agentic test experience.', 'I’m designing the agentic experience used to test it.', 'We built the agents that run the test.', 'Kaushik designs the agentic experience.'],
+    bad: [
+      'I designed the agentic test experience.',
+      'I’m designing the agentic experience used to test it.',
+      'We built the agents that run the test.',
+      'Kaushik designs the agentic experience.',
+      // A Role highlight has no subject by house format, so the verb opens the sentence or follows a semicolon or a colon.
+      'designed the agentic test experience.',
+      'Built the agents that run the test.',
+      'Assessed interaction-data coverage; designed the agentic test experience.',
+      'Assessed interaction-data coverage; and built the agentic test experience.',
+      'Role: creating the agentic experience used to test it.',
+      "          'Designed the agentic test experience with my manager.',",
+    ],
     good: [
+      'The agentic test experience is designed by another team.',
+      'Assessed interaction-data coverage; created a cross-product HTML dashboard.',
+      "          'Developing an evaluation approach for bounded multi-agent workflows with my manager (concept development).',",
       'I don’t design the agentic experience used to test it.',
       'With my manager, I’m developing an evaluation approach to help identify whether a breakdown comes from the user or the agent.',
       'Developing the approach with my manager.',
@@ -149,7 +176,14 @@ const plants: Record<string, { about?: string[]; bad: string[]; good: string[] }
   },
   'ai-evaluation-no-agent-feelings': {
     about: ['ai-evaluation'],
-    bad: ['The agent feels frustrated when it loops.', 'Agents get frustrated.', 'The agent experiences frustration.', 'Agents feel emotion.'],
+    bad: [
+      'The agent feels frustrated when it loops.',
+      'Agents get frustrated.',
+      'The agent experiences frustration.',
+      'Agents feel emotion.',
+      'Agents can feel frustration.',
+      'An agent may feel frustrated.',
+    ],
     good: [
       'One challenge is defining what a human concept such as frustration means when applied to agent behavior.',
       'Agent-side indicators are an operational construct.',
@@ -303,6 +337,7 @@ describe('the Rules that deny a result, a launch or a feeling', () => {
   it('lets the AI evaluation sentence deny a feeling, and no more than the words it names', () => {
     const id = 'ai-evaluation-no-agent-feelings';
     expect(found(id, 'ai-evaluation', 'Turning it into something observable in an agent doesn’t assume the agent feels anything, but agents get frustrated.')).toBe(1);
+    expect(found(id, 'ai-evaluation', 'Turning it into something observable in an agent doesn’t assume the agent feels anything, but agents can feel frustration.')).toBe(1);
   });
 });
 
@@ -314,6 +349,12 @@ describe('the decimals Rule', () => {
     expect(found("[0.28, 'Each attribute is a yes or no, defined before any ad was watched.'],")).toBe(0);
     expect(found("[0.28, 'Each attribute adds 0.4 to the score.'],")).toBe(1);
     expect(found("Each attribute is a yes or no, defined before any ad was watched, at 0.28.")).toBe(1);
+  });
+
+  it('reads a decimal beside a coefficient, an effect or a score that was given, as it does beside an estimate', () => {
+    expect(found('The coefficient for humor was 0.4.')).toBe(1);
+    expect(found('The effect of humor was 0.4.')).toBe(1);
+    expect(found('Close-up ads scored 4.2 points higher.')).toBe(1);
   });
 });
 
@@ -527,6 +568,15 @@ describe('reading the real text', () => {
     expect(broken(SCENE, 'Homework help: answers had to arrive inside Discord.', 'Homework help: the bot launched inside Discord.')).toEqual([expect.stringMatching(/^discord-no-launch-or-learning-gains src\/components\/FigureScene\.astro:\d+$/)]);
     expect(broken(SCENE, 'The button records nothing at all.', 'Teams adopted the button.')).toEqual([expect.stringMatching(/^instrumentation-no-adoption-or-rollout src\/components\/FigureScene\.astro:\d+$/)]);
     expect(broken(SCENE, 'each tested with 12 STEM students.', 'each tested with 20 STEM students, 60 in all.')).toEqual([expect.stringMatching(/^discord-no-sixty src\/components\/FigureScene\.astro:\d+$/)]);
+  });
+
+  it('fails a Role highlight that says it designed the agentic test experience, though a highlight has no subject', () => {
+    const whole = files.find((f) => f.file === JOURNEY)!.text;
+    const from = 'Developing an evaluation approach for bounded multi-agent workflows with my manager (concept development).';
+    expect(whole, `${JOURNEY} holds "${from}"`).toContain(from);
+    expect(checkAll(rules, chapterSources(whole.replace(from, 'Designed the agentic test experience.'))).map((v) => `${v.rule} ${v.file}:${v.line}`)).toEqual([
+      expect.stringMatching(/^ai-evaluation-not-the-designer src\/data\/journey\.ts:\d+$/),
+    ]);
   });
 
   it('skips images, and anything else with a NUL byte', () => {
