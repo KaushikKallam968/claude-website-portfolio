@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { chapters } from '../data/journey';
-import { BAND_REFERENCE, bandFlight, bandRun, bandRunBetween, hoursTurned, inOut, offsetHours, sineInOut, travelled } from './shift';
+import { BAND_REFERENCE, bandFlight, bandRun, bandRunBetween, clockAfter, dayShift, dayTag, hoursTurned, inOut, offsetHours, sineInOut, travelled, wallClock } from './shift';
 
 const summer = new Date('2026-07-01T12:00:00Z');
 const winter = new Date('2026-01-15T12:00:00Z');
@@ -156,6 +156,104 @@ describe('the length of a band', () => {
       expect(bandRunBetween(DALLAS, SG)).toBe(188);
       expect(bandRunBetween(LA, NY)).toBe(78);
     }
+  });
+});
+
+describe('the day tag', () => {
+  it('reads +1 day, -1 day or nothing', () => {
+    expect(dayTag(1)).toBe('+1 day');
+    expect(dayTag(-1)).toBe('−1 day');
+    expect(dayTag(0)).toBe('');
+  });
+
+  // The tag for two places at an instant, from their wall clocks: the way the page shows it without scrolling.
+  const tagAt = (from: string, to: string, at: string) => {
+    const when = new Date(at);
+    return dayTag(dayShift(wallClock(from, when), wallClock(to, when), offsetHours(from, to, when)));
+  };
+
+  // The tag once every hour has turned, the way the scrolling clock shows it as the traveller lands.
+  const landedTag = (from: string, to: string, at: string) => {
+    const when = new Date(at);
+    const off = offsetHours(from, to, when);
+    return dayTag(clockAfter(wallClock(from, when).h, off, Math.abs(off)).days);
+  };
+
+  it('appears at Singapore midnight, when Singapore’s date moves ahead of Dallas’s', () => {
+    // 16:00Z is 00:00 on Nov 1 in Singapore and 11:00 on Oct 31 in Dallas.
+    expect(tagAt(DALLAS, SG, '2026-10-31T15:59:00Z')).toBe('');
+    expect(tagAt(DALLAS, SG, '2026-10-31T16:00:00Z')).toBe('+1 day');
+    // The same two moments from Singapore’s side: Dallas is a day behind.
+    expect(tagAt(SG, DALLAS, '2026-10-31T15:59:00Z')).toBe('');
+    expect(tagAt(SG, DALLAS, '2026-10-31T16:00:00Z')).toBe('−1 day');
+  });
+
+  it('goes at Dallas midnight, an hour later in the day after the clocks go back', () => {
+    // Before: Dallas is on CDT, midnight on Nov 1 is 05:00Z, and Singapore is 13 hours ahead.
+    expect(tagAt(DALLAS, SG, '2026-11-01T04:59:00Z')).toBe('+1 day');
+    expect(tagAt(DALLAS, SG, '2026-11-01T05:00:00Z')).toBe('');
+    // Singapore midnight on Nov 2 is 16:00Z, 10:00 on Nov 1 in Dallas.
+    expect(tagAt(DALLAS, SG, '2026-11-01T15:59:00Z')).toBe('');
+    expect(tagAt(DALLAS, SG, '2026-11-01T16:00:00Z')).toBe('+1 day');
+    // After: Dallas is on CST, midnight on Nov 2 is 06:00Z, and Singapore is 14 hours ahead.
+    expect(tagAt(DALLAS, SG, '2026-11-02T05:59:00Z')).toBe('+1 day');
+    expect(tagAt(DALLAS, SG, '2026-11-02T06:00:00Z')).toBe('');
+  });
+
+  it('goes at New York midnight, 04:00Z on Nov 1 and 05:00Z on Nov 2', () => {
+    expect(tagAt(NY, SG, '2026-11-01T03:59:00Z')).toBe('+1 day');
+    expect(tagAt(NY, SG, '2026-11-01T04:00:00Z')).toBe('');
+    expect(tagAt(NY, SG, '2026-11-02T04:59:00Z')).toBe('+1 day');
+    expect(tagAt(NY, SG, '2026-11-02T05:00:00Z')).toBe('');
+  });
+
+  it('shows +1 day for exactly the hours Singapore’s date is ahead of Dallas’s', () => {
+    // Singapore’s date is ahead from its midnight (16:00Z) until Dallas’s (05:00Z on CDT, 06:00Z on CST).
+    const ahead = [
+      ['2026-10-30T16:00:00Z', '2026-10-31T05:00:00Z'],
+      ['2026-10-31T16:00:00Z', '2026-11-01T05:00:00Z'],
+      ['2026-11-01T16:00:00Z', '2026-11-02T06:00:00Z'],
+      ['2026-11-02T16:00:00Z', '2026-11-03T06:00:00Z'],
+    ].map(([from, to]) => [Date.parse(from), Date.parse(to)]);
+    const start = Date.parse('2026-10-31T00:00:00Z');
+    for (let hour = 0; hour < 72; hour++) {
+      const at = start + hour * 3600000;
+      const expected = ahead.some(([from, to]) => at >= from && at < to) ? '+1 day' : '';
+      const iso = new Date(at).toISOString();
+      expect(tagAt(DALLAS, SG, iso), iso).toBe(expected);
+      expect(landedTag(DALLAS, SG, iso), iso).toBe(expected);
+    }
+  });
+
+  it('is the same on the scrolling clock once the hours have turned', () => {
+    expect(landedTag(DALLAS, SG, '2026-10-31T16:00:00Z')).toBe('+1 day');
+    expect(landedTag(DALLAS, SG, '2026-11-01T05:00:00Z')).toBe('');
+    expect(landedTag(DALLAS, SG, '2026-11-02T05:59:00Z')).toBe('+1 day');
+    expect(landedTag(SG, DALLAS, '2026-11-02T05:59:00Z')).toBe('−1 day');
+    expect(landedTag(SG, DALLAS, '2026-11-02T06:00:00Z')).toBe('');
+  });
+});
+
+describe('the clock as its hours turn', () => {
+  it('counts forward from the near place’s hour, wrapping past midnight', () => {
+    // Dallas at 11:00 CDT is Singapore at 00:00 the next day, 13 hours on.
+    expect(clockAfter(11, 13, 0)).toEqual({ hour: 11, days: 0 });
+    expect(clockAfter(11, 13, 12)).toEqual({ hour: 23, days: 0 });
+    expect(clockAfter(11, 13, 13)).toEqual({ hour: 0, days: 1 });
+    // Dallas at 23:00 CST is Singapore at 13:00 the next day, 14 hours on.
+    expect(clockAfter(23, 14, 1)).toEqual({ hour: 0, days: 1 });
+    expect(clockAfter(23, 14, 14)).toEqual({ hour: 13, days: 1 });
+    expect(clockAfter(7, 13, 13)).toEqual({ hour: 20, days: 0 });
+  });
+
+  it('counts back when the other place is behind', () => {
+    expect(clockAfter(0, -13, 1)).toEqual({ hour: 23, days: -1 });
+    expect(clockAfter(0, -13, 13)).toEqual({ hour: 11, days: -1 });
+    expect(clockAfter(14, -1, 1)).toEqual({ hour: 13, days: 0 });
+  });
+
+  it('stands still when the two places keep the same time', () => {
+    expect(clockAfter(5, 0, 0)).toEqual({ hour: 5, days: 0 });
   });
 });
 

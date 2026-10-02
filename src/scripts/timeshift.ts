@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { bandFlight, hoursTurned, offsetHours, travelled, wallClock } from '../lib/shift';
+import { bandFlight, clockAfter, dayShift, dayTag, hoursTurned, offsetHours, travelled, wallClock } from '../lib/shift';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,7 +22,6 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
     const text = el.querySelector<HTMLElement>('[data-shift-text]')!;
     const day = el.querySelector<HTMLElement>('[data-shift-day]')!;
     const line = el.querySelector<HTMLElement>('[data-shift-progress]');
-    let dayText = '';
 
     const paint = () => {
       const now = new Date();
@@ -33,10 +32,9 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
         off === 0
           ? `${to} keeps the same time as ${from}.`
           : `${to} is ${hoursPhrase(Math.abs(off))} ${off > 0 ? 'ahead of' : 'behind'} ${from}.`;
-      const sameDate = a.y === b.y && a.mo === b.mo && a.d === b.d;
-      dayText = sameDate ? '' : off > 0 ? '+1 day' : '−1 day';
-      day.textContent = dayText;
-      if (!sameDate) text.textContent += off > 0 ? ' It’s already tomorrow there.' : ' It’s still yesterday there.';
+      const days = dayShift(a, b, off);
+      day.textContent = dayTag(days);
+      if (days) text.textContent += days > 0 ? ' It’s already tomorrow there.' : ' It’s still yesterday there.';
       const digits = (t: { h: number; m: number }) => [Math.floor(t.h / 10), t.h % 10, Math.floor(t.m / 10), t.m % 10];
       return { from: digits(a), to: digits(b), off };
     };
@@ -73,14 +71,11 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
       // whole digit, never half-way, whenever scrolling stops.
       let shown = -1;
       const at = [0, 0];
-      const mod24 = (n: number) => ((n % 24) + 24) % 24;
       const showHour = (count: number, animate: boolean) => {
         if (count === shown && animate) return;
         const step = shown < 0 ? 0 : Math.sign(count - shown) * (state.off >= 0 ? 1 : -1);
         shown = count;
-        const from = hourOf(state.from);
-        const total = from + (state.off >= 0 ? 1 : -1) * count;
-        const h = mod24(total);
+        const { hour: h, days } = clockAfter(hourOf(state.from), state.off, count);
         const digits = [Math.floor(h / 10), h % 10];
         digits.forEach((d, i) => {
           const rest = d + DIGITS_PER_TURN;
@@ -102,9 +97,8 @@ export function startTimeShifts(reduced: boolean, paused: () => boolean) {
             },
           });
         });
-        const dayShift = Math.floor(total / 24);
-        day.textContent = dayShift > 0 ? '+1 day' : dayShift < 0 ? '−1 day' : '';
-        day.style.opacity = dayShift !== 0 ? '1' : '0';
+        day.textContent = dayTag(days);
+        day.style.opacity = days !== 0 ? '1' : '0';
       };
       // The traveller's progress at a point of the scene, the Field's own mapping: a band is flown over the middle
       // half of its passage, the ocean crossing over its whole pin, each on its own curve (see shift.ts).

@@ -1,8 +1,8 @@
 /**
  * What a Time Shift and the Field must agree on: the curve a flight is flown on, the stretch of a band's passage it
- * is flown over, the hours its clock has turned, how long a band runs, and the hours between two places' clocks. The
- * page measures them at build time (a band's length, at one fixed instant), the browser while it scrolls (the clocks,
- * live).
+ * is flown over, the hours its clock has turned, how long a band runs, the hours between two places' clocks and the
+ * day tag beside them. The page measures them at build time (a band's length, at one fixed instant), the browser
+ * while it scrolls (the clocks, live).
  */
 
 /** A domestic band's curve (cubic in-out), so its clock and its traveller keep time together. */
@@ -63,3 +63,23 @@ function utcOffsetMinutes(tz: string, at: Date) {
 export function offsetHours(fromTz: string, toTz: string, at: Date) {
   return Math.round((utcOffsetMinutes(toTz, at) - utcOffsetMinutes(fromTz, at)) / 60);
 }
+
+type CalendarDate = Pick<ReturnType<typeof wallClock>, 'y' | 'mo' | 'd'>;
+
+/** Whether it is already tomorrow at `to` (1), still yesterday there (-1), or the same date as at `from` (0). */
+export function dayShift(from: CalendarDate, to: CalendarDate, off: number) {
+  const sameDate = from.y === to.y && from.mo === to.mo && from.d === to.d;
+  return sameDate ? 0 : off > 0 ? 1 : -1;
+}
+
+/**
+ * The hour on the dial, and the days past midnight it has crossed, once `count` hours have turned from `fromHour`
+ * toward a place `off` hours away: forward when it is ahead, back when it is behind.
+ */
+export function clockAfter(fromHour: number, off: number, count: number) {
+  const total = fromHour + (off >= 0 ? 1 : -1) * count;
+  return { hour: ((total % 24) + 24) % 24, days: Math.floor(total / 24) };
+}
+
+/** The tag beside a clock for the days it has crossed: "+1 day" once it is tomorrow there, "−1 day" while it is yesterday. */
+export const dayTag = (days: number) => (days > 0 ? '+1 day' : days < 0 ? '−1 day' : '');
