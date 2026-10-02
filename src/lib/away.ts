@@ -6,7 +6,9 @@
 
 /**
  * A gap this short between one page hiding and the next showing is a link followed, not the reader leaving: a page
- * hides as it hands over to the next, which starts within a moment. Only a longer gap is an absence.
+ * hides as it hands over to the next, which starts within a moment. Only a longer gap is an absence. A page load is
+ * measured to where its navigation started, which comes before the old page hides, so a link followed gives a gap
+ * below 0. The grace matters for a back-forward restore or a tab shown, where the return comes just after the hide.
  */
 export const NAVIGATION_GAP_MS = 2000;
 
@@ -54,7 +56,7 @@ export function createVisibleClock(startedAt: number, store: AwayStore, now: () 
      * visit loading. Returns how long it was gone, or 0 for a hand-over between pages or when it had not gone.
      * It reads the store first, because the pages visited meanwhile may have set time aside that this one has not seen.
      * A page that is loading says when its navigation started: the network after that is the page arriving, not the
-     * reader being away, so a slow load is not an absence.
+     * reader being away, so a slow load is not an absence. It is wall-clock time, like the moment the last page hid.
      */
     back(returnedAt: number = now()): number {
       const saved = store.read(known);

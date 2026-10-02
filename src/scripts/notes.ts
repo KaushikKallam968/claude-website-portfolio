@@ -33,8 +33,11 @@ const clock = createVisibleClock(sessionStart, {
 /**
  * How long the reader was gone before this page loaded (0 for a link followed). Taken first, so nothing is read off the
  * clock before it is set aside. It runs to where this navigation started, not to now, so a slow load is not an absence.
+ * That moment is worked out from Date.now(), because the moment the last page hid was stored from it. performance.timeOrigin
+ * is not on that clock: it is a monotonic time offset once per browser process, so it drifts from Date.now() by any sleep
+ * or clock change since the process began.
  */
-const awayBeforeLoad = clock.back(Math.round(performance.timeOrigin));
+const awayBeforeLoad = clock.back(Math.round(Date.now() - performance.now()));
 
 /** Milliseconds this visit has been in sight, on the notes' clock. */
 export const elapsed = clock.elapsed;

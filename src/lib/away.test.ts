@@ -222,6 +222,17 @@ describe('the notes’ clock across pages', () => {
     expect(next.elapsed()).toBe(28_300);
   });
 
+  it('reads a navigation that started before the old page hid as a link followed, with nothing set aside', () => {
+    const store = sessionLike();
+    let at = 10_300;
+    createVisibleClock(0, store, () => at).hide();
+    // A browser starts the next page's navigation before the old page's pagehide, so the gap runs backwards: 10000 less 10300.
+    at = 10_900;
+    const next = createVisibleClock(0, store, () => at);
+    expect(next.back(10_000)).toBe(0);
+    expect(next.elapsed()).toBe(10_900);
+  });
+
   it('measures a page load up to where its navigation started, not to when its script ran', () => {
     const store = sessionLike();
     let at = 10_000;
@@ -290,21 +301,24 @@ describe('the notes written for an absence', () => {
   });
 
   it('writes no note for a slow page load, and one note for an absence before a page load', () => {
-    const store = sessionLike();
-    const obs = createObservation();
-    let at = 10_000;
-    createVisibleClock(0, store, () => at).hide();
-    // Six seconds to load is the network, not the reader leaving.
-    at = 17_000;
-    const slow = createVisibleClock(0, store, () => at);
+    // The page hid at 10 s. Each arm is a different next page.
+    const hidden = () => {
+      const store = sessionLike();
+      createVisibleClock(0, store, () => 10_000).hide();
+      return store;
+    };
+    // Navigation started at 11 s and the script ran at 17 s: six seconds of network is the page arriving, not the reader leaving.
+    let at = 17_000;
+    const slow = createVisibleClock(0, hidden(), () => at);
     const slowGone = slow.back(11_000);
-    expect(obs.record({ type: 'away', t: slow.elapsed(), ms: slowGone })).toBeNull();
-    slow.hide();
-    // A minute gone, then a navigation that starts at 80 s and runs at 82 s.
-    at = 82_000;
-    const late = createVisibleClock(0, store, () => at);
-    const lateGone = late.back(80_000);
-    expect(obs.record({ type: 'away', t: late.elapsed(), ms: lateGone })?.shows).toBe('You left this tab for 1 minute.');
+    expect(slowGone).toBe(0);
+    expect(createObservation().record({ type: 'away', t: slow.elapsed(), ms: slowGone })).toBeNull();
+    // Navigation started at 70 s and the script ran a second later: a minute gone.
+    at = 71_000;
+    const late = createVisibleClock(0, hidden(), () => at);
+    const lateGone = late.back(70_000);
+    expect(lateGone).toBe(60_000);
+    expect(createObservation().record({ type: 'away', t: late.elapsed(), ms: lateGone })?.shows).toBe('You left this tab for 1 minute.');
   });
 
   it('writes no note for an absence under the floor, though the time is still set aside', () => {
